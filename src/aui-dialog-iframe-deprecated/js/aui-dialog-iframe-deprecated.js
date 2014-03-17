@@ -325,6 +325,29 @@ var DialogIframePlugin = A.Component.create({
                     width: bodyNode.get(OFFSET_WIDTH)
                 });
             }
+
+            instance._adjustDialogRTL();
+        },
+
+        _adjustDialogRTL: function() {
+            var instance = this;
+
+            var modal = A.one(instance._host.bodyNode).ancestor('.modal');
+
+            var rtl = A.one(modal).ancestor('[dir="rtl"]');
+
+            if (modal && rtl) {
+                var modalWidth = modal.width();
+
+                var winWidth = A.DOM.winWidth();
+
+                var spacing = winWidth - modalWidth;
+
+                var newLeftPos = spacing / 2;
+
+                modal.setStyle('left', newLeftPos + 'px');
+                modal.setStyle('marginLeft', '0');
+            }
         },
 
         _uiSetCloseOnEscape: function() {
