@@ -40,6 +40,24 @@ YUI.add('aui-pagination-tests', function(Y) {
         }
     }));
 
+    suite.add(new Y.Test.Case({
+
+        name: 'Pagination state tests',
+
+        // Tests: AUI-1274
+        'assert that pagination state and pagination UI are in sync': function() {
+            var state = { page: 5 },
+                paginationItems = Y.one('#pagination .pagination-content').all('li'),
+                pageIndex = state.page - 1;
+
+            pagination.setState(state);
+
+            paginationItems.each(function(item, index) {
+                Y.Test.Assert.isTrue((index === pageIndex) === item.hasClass('active'));
+            });
+        }
+    }));
+
     Y.Test.Runner.add(suite);
 
 }, '', {
