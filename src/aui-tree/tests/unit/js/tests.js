@@ -301,18 +301,19 @@ YUI.add('aui-tree-tests', function(Y) {
         },
 
         // Tests: AUI-1141
-        'TreeNodeView created from HTML Markup should display icon-minus when expanded': function() {
+        'TreeNodeView created from HTML Markup should display glyphicon-minus when expanded': function() {
             var test = this;
 
-            var treeViewComponent = Y.one('#createFromHTMLMarkupTest');
+            var treeViewComponent = Y.one('#createFromHTMLMarkupTest'),
+                allHitareas;
 
-            var treeView = new Y.TreeView({
+            new Y.TreeView({
                 boundingBox: treeViewComponent,
                 contentBox: Y.one('#createFromHTMLMarkupTest > ul'),
                 type: 'normal'
             }).render();
 
-            var allHitareas = treeViewComponent.all('.tree-container .tree-hitarea');
+            allHitareas = treeViewComponent.all('.tree-container .tree-hitarea');
 
             setTimeout(function() {
                 test.resume(function() {
@@ -320,8 +321,8 @@ YUI.add('aui-tree-tests', function(Y) {
                         allHitareas,
                         function(hitarea) {
                             Y.Assert.isTrue(
-                                hitarea.hasClass('icon-minus'),
-                                hitarea + ' does not have class icon-minus.');
+                                hitarea.hasClass('glyphicon-minus'),
+                                hitarea + ' does not have class glyphicon-minus.');
                         }
                     );
                 });
@@ -341,7 +342,7 @@ YUI.add('aui-tree-tests', function(Y) {
             test.wait(1000);
         },
 
-        'TreeNodeView created from HTML Markup should display icon-plus when collapsed': function() {
+        'TreeNodeView created from HTML Markup should display glyphicon-plus when collapsed': function() {
             var test = this;
             var treeViewComponent = Y.one('#createFromHTMLMarkupTest');
 
@@ -358,8 +359,8 @@ YUI.add('aui-tree-tests', function(Y) {
             setTimeout(function() {
                 test.resume(function() {
                     for (var i = treeHitareasArray.length; i--;) {
-                        Y.Assert.isTrue(treeHitareasArray[i].hasClass('icon-plus'),
-                            treeHitareasArray[i] + ' does not have class icon-plus');
+                        Y.Assert.isTrue(treeHitareasArray[i].hasClass('glyphicon-plus'),
+                            treeHitareasArray[i] + ' does not have class glyphicon-plus');
                     }
                 });
             }, 800);
@@ -435,23 +436,9 @@ YUI.add('aui-tree-tests', function(Y) {
              * assumming that server returned correct response. Clicking on hit area was proved to work above.
              */
             rootTreeNode.get('children')[0].ioSuccessHandler(null, null, {
-                responseText: '[ \
-                    { \
-                        "label": "subchild-one", \
-                        "leaf": true, \
-                        "type": "node" \
-                    }, \
-                    { \
-                        "label": "subchild-two", \
-                        "leaf": true, \
-                        "type": "node" \
-                    }, \
-                    { \
-                        "label": "subchild-three", \
-                        "leaf": true, \
-                        "type": "node" \
-                    } \
-                ]'
+                responseText: '[{"label": "subchild-one","leaf": true,"type": "node"},' +
+                    '{"label": "subchild-two","leaf": true,"type": "node"},' +
+                    '{"label": "subchild-three","leaf": true, "type": "node"}]'
             });
 
             paginatorLink = rootTreeNodeBB.one('a');

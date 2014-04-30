@@ -78,7 +78,7 @@ A.PropertyList = A.Base.create(A.DataTable.NAME, A.DataTable, [A.WidgetCssClass,
      * @param event
      * @protected
      */
-    _afterUITriggerSort: function(event) {
+    _afterUITriggerSort: function() {
         var instance = this;
 
         instance.highlight.clear();
@@ -129,9 +129,11 @@ A.PropertyList = A.Base.create(A.DataTable.NAME, A.DataTable, [A.WidgetCssClass,
      */
     _onSelectionKey: function(event) {
         var instance = this,
+            target = event.target,
+            targetIsBoundingBox = instance.get('boundingBox').compareTo(target)
             keyCode = event.keyCode;
 
-        if (keyCode === 13) {
+        if (targetIsBoundingBox && keyCode === 13) {
             instance._onEditCell(event);
         }
 
