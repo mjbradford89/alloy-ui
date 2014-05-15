@@ -8,7 +8,7 @@ var Lang = A.Lang,
     isBoolean = Lang.isBoolean,
     isNumber = Lang.isNumber,
 
-    toInt = Lang.toInt,
+    toFloat = Lang.toFloat,
 
     CSS_CROP = A.getClassName('image-cropper', 'crop'),
     CSS_CROP_OUTLINE = A.getClassName('image-cropper', 'crop', 'outline'),
@@ -233,6 +233,8 @@ var ImageCropper = A.Component.create({
 
             instance.on(['drag:start', 'resize:start'], A.debounce(instance._syncRegion, 25));
 
+            instance.after(['drag', 'drag:end', 'resize', 'resize:end'], A.debounce(instance._constrainValues, 10));
+
             instance.after(['drag:drag', 'resize:resize'], instance._fireCropEvent, instance);
 
             instance.after(
@@ -314,9 +316,13 @@ var ImageCropper = A.Component.create({
             var instance = this;
 
             var imageNode = instance.get('srcNode');
+            var cropNode = instance.cropNode;
 
             var cropHeight = instance.get('cropHeight');
             var cropWidth = instance.get('cropWidth');
+
+            var yBorder = cropNode.getBorderWidth('t');
+            var xBorder = cropNode.getBorderWidth('l');
 
             var x = instance.get('x');
             var y = instance.get('y');
@@ -328,7 +334,7 @@ var ImageCropper = A.Component.create({
 
             y = Math.max(y, 0);
 
-            if (y + cropHeight > imageHeight) {
+            if (y + (cropHeight - yBorder) > imageHeight) {
                 y = Math.max(imageHeight - cropHeight, 0);
             }
 
@@ -336,7 +342,7 @@ var ImageCropper = A.Component.create({
 
             // Find valid cropHeight
 
-            if (y + cropHeight > imageHeight) {
+            if (y + (cropHeight - yBorder) > imageHeight) {
                 cropHeight = Math.max(imageHeight - y, 0);
             }
 
@@ -346,7 +352,7 @@ var ImageCropper = A.Component.create({
 
             x = Math.max(x, 0);
 
-            if (x + cropWidth > imageWidth) {
+            if (x + (cropWidth - xBorder) > imageWidth) {
                 x = Math.max(imageWidth - cropWidth, 0);
             }
 
@@ -354,7 +360,7 @@ var ImageCropper = A.Component.create({
 
             // Find valid cropWidth
 
-            if (x + cropWidth > imageWidth) {
+            if (x + (cropWidth - xBorder) > imageWidth) {
                 cropWidth = Math.max(imageWidth - x, 0);
             }
 
@@ -487,10 +493,10 @@ var ImageCropper = A.Component.create({
                 var imageY = imageXY[1];
 
                 region = {
-                    bottom: imageY + imageNode.height() + cropNode.getBorderWidth('b'),
-                    left: imageX - cropNode.getBorderWidth('l'),
-                    right: imageX + imageNode.width() + cropNode.getBorderWidth('r'),
-                    top: imageY - cropNode.getBorderWidth('t')
+                    bottom: imageY + imageNode.height(),
+                    left: imageX,
+                    right: imageX + imageNode.width(),
+                    top: imageY
                 };
 
                 if (!instance._origRegion) {
@@ -633,8 +639,8 @@ var ImageCropper = A.Component.create({
 
             var cropNode = instance.cropNode;
 
-            instance.set('cropHeight', cropNode.height());
-            instance.set('cropWidth', cropNode.width());
+            instance.set('cropHeight', cropNode.get('offsetHeight'));
+            instance.set('cropWidth', cropNode.get('offsetWidth'));
         },
 
         /**
@@ -685,8 +691,8 @@ var ImageCropper = A.Component.create({
 
             var cropNode = instance.cropNode;
 
-            instance.set('x', toInt(cropNode.getStyle('left')) + cropNode.getBorderWidth('l'));
-            instance.set('y', toInt(cropNode.getStyle('top')) + cropNode.getBorderWidth('t'));
+            instance.set('x', toFloat(cropNode.getStyle('left')) + cropNode.getBorderWidth('l'));
+            instance.set('y', toFloat(cropNode.getStyle('top')) + cropNode.getBorderWidth('t'));
         },
 
         /**
