@@ -331,7 +331,7 @@ var ImageCropper = A.Component.create({
 
             y = Math.max(y, 0);
 
-            if (y + cropHeight > imageHeight) {
+            if ((y + cropHeight) > imageHeight) {
                 y = Math.max(imageHeight - cropHeight, 0);
             }
 
@@ -339,7 +339,7 @@ var ImageCropper = A.Component.create({
 
             // Find valid cropHeight
 
-            if (y + cropHeight > imageHeight) {
+            if ((y + cropHeight) > imageHeight) {
                 cropHeight = Math.max(imageHeight - y, 0);
             }
 
@@ -349,7 +349,7 @@ var ImageCropper = A.Component.create({
 
             x = Math.max(x, 0);
 
-            if (x + cropWidth > imageWidth) {
+            if ((x + cropWidth) > imageWidth) {
                 x = Math.max(imageWidth - cropWidth, 0);
             }
 
@@ -357,7 +357,7 @@ var ImageCropper = A.Component.create({
 
             // Find valid cropWidth
 
-            if (x + cropWidth > imageWidth) {
+            if ((x + cropWidth) > imageWidth) {
                 cropWidth = Math.max(imageWidth - x, 0);
             }
 
