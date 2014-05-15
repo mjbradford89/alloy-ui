@@ -321,20 +321,17 @@ var ImageCropper = A.Component.create({
             var cropHeight = instance.get('cropHeight');
             var cropWidth = instance.get('cropWidth');
 
-            var yBorder = cropNode.getBorderWidth('t');
-            var xBorder = cropNode.getBorderWidth('l');
-
             var x = instance.get('x');
             var y = instance.get('y');
 
-            var imageWidth = imageNode.width();
-            var imageHeight = imageNode.height();
+            var imageWidth = imageNode.outerWidth();
+            var imageHeight = imageNode.outerHeight();
 
             // Find valid y
 
             y = Math.max(y, 0);
 
-            if (y + (cropHeight - yBorder) > imageHeight) {
+            if (y + cropHeight > imageHeight) {
                 y = Math.max(imageHeight - cropHeight, 0);
             }
 
@@ -342,7 +339,7 @@ var ImageCropper = A.Component.create({
 
             // Find valid cropHeight
 
-            if (y + (cropHeight - yBorder) > imageHeight) {
+            if (y + cropHeight > imageHeight) {
                 cropHeight = Math.max(imageHeight - y, 0);
             }
 
@@ -352,7 +349,7 @@ var ImageCropper = A.Component.create({
 
             x = Math.max(x, 0);
 
-            if (x + (cropWidth - xBorder) > imageWidth) {
+            if (x + cropWidth > imageWidth) {
                 x = Math.max(imageWidth - cropWidth, 0);
             }
 
@@ -360,7 +357,7 @@ var ImageCropper = A.Component.create({
 
             // Find valid cropWidth
 
-            if (x + (cropWidth - xBorder) > imageWidth) {
+            if (x + cropWidth > imageWidth) {
                 cropWidth = Math.max(imageWidth - x, 0);
             }
 
