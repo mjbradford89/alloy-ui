@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2013, Liferay Inc. All rights reserved.
- * Code licensed under the BSD License:
- * https://github.com/liferay/alloy-ui/blob/master/LICENSE.md
- *
- * @author Zeno Rocha <zeno.rocha@liferay.com>
- * @author Eduardo Lundgren <eduardo.lundgren@liferay.com>
- */
-
 var path = require('path');
 
 // -- Globals ------------------------------------------------------------------
@@ -75,15 +66,6 @@ module.exports = function(grunt) {
             root: '../<%= pkg["version"] %>/'
         },
 
-        compass: {
-            dist: {
-                options: {
-                    sassDir: path.join(ROOT, '<%= pkg.dependencies["alloy-bootstrap"].folder %>', 'lib'),
-                    cssDir: 'build/aui-css/css/'
-                }
-            }
-        },
-
         copy: {
             api: {
                 files: [
@@ -98,26 +80,6 @@ module.exports = function(grunt) {
                         src: '**',
                         dest: 'temp/alloy-ui/src/',
                         expand: true
-                    }
-                ]
-            },
-            css: {
-                files: [
-                    {
-                        src: 'build/aui-css/css/responsive.css',
-                        dest: 'build/aui-css/css/bootstrap-responsive.css'
-                    }
-                ]
-            },
-            img: {
-                files: [
-                    {
-                        src: path.join(ROOT, '<%= pkg.dependencies["alloy-bootstrap"].folder %>', 'img/glyphicons-halflings-white.png'),
-                        dest: 'build/aui-css/img/glyphicons-halflings-white.png'
-                    },
-                    {
-                        src: path.join(ROOT, '<%= pkg.dependencies["alloy-bootstrap"].folder %>', 'img/glyphicons-halflings.png'),
-                        dest: 'build/aui-css/img/glyphicons-halflings.png'
                     }
                 ]
             }
@@ -149,9 +111,6 @@ module.exports = function(grunt) {
             api: [
                 'api', 'temp'
             ],
-            css: [
-                'build/aui-css/css/responsive.css',
-            ],
             zip: [
                 'alloy-<%= pkg["version"] %>.zip',
                 'cdn-alloy-<%= pkg["version"] %>.zip'
@@ -162,13 +121,11 @@ module.exports = function(grunt) {
             name: 'aui-test'
         },
 
-        cssmin: {
-            dist: {
-                files: {
-                    'build/aui-css/css/bootstrap.min.css': ['build/aui-css/css/bootstrap.css'],
-                    'build/aui-css/css/bootstrap-responsive.min.css': ['build/aui-css/css/bootstrap-responsive.css']
-                }
-            }
+        cssbeautifier : {
+            files : [
+                'src/**/*.css',
+                '!src/aui-css/css/*.css'
+            ]
         },
 
         init: {
@@ -178,7 +135,6 @@ module.exports = function(grunt) {
         jsbeautifier: {
             files: [
                 'src/**/*.js',
-                'src/**/*.css',
                 'grunt/*.js',
                 '!src/aui-base/js/aui-aliases.js',
                 '!src/aui-base/js/aui-loader.js',
@@ -219,19 +175,16 @@ module.exports = function(grunt) {
     grunt.loadTasks('tasks');
 
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-compass');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-cssbeautifier');
     grunt.loadNpmTasks('grunt-jsbeautifier');
 
-    grunt.registerTask('all', ['bootstrap', 'build']);
     grunt.registerTask('api', ['copy:api', 'api-include', 'api-build']);
     grunt.registerTask('api-deploy', ['api', 'api-push', 'clean:api']);
-    grunt.registerTask('bootstrap', ['compass', 'copy:css', 'cssmin', 'copy:img', 'clean:css']);
-    grunt.registerTask('format', ['jsbeautifier']);
+    grunt.registerTask('format', ['cssbeautifier', 'jsbeautifier']);
     grunt.registerTask('lint', ['jshint']);
-    grunt.registerTask('release', ['clean:zip', 'all', 'zip:release']);
-    grunt.registerTask('release-cdn', ['clean:zip', 'all', 'cdn', 'zip:cdn', 'build:aui']);
+    grunt.registerTask('release', ['clean:zip', 'build', 'zip:release']);
+    grunt.registerTask('release-cdn', ['clean:zip', 'build', 'cdn', 'zip:cdn', 'build:aui']);
 };

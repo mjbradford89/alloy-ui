@@ -21,8 +21,9 @@ var Lang = A.Lang,
 
     getCN = A.getClassName,
 
-    CSS_STAR = getCN('icon', 'star'),
-    CSS_STAR_EMPTY = getCN('icon', 'star', 'empty'),
+    CSS_ICON = getCN('glyphicon'),
+    CSS_STAR = getCN('glyphicon', 'star'),
+    CSS_STAR_EMPTY = getCN('glyphicon', 'star', 'empty'),
     CSS_RATING_LABEL = getCN('rating', 'label'),
 
     TPL_ELEMENT = '<a class="{cssClasses}" tabindex="{tabindex}"></a>',
@@ -99,10 +100,10 @@ var Rating = A.Component.create({
          */
         cssClasses: {
             value: {
-                element: CSS_STAR_EMPTY,
-                hover: CSS_STAR,
-                off: CSS_STAR_EMPTY,
-                on: CSS_STAR
+                element: [CSS_ICON, CSS_STAR_EMPTY].join(' '),
+                hover: [CSS_ICON, CSS_STAR].join(' '),
+                off: [CSS_ICON, CSS_STAR_EMPTY].join(' '),
+                on: [CSS_ICON, CSS_STAR].join(' ')
             }
         },
 
@@ -402,7 +403,7 @@ var Rating = A.Component.create({
                 instance.get('elements').some(function(node, i) {
                     node.addClass(className || cssClasses.on);
                     node.removeClass(cssClasses.element);
-                    return (i === Math.floor(index));
+                    return (i === Math.round(index));
                 });
             }
         },

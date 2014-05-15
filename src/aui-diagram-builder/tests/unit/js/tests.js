@@ -70,10 +70,10 @@ YUI.add('aui-diagram-builder-tests', function(Y) {
 
             connector.set('selected', true);
 
-            Y.getDoc().simulate("keydown", {
+            Y.getDoc().simulate('keydown', {
                 keyCode: 8
             });
-            Y.getDoc().simulate("keydown", {
+            Y.getDoc().simulate('keydown', {
                 keyCode: 46
             });
 
@@ -89,6 +89,31 @@ YUI.add('aui-diagram-builder-tests', function(Y) {
                     target: fields.item(1)
                 }
             ]);
+        },
+
+        /**
+         * @tests AUI-1158
+         */
+        'assert connector does not jump after scroll and mouseover': function() {
+            var end,
+                start;
+
+            var lines = Y.all('path').get('nodes');
+
+            Y.Array.each(
+                lines,
+                function(item) {
+                    if (item.attr('width')) {
+                        start = item.attr('d');
+
+                        item.simulate('mouseout');
+
+                        end = item.attr('d');
+
+                        Y.Assert.areEqual(start, end);
+                    }
+                }
+            );
         }
     }));
 

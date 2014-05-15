@@ -14,7 +14,6 @@ var Lang = A.Lang,
 
     CSS_ACTIVE = getCN('active'),
     CSS_DISABLED = getCN('disabled'),
-    CSS_HIDE = getCN('hide'),
     CSS_PAGINATION_CONTROL = getCN('pagination', 'control');
 
 /**
@@ -178,7 +177,7 @@ var Pagination = A.Component.create({
      * @type {Array}
      * @static
      */
-    BIND_UI_ATTRS: ['offset', 'showControls', 'total'],
+    BIND_UI_ATTRS: ['offset', 'page', 'showControls', 'total'],
 
     /**
      * Static property used to define the UI attributes.
@@ -190,7 +189,7 @@ var Pagination = A.Component.create({
     UI_ATTRS: ['page'],
 
     prototype: {
-        CONTENT_TEMPLATE: '<ul></ul>',
+        CONTENT_TEMPLATE: '<ul class="pagination"></ul>',
         ITEM_TEMPLATE: '<li class="{cssClass}"><a href="#">{content}</a></li>',
         TOTAL_CONTROLS: 2,
 
@@ -355,9 +354,11 @@ var Pagination = A.Component.create({
          * @param {Object} state
          */
         setState: function(state) {
-            var instance = this;
+            var instance = this,
+                page = state.page;
 
-            instance.set('page', state.page);
+            instance.set('page', page);
+
             instance.lastState = state;
         },
 
@@ -573,7 +574,7 @@ var Pagination = A.Component.create({
          * @param {Number} val
          * @protected
          */
-        _uiSetOffset: function(val) {
+        _uiSetOffset: function() {
             var instance = this;
 
             instance._renderItemsUI(instance.get('total'));
@@ -612,7 +613,7 @@ var Pagination = A.Component.create({
          * @param {Boolean} val
          * @protected
          */
-        _uiSetShowControls: function(val) {
+        _uiSetShowControls: function() {
             var instance = this;
 
             instance._renderItemsUI(instance.get('total'));
