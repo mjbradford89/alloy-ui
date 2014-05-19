@@ -18,7 +18,7 @@ var L = A.Lang,
 
     getCN = A.getClassName,
 
-    CSS_BAR = getCN('bar'),
+    CSS_BAR = getCN('progress', 'bar'),
     CSS_HORIZONTAL = getCN('horizontal'),
     CSS_VERTICAL = getCN('vertical'),
 
@@ -388,7 +388,7 @@ var ProgressBar = A.Component.create({
          * @param {String} val Progress value
          * @protected
          */
-        _uiSetValue: function(val) {
+        _uiSetValue: function() {
             var instance = this;
             var pixelStep = instance._getPixelStep();
 
