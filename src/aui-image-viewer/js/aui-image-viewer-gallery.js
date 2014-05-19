@@ -17,8 +17,9 @@ var L = A.Lang,
 
     getCN = A.getClassName,
 
-    CSS_ICON_PAUSE = getCN('icon', 'pause'),
-    CSS_ICON_PLAY = getCN('icon', 'play'),
+    CSS_ICON = getCN('glyphicon'),
+    CSS_ICON_PAUSE = getCN('glyphicon', 'pause'),
+    CSS_ICON_PLAY = getCN('glyphicon', 'play'),
     CSS_IMAGE_GALLERY_PAGINATION = getCN('image-gallery', 'pagination'),
     CSS_IMAGE_GALLERY_PAGINATION_THUMB = getCN('image-gallery', 'pagination', 'thumb'),
     CSS_IMAGE_GALLERY_PLAYER = getCN('image-gallery', 'player'),
@@ -483,13 +484,13 @@ var ImageGallery = A.Component.create({
                     children: [
                         [
                             {
-                                icon: CSS_ICON_PLAY,
+                                icon: [CSS_ICON, CSS_ICON_PLAY].join(' '),
                                 on: {
                                     click: A.bind(instance.play, instance)
                                 }
                             },
                             {
-                                icon: CSS_ICON_PAUSE,
+                                icon: [CSS_ICON, CSS_ICON_PAUSE].join(' '),
                                 on: {
                                     click: A.bind(instance.pause, instance)
                                 }
@@ -579,7 +580,7 @@ var ImageGallery = A.Component.create({
 
             // check if the lastState page number is different from the newState
             // page number.
-            if (!lastState || (lastState && lastState.page != page)) {
+            if (!lastState || (lastState && lastState.page !== page)) {
                 instance.set('currentIndex', page - 1);
 
                 instance._processChangeRequest();
@@ -640,7 +641,6 @@ var ImageGallery = A.Component.create({
          */
         _thumbnailFormatter: function(pageNumber) {
             var instance = this,
-                paginationInstance = instance.get('paginationInstance'),
                 linksCount = instance.get('links').size(),
                 index = pageNumber - 1;
 
@@ -676,7 +676,7 @@ var ImageGallery = A.Component.create({
          * @protected
          * @return {String} Parsed string.
          */
-        _getInfoTemplate: function(v) {
+        _getInfoTemplate: function() {
             var label;
             var instance = this;
             var paused = instance.get('paused');
