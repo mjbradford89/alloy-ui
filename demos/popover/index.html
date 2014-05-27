@@ -2,12 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title></title>
     <link rel="stylesheet" href="../../build/aui-css/css/bootstrap.css">
     <script src="../../build/aui/aui.js"></script>
     <style>
     .example {
-        margin: 100px;
+        margin-top: 80px;
+    }
+    .btn-primary {
+        margin-top: 20px;
     }
     </style>
 </head>
@@ -37,7 +41,7 @@
 
         var popoverBottom = new Y.Popover({
             align: {
-                node: triggerBottom
+                node: '#triggerBottom'
             },
             bodyContent: 'Another fine body…',
             headerContent: 'Header content',

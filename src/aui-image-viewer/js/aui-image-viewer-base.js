@@ -27,9 +27,11 @@ var L = A.Lang,
 
     CSS_CAROUSEL_CONTROL = getCN('carousel', 'control'),
     CSS_CLOSE = getCN('close'),
-    CSS_HELPER_SCROLL_LOCK = getCN('helper', 'scroll', 'lock'),
-    CSS_HIDE = getCN('hide'),
-    CSS_ICON_TIME = getCN('icon', 'time'),
+    CSS_ICON = getCN('glyphicon'),
+    CSS_ICON_REMOVE = getCN('glyphicon', 'remove'),
+    CSS_ICON_CHEVRON_LEFT = getCN('glyphicon', 'chevron', 'left'),
+    CSS_ICON_CHEVRON_RIGHT = getCN('glyphicon', 'chevron', 'right'),
+    CSS_ICON_TIME = getCN('glyphicon', 'time'),
     CSS_IMAGE_VIEWER_BD = getCN('image-viewer', 'bd'),
     CSS_IMAGE_VIEWER_CAPTION = getCN('image-viewer', 'caption'),
     CSS_IMAGE_VIEWER_CLOSE = getCN('image-viewer', 'close'),
@@ -53,11 +55,12 @@ var L = A.Lang,
     INFO_LABEL_TEMPLATE = 'Image {current} of {total}',
 
     TPL_CAPTION = '<h4 class="' + CSS_IMAGE_VIEWER_CAPTION + '"></h4>',
-    TPL_CLOSE = '<button class="' + concat(CSS_IMAGE_VIEWER_CLOSE, CSS_CLOSE) + '" type="button">?</button>',
+    TPL_CLOSE = '<button class="' + concat(CSS_IMAGE_VIEWER_CLOSE, CSS_CLOSE) + '" type="button">' +
+        '<span class="' + [CSS_ICON, CSS_ICON_REMOVE].join(' ') + '"></span></button>',
     TPL_CONTROL_LEFT = '<a href="#" class="' + concat(CSS_IMAGE_VIEWER_CONTROL, CSS_CAROUSEL_CONTROL, CSS_LEFT) +
-        '">&lsaquo;</a>',
+        '"><span class="' + [CSS_ICON, CSS_ICON_CHEVRON_LEFT].join(' ') + '"></span></a>',
     TPL_CONTROL_RIGHT = '<a href="#" class="' + concat(CSS_IMAGE_VIEWER_CONTROL, CSS_CAROUSEL_CONTROL, CSS_RIGHT) +
-        '">&rsaquo;</a>',
+        '"><span class="' + [CSS_ICON, CSS_ICON_CHEVRON_RIGHT].join(' ') + '"></span></a>',
     TPL_IMAGE = '<img class="' + CSS_IMAGE_VIEWER_IMAGE + '" />',
     TPL_INFO = '<h5 class="' + CSS_IMAGE_VIEWER_INFO + '"></h5>',
     TPL_LOADER = '<div class="' + CSS_IMAGE_VIEWER_LOADER + '"></div>',
@@ -446,10 +449,12 @@ var ImageViewer = A.Base.create(
             var image;
 
             for (var i in preloadImagePool) {
-                image = preloadImagePool[i];
+                if (preloadImagePool.hasOwnProperty(i)) {
+                    image = preloadImagePool[i];
 
-                if (image && image.complete) {
-                    preloadImagePool[i] = null;
+                    if (image && image.complete) {
+                        preloadImagePool[i] = null;
+                    }
                 }
             }
         },
@@ -567,18 +572,12 @@ var ImageViewer = A.Base.create(
          */
         _syncControlsUI: function() {
             var instance = this;
-            var boundingBox = instance.get('boundingBox');
             var controlLeftEl = instance.get('controlLeftEl');
             var controlRightEl = instance.get('controlRightEl');
             var closeEl = instance.get('closeEl');
 
             if (instance.get('visible')) {
                 if (instance.get('showControls')) {
-                    // get the viewportRegion to centralize the controls on the
-                    // middle of the window viewport
-                    var viewportRegion = boundingBox.get('viewportRegion');
-                    var heightRegion = Math.floor(viewportRegion.height / 2) + viewportRegion.top;
-
                     // show or hide controls based on the hasPrev/hasNext
                     // information
                     controlLeftEl[instance.hasPrev() ? 'show' : 'hide']();
@@ -750,7 +749,7 @@ var ImageViewer = A.Base.create(
          * @param {EventFacade} event
          * @protected
          */
-        _afterVisibleChange: function(event) {
+        _afterVisibleChange: function() {
             var instance = this;
 
             instance._syncControlsUI();
@@ -1077,8 +1076,6 @@ var ImageViewer = A.Base.create(
              */
             links: {
                 setter: function(v) {
-                    var instance = this;
-
                     if (isNodeList(v)) {
                         return v;
                     }
@@ -1185,7 +1182,7 @@ var ImageViewer = A.Base.create(
              */
             totalLinks: {
                 readOnly: true,
-                getter: function(v) {
+                getter: function() {
                     return this.get('links').size();
                 }
             },

@@ -21,12 +21,12 @@ var L = A.Lang,
     CSS_FB_FIELD = getCN('form', 'builder', 'field'),
     CSS_FB_FIELD_SELECTED = getCN('form', 'builder', 'field', 'selected'),
     CSS_FB_UNIQUE = getCN('form', 'builder', 'unique'),
-    CSS_ICON = getCN('icon'),
-    CSS_ICON_ASTERISK = getCN('icon', 'asterisk'),
-    CSS_ICON_PLUS = getCN('icon', 'plus'),
-    CSS_ICON_QUESTION_SIGN = getCN('icon', 'question', 'sign'),
-    CSS_ICON_TRASH = getCN('icon', 'trash'),
-    CSS_ICON_WRENCH = getCN('icon', 'wrench'),
+    CSS_ICON = getCN('glyphicon'),
+    CSS_ICON_ASTERISK = getCN('glyphicon', 'asterisk'),
+    CSS_ICON_PLUS = getCN('glyphicon', 'plus'),
+    CSS_ICON_QUESTION_SIGN = getCN('glyphicon', 'question', 'sign'),
+    CSS_ICON_TRASH = getCN('glyphicon', 'trash'),
+    CSS_ICON_WRENCH = getCN('glyphicon', 'wrench'),
     CSS_WIDGET = getCN('widget'),
 
     TPL_ALERT_TIP = '<div class="' + [CSS_ALERT, CSS_ALERT_INFO].join(' ') + '"></div>',
@@ -34,7 +34,9 @@ var L = A.Lang,
     TPL_DROP_ZONE = '<div class="' + CSS_FB_DROP_ZONE + '"></div>',
     TPL_FLAG_REQUIRED = '<span class="' + [CSS_ICON, CSS_ICON_ASTERISK].join(' ') + '"></span>',
     TPL_FLAG_TIP = '<span class="' + [CSS_ICON, CSS_ICON_QUESTION_SIGN].join(' ') + '"></span>',
-    TPL_LABEL = '<label for="{id}">{label}</label>';
+    TPL_LABEL = '<label for="{id}">{label}</label>',
+
+    INVALID_CLONE_ATTRS = ['id', 'name'];
 
 /**
  * A base class for `A.FormBuilderFieldBase`.
@@ -518,8 +520,8 @@ var FormBuilderField = A.Component.create({
     HTML_PARSER: {
         dropZoneNode: '.' + CSS_FB_DROP_ZONE,
         labelNode: 'label',
-        requiredFlagNode: '.' + CSS_ICON_ASTERISK,
-        tipFlagNode: '.' + CSS_ICON_QUESTION_SIGN
+        requiredFlagNode: '.' + CSS_ICON + ' .' + CSS_ICON_ASTERISK,
+        tipFlagNode: '.' + CSS_ICON + ' .' + CSS_ICON_QUESTION_SIGN
     },
 
     prototype: {
@@ -671,6 +673,32 @@ var FormBuilderField = A.Component.create({
         },
 
         /**
+         * Gets all necessary attributes for cloning this field.
+         *
+         * @method getAttributesForCloning
+         * @return {Object}
+         */
+        getAttributesForCloning: function() {
+            // List of all non-property attributes that need to be cloned.
+            var attributes = {
+                hiddenAttributes: this.get('hiddenAttributes'),
+                readOnlyAttributes: this.get('readOnlyAttributes'),
+                localizationMap: this.get('localizationMap')
+            };
+
+            // All field properties should be cloned as well.
+            AArray.each(this.getProperties(), function(property) {
+                var name = property.attributeName;
+
+                if (AArray.indexOf(INVALID_CLONE_ATTRS, name) === -1) {
+                    attributes[name] = property.value;
+                }
+            });
+
+            return attributes;
+        },
+
+        /**
          * Gets properties from the property model.
          *
          * @method getProperties
@@ -727,41 +755,41 @@ var FormBuilderField = A.Component.create({
             return [{
                 attributeName: 'type',
                 editor: false,
-                name: strings['type']
+                name: strings.type
             }, {
                 attributeName: 'label',
                 editor: new A.TextCellEditor(),
-                name: strings['label']
+                name: strings.label
             }, {
                 attributeName: 'showLabel',
                 editor: new A.RadioCellEditor({
                     options: {
-                        'true': strings['yes'],
-                        'false': strings['no']
+                        'true': strings.yes,
+                        'false': strings.no
                     }
                 }),
                 formatter: A.bind(instance._booleanFormatter, instance),
-                name: strings['showLabel']
+                name: strings.showLabel
             }, {
                 attributeName: 'readOnly',
                 editor: new A.RadioCellEditor({
                     options: {
-                        'true': strings['yes'],
-                        'false': strings['no']
+                        'true': strings.yes,
+                        'false': strings.no
                     }
                 }),
                 formatter: A.bind(instance._booleanFormatter, instance),
-                name: strings['readOnly']
+                name: strings.readOnly
             }, {
                 attributeName: 'required',
                 editor: new A.RadioCellEditor({
                     options: {
-                        'true': strings['yes'],
-                        'false': strings['no']
+                        'true': strings.yes,
+                        'false': strings.no
                     }
                 }),
                 formatter: A.bind(instance._booleanFormatter, instance),
-                name: strings['required']
+                name: strings.required
             }, {
                 attributeName: 'name',
                 editor: new A.TextCellEditor({
@@ -773,15 +801,15 @@ var FormBuilderField = A.Component.create({
                         }
                     }
                 }),
-                name: strings['name']
+                name: strings.name
             }, {
                 attributeName: 'predefinedValue',
                 editor: new A.TextCellEditor(),
-                name: strings['predefinedValue']
+                name: strings.predefinedValue
             }, {
                 attributeName: 'tip',
                 editor: new A.TextAreaCellEditor(),
-                name: strings['tip']
+                name: strings.tip
             }];
         },
 
@@ -796,7 +824,7 @@ var FormBuilderField = A.Component.create({
             var instance = this,
                 strings = instance.getStrings();
 
-            return A.DataType.Boolean.parse(o.data.value) ? strings['yes'] : strings['no'];
+            return A.DataType.Boolean.parse(o.data.value) ? strings.yes : strings.no;
         },
 
         /**
@@ -810,7 +838,7 @@ var FormBuilderField = A.Component.create({
                 builder = instance.get('builder'),
                 items = [
                     {
-                        icon: CSS_ICON_WRENCH,
+                        icon: [CSS_ICON, CSS_ICON_WRENCH].join(' '),
                         on: {
                             click: A.bind(instance._handleEditEvent, instance)
                         }
@@ -819,7 +847,7 @@ var FormBuilderField = A.Component.create({
 
             if (!instance.get('unique')) {
                 items.push({
-                    icon: CSS_ICON_PLUS,
+                    icon: [CSS_ICON, CSS_ICON_PLUS].join(' '),
                     on: {
                         click: A.bind(instance._handleDuplicateEvent, instance)
                     }
@@ -828,7 +856,7 @@ var FormBuilderField = A.Component.create({
 
             if ((builder && builder.get('allowRemoveRequiredFields')) || !instance.get('required')) {
                 items.push({
-                    icon: CSS_ICON_TRASH,
+                    icon: [CSS_ICON, CSS_ICON_TRASH].join(' '),
                     on: {
                         click: A.bind(instance._handleDeleteEvent, instance)
                     }
@@ -881,7 +909,7 @@ var FormBuilderField = A.Component.create({
             var instance = this,
                 strings = instance.getStrings();
 
-            if (confirm(strings['deleteFieldsMessage'])) {
+            if (window.confirm(strings.deleteFieldsMessage)) {
                 instance.destroy();
             }
 

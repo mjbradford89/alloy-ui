@@ -16,11 +16,12 @@ var L = A.Lang,
     getCN = A.getClassName,
 
     CSS_BTN = getCN('btn'),
+    CSS_BTN_DEFAULT = getCN('btn', 'default'),
     CSS_FORM_BUILDER_FIELD = getCN('form-builder-field'),
     CSS_FORM_BUILDER_FIELD_NODE = getCN('form-builder-field', 'node'),
 
-    TPL_BUTTON = '<button id="{id}" class="' + [CSS_FORM_BUILDER_FIELD_NODE, CSS_BTN].join(' ') +
-        '" type="{type}">{value}</button>',
+    TPL_BUTTON = '<button id="{id}" class="' + [CSS_FORM_BUILDER_FIELD_NODE, CSS_BTN,
+        CSS_BTN_DEFAULT].join(' ') + '" type="{type}">{value}</button>',
 
     BUTTON_TYPES = ['submit', 'reset', 'button'];
 
@@ -179,12 +180,12 @@ var FormBuilderButtonField = A.Component.create({
                 attributeName: 'buttonType',
                 editor: new A.RadioCellEditor({
                     options: {
-                        'button': strings['button'],
-                        'reset': strings['reset'],
-                        'submit': strings['submit']
+                        'button': strings.button,
+                        'reset': strings.reset,
+                        'submit': strings.submit
                     }
                 }),
-                name: strings['buttonType']
+                name: strings.buttonType
             });
 
             return model;
