@@ -43,6 +43,7 @@ A.Modal = A.Base.create('modal', A.Widget, [
     A.WidgetPositionConstrain,
     A.WidgetStack
 ], {
+    CONTENT_TEMPLATE: '<div class="modal-content"></div>',
 
     /**
      * Construction logic executed during Modal instantiation. Lifecycle.
@@ -286,10 +287,20 @@ A.Modal = A.Base.create('modal', A.Widget, [
      */
     _syncResizeDimensions: function(event) {
         var instance = this,
+            boundingBox = instance.get('boundingBox'),
             resize = event.info;
 
-        instance.set('width', resize.offsetWidth);
-        instance.set('height', resize.offsetHeight);
+        instance.set(
+            'width',
+            resize.offsetWidth -
+            parseInt(boundingBox.getComputedStyle('borderRightWidth'), 10) -
+            parseInt(boundingBox.getComputedStyle('borderLeftWidth'), 10));
+
+        instance.set(
+            'height',
+            resize.offsetHeight -
+            parseInt(boundingBox.getComputedStyle('borderTopWidth'), 10) -
+            parseInt(boundingBox.getComputedStyle('borderBottomWidth'), 10));
     }
 }, {
 
@@ -300,7 +311,7 @@ A.Modal = A.Base.create('modal', A.Widget, [
      * @type String
      * @static
      */
-    CSS_PREFIX: getClassName('modal'),
+    CSS_PREFIX: getClassName('modal-dialog'),
 
     /**
      * Static property used to define the default attribute
@@ -396,6 +407,18 @@ A.Modal = A.Base.create('modal', A.Widget, [
                         }
                     ]
                 };
+            }
+        },
+
+        /**
+         * Determine the css classes of Modal's sections.
+         *
+         * @attribute toolbarCssClass
+         * @type Object
+         */
+        toolbarCssClass: {
+            value: {
+                header: 'pull-right'
             }
         }
     },

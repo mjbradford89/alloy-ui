@@ -1,6 +1,7 @@
 {
     "aui-popover": {
         "requires": [
+            "event-resize",
 	        "widget",
 	        "widget-autohide",
 	        "widget-buttons",
@@ -19,6 +20,7 @@
 	        "aui-widget-position-align-suggestion",
 	        "aui-component",
             "aui-node-base"
-        ]
+        ],
+        "skinnable": true
     }
 }

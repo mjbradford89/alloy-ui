@@ -14,6 +14,7 @@ var Lang = A.Lang,
 
     CLASS_NAMES = {
         BUTTON: getClassName('btn'),
+        BUTTON_DEFAULT: getClassName('btn', 'default'),
         BUTTON_GROUP: getClassName('btn', 'group'),
         DISABLED: getClassName('disabled'),
         LABEL: getClassName('label'),
@@ -46,6 +47,17 @@ var ButtonExt = function(config) {
 ButtonExt.ATTRS = {
 
     /**
+     * CSS class to be automatically added to the `boundingBox`.
+     *
+     * @attribute cssClass
+     * @type String
+     */
+    cssClass: {
+        validator: isString,
+        value: CLASS_NAMES.BUTTON_DEFAULT
+    },
+
+    /**
      * Defines the HTML type attribute of element e.g. `<input type="button">`.
      *
      * @attribute domType
@@ -70,10 +82,10 @@ ButtonExt.ATTRS = {
 
     /**
      * Defines markup template for icon, passed in as a node e.g.
-     * `Y.Node.create('<i></i>')`.
+     * `Y.Node.create('<span></span>')`.
      *
      * @attribute iconElement
-     * @default 'A.Node.create("<i></i>")'
+     * @default 'A.Node.create("<span></span>")'
      */
     iconElement: {
         valueFn: function() {
@@ -90,19 +102,8 @@ ButtonExt.ATTRS = {
      * @type {String}
      */
     iconAlign: {
-        value: 'left',
-        validator: isString
-    },
-
-    /**
-     * Sets button style to primary.
-     *
-     * @attribute primary
-     * @default false
-     * @type {Boolean}
-     */
-    primary: {
-        value: false
+        validator: isString,
+        value: 'left'
     }
 };
 
@@ -115,7 +116,7 @@ ButtonExt.ATTRS = {
  * @static
  */
 ButtonExt.HTML_PARSER = {
-    iconElement: 'i'
+    iconElement: 'span'
 };
 
 /**
@@ -137,7 +138,7 @@ ButtonExt.getTypedButtonTemplate = function(template, type) {
 
 ButtonExt.prototype = {
     TEMPLATE: '<button{type}></button>',
-    ICON_TEMPLATE: '<i></i>',
+    ICON_TEMPLATE: '<span></span>',
 
     /**
      * Construction logic executed during `ButtonExt` instantiation. Lifecycle.
@@ -151,13 +152,12 @@ ButtonExt.prototype = {
         instance.after(instance.syncButtonExtUI, instance, 'syncUI');
         instance.after({
             iconChange: instance._afterIconChange,
-            iconAlignChange: instance._afterIconAlignChange,
-            primaryChange: instance._afterPrimaryChange
+            iconAlignChange: instance._afterIconAlignChange
         });
     },
 
     /**
-     * Updates icon image, icon alignment, and primary button style.
+     * Updates icon CSS class.
      *
      * @method syncButtonExtUI
      */
@@ -165,7 +165,6 @@ ButtonExt.prototype = {
         var instance = this;
 
         instance._uiSetIcon(instance.get('icon'));
-        instance._uiSetPrimary(instance.get('primary'));
     },
 
     /**
@@ -195,19 +194,6 @@ ButtonExt.prototype = {
     },
 
     /**
-     * Fires after `primary` attribute change.
-     *
-     * @method _afterPrimaryChange
-     * @param {EventFacade} event
-     * @protected
-     */
-    _afterPrimaryChange: function(event) {
-        var instance = this;
-
-        instance._uiSetPrimary(event.newVal);
-    },
-
-    /**
      * Sets button type on bounding box template before constructor is invoked.
      * The type is set before widget creates the bounding box node.
      *
@@ -220,19 +206,6 @@ ButtonExt.prototype = {
 
         instance.BOUNDING_TEMPLATE = A.ButtonExt.getTypedButtonTemplate(
             ButtonExt.prototype.TEMPLATE, type);
-    },
-
-    /**
-     * Adds primary button class.
-     *
-     * @method _uiSetPrimary
-     * @param {String} val
-     * @protected
-     */
-    _uiSetPrimary: function(val) {
-        var instance = this;
-
-        instance.get('boundingBox').toggleClass(CLASS_NAMES.PRIMARY, val);
     },
 
     /**
@@ -282,7 +255,6 @@ A.ButtonExt = ButtonExt;
  * @class A.ButtonCore
  * @constructor
  */
-var ButtonCore = A.ButtonCore;
 
 /**
  * Contains CSS class names to use for `ButtonCore`.
@@ -290,7 +262,7 @@ var ButtonCore = A.ButtonCore;
  * @property CLASS_NAMES
  * @static
  */
-ButtonCore.CLASS_NAMES = CLASS_NAMES;
+A.ButtonCore.CLASS_NAMES = CLASS_NAMES;
 
 var Button = A.Button;
 
@@ -311,15 +283,6 @@ Button.CLASS_NAMES = CLASS_NAMES;
  * @include http://alloyui.com/examples/button/basic.js
  */
 A.Button = A.Base.create(Button.NAME, Button, [ButtonExt, A.WidgetCssClass, A.WidgetToggle], {}, {
-
-    /**
-     * Static property provides a string to identify the CSS prefix.
-     *
-     * @property CSS_PREFIX
-     * @type {String}
-     * @static
-     */
-    CSS_PREFIX: CLASS_NAMES.BUTTON,
 
     /**
      * Returns an object literal containing widget constructor data specified in
@@ -449,6 +412,10 @@ A.mix(ButtonGroup.prototype, {
 
         instance.getButtons().each(function(button) {
             if (!button.button && !A.instanceOf(A.Widget.getByNode(button), A.Button)) {
+                // TODO: This shouldn't assume button is always default.
+                // A.Plugin.Button doesn't current allow augmentation, therefore
+                // it can't add A.ButtonExt extra attributes to it.
+                button.addClass(A.ButtonCore.CLASS_NAMES.BUTTON_DEFAULT);
 
                 if (A.Button.hasWidgetLazyConstructorData(button)) {
                     new A.Button(A.Button.getWidgetLazyConstructorFromNodeData(button));
