@@ -61,14 +61,6 @@ YUI.add('aui-datatable-tests', function(Y) {
                         key: 'name',
                         sortable: true,
                         editor: new Y.TextAreaCellEditor({
-                            on: {
-                                save: function(event) {
-                                    console.log('save', event.newVal);
-                                },
-                                cancel: function(event) {
-                                    console.log('cancel', event);
-                                }
-                            },
                             validator: {
                                 rules: {
                                     value: {
