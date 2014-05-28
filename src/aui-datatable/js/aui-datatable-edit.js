@@ -21,26 +21,25 @@ var Lang = A.Lang,
     },
 
     WidgetStdMod = A.WidgetStdMod,
-    AgetClassName = A.getClassName,
 
     REGEX_BR = /<br\s*\/?>/gi,
     REGEX_NL = /[\r\n]/g,
 
-    CSS_CELLEDITOR_EDIT = AgetClassName('celleditor', 'edit'),
-    CSS_CELLEDITOR_EDIT_ADD_OPTION = AgetClassName('celleditor', 'edit', 'add', 'option'),
-    CSS_CELLEDITOR_EDIT_DD_HANDLE = AgetClassName('celleditor', 'edit', 'dd', 'handle'),
-    CSS_CELLEDITOR_EDIT_DELETE_OPTION = AgetClassName('celleditor', 'edit', 'delete', 'option'),
-    CSS_CELLEDITOR_EDIT_HIDE_OPTION = AgetClassName('celleditor', 'edit', 'hide', 'option'),
-    CSS_CELLEDITOR_EDIT_INPUT_NAME = AgetClassName('celleditor', 'edit', 'input', 'name'),
-    CSS_CELLEDITOR_EDIT_INPUT_VALUE = AgetClassName('celleditor', 'edit', 'input', 'value'),
-    CSS_CELLEDITOR_EDIT_LABEL = AgetClassName('celleditor', 'edit', 'label'),
-    CSS_CELLEDITOR_EDIT_LINK = AgetClassName('celleditor', 'edit', 'link'),
-    CSS_CELLEDITOR_EDIT_OPTION_ROW = AgetClassName('celleditor', 'edit', 'option', 'row'),
-    CSS_CELLEDITOR_ELEMENT = AgetClassName('celleditor', 'element'),
-    CSS_CELLEDITOR_OPTION = AgetClassName('celleditor', 'option'),
-    CSS_DATATABLE_EDITABLE = AgetClassName('datatable', 'editable'),
-    CSS_ICON = AgetClassName('icon'),
-    CSS_ICON_GRIP_DOTTED_VERTICAL = AgetClassName('icon', 'grip', 'dotted', 'vertical'),
+    CSS_FORM_CONTROL = A.getClassName('form', 'control'),
+    CSS_CELLEDITOR_EDIT = A.getClassName('celleditor', 'edit'),
+    CSS_CELLEDITOR_EDIT_ADD_OPTION = A.getClassName('celleditor', 'edit', 'add', 'option'),
+    CSS_CELLEDITOR_EDIT_DD_HANDLE = A.getClassName('celleditor', 'edit', 'dd', 'handle'),
+    CSS_CELLEDITOR_EDIT_DELETE_OPTION = A.getClassName('celleditor', 'edit', 'delete', 'option'),
+    CSS_CELLEDITOR_EDIT_HIDE_OPTION = A.getClassName('celleditor', 'edit', 'hide', 'option'),
+    CSS_CELLEDITOR_EDIT_INPUT_NAME = A.getClassName('celleditor', 'edit', 'input', 'name'),
+    CSS_CELLEDITOR_EDIT_INPUT_VALUE = A.getClassName('celleditor', 'edit', 'input', 'value'),
+    CSS_CELLEDITOR_EDIT_LABEL = A.getClassName('celleditor', 'edit', 'label'),
+    CSS_CELLEDITOR_EDIT_LINK = A.getClassName('celleditor', 'edit', 'link'),
+    CSS_CELLEDITOR_EDIT_OPTION_ROW = A.getClassName('celleditor', 'edit', 'option', 'row'),
+    CSS_CELLEDITOR_ELEMENT = A.getClassName('celleditor', 'element'),
+    CSS_CELLEDITOR_OPTION = A.getClassName('celleditor', 'option'),
+    CSS_ICON = A.getClassName('glyphicon'),
+    CSS_ICON_GRIP_DOTTED_VERTICAL = A.getClassName('glyphicon', 'resize', 'vertical'),
 
     TPL_BR = '<br/>';
 
@@ -129,8 +128,7 @@ A.mix(CellEditorSupport.prototype, {
      * @param column
      */
     getEditor: function(record, column) {
-        var instance = this,
-            columnEditor = column.editor,
+        var columnEditor = column.editor,
             recordEditor = record.get('editor');
 
         if (columnEditor === false || recordEditor === false) {
@@ -221,8 +219,7 @@ A.mix(CellEditorSupport.prototype, {
      * @protected
      */
     _onEditorVisibleChange: function(event) {
-        var instance = this,
-            editor = event.currentTarget;
+        var editor = event.currentTarget;
 
         if (event.newVal) {
             editor._syncFocus();
@@ -240,7 +237,7 @@ A.mix(CellEditorSupport.prototype, {
         var instance = this,
             row = instance.getRow(model);
 
-        row.toggleClass(instance.CLASS_NAMES_CELL_EDITOR_SUPPORT['readOnly'], model.get('readOnly') === true);
+        row.toggleClass(instance.CLASS_NAMES_CELL_EDITOR_SUPPORT.readOnly, model.get('readOnly') === true);
     },
 
     /**
@@ -532,10 +529,8 @@ var BaseCellEditor = A.Component.create({
          * @method initializer
          * @protected
          */
-        initializer: function(config) {
-            var instance = this;
-
-            instance._initEvents();
+        initializer: function() {
+            this._initEvents();
         },
 
         /**
@@ -670,10 +665,8 @@ var BaseCellEditor = A.Component.create({
          * @param event
          * @protected
          */
-        _defCancelFn: function(event) {
-            var instance = this;
-
-            instance.hide();
+        _defCancelFn: function() {
+            this.hide();
         },
 
         /**
@@ -683,11 +676,9 @@ var BaseCellEditor = A.Component.create({
          * @param event
          * @protected
          */
-        _defInitValidatorFn: function(event) {
-            var instance = this;
-
-            instance.validator = new A.FormValidator(
-                instance.get('validator')
+        _defInitValidatorFn: function() {
+            this.validator = new A.FormValidator(
+                this.get('validator')
             );
         },
 
@@ -698,7 +689,7 @@ var BaseCellEditor = A.Component.create({
          * @param event
          * @protected
          */
-        _defInitToolbarFn: function(event) {
+        _defInitToolbarFn: function() {
             var instance = this;
             var editable = instance.get('editable');
 
@@ -718,7 +709,7 @@ var BaseCellEditor = A.Component.create({
          * @param event
          * @protected
          */
-        _defSaveFn: function(event) {
+        _defSaveFn: function() {
             var instance = this;
 
             if (instance.get('hideOnSave')) {
@@ -855,7 +846,7 @@ var BaseCellEditor = A.Component.create({
          * @param event
          * @protected
          */
-        _onEscKey: function(event) {
+        _onEscKey: function() {
             var instance = this;
 
             instance.hide();
@@ -869,7 +860,6 @@ var BaseCellEditor = A.Component.create({
          * @protected
          */
         _onSubmit: function(event) {
-            var instance = this;
             var validator = event.validator;
 
             if (validator) {
@@ -896,14 +886,14 @@ var BaseCellEditor = A.Component.create({
                             on: {
                                 click: A.bind(instance._handleSaveEvent, instance)
                             },
-                            label: strings['save'],
-                            icon: 'icon-ok-sign'
+                            label: strings.save,
+                            icon: 'glyphicon glyphicon-ok-sign'
                         },
                         {
                             on: {
                                 click: A.bind(instance._handleCancelEvent, instance)
                             },
-                            label: strings['cancel']
+                            label: strings.cancel
                         }
                     ]
                 ]
@@ -993,7 +983,7 @@ var BaseCellEditor = A.Component.create({
          * @param event
          * @protected
          */
-        _defInitEditFn: function(event) {},
+        _defInitEditFn: function() {},
 
         /**
          * TODO. Wanna help? Please send a Pull Request.
@@ -1050,7 +1040,7 @@ var BaseCellEditor = A.Component.create({
                     toolbar.add(
                         [
                             {
-                                icon: 'icon-edit',
+                                icon: 'glyphicon glyphicon-edit',
                                 label: instance.getString('edit'),
                                 on: {
                                     click: A.bind(instance._handleEditEvent, instance)
@@ -1205,9 +1195,15 @@ var BaseOptionsCellEditor = A.Component.create({
     prototype: {
         EDIT_TEMPLATE: '<div class="' + CSS_CELLEDITOR_EDIT + '"></div>',
 
-        EDIT_OPTION_ROW_TEMPLATE: '<div class="' + CSS_CELLEDITOR_EDIT_OPTION_ROW + '">' + '<span class="' + [
-            CSS_CELLEDITOR_EDIT_DD_HANDLE, CSS_ICON, CSS_ICON_GRIP_DOTTED_VERTICAL].join(' ') + '"></span>' + '<input class="' + CSS_CELLEDITOR_EDIT_INPUT_NAME + '" size="7" placeholder="{titleName}" title="{titleName}" type="text" value="{valueName}" /> ' + '<input class="' + CSS_CELLEDITOR_EDIT_INPUT_VALUE + '" size="7" placeholder="{titleValue}" title="{titleValue}" type="text" value="{valueValue}" /> ' + '<a class="' + [
-            CSS_CELLEDITOR_EDIT_LINK, CSS_CELLEDITOR_EDIT_DELETE_OPTION].join(' ') + '" href="javascript:void(0);">{remove}</a> ' + '</div>',
+        EDIT_OPTION_ROW_TEMPLATE: '<div class="' + CSS_CELLEDITOR_EDIT_OPTION_ROW + '">' +
+            '<span class="' + [CSS_CELLEDITOR_EDIT_DD_HANDLE,
+            CSS_ICON, CSS_ICON_GRIP_DOTTED_VERTICAL].join(' ') + '"></span>' +
+            '<input class="' + CSS_CELLEDITOR_EDIT_INPUT_NAME +
+            '" size="7" placeholder="{titleName}" title="{titleName}" type="text" value="{valueName}" /> ' +
+            '<input class="' + CSS_CELLEDITOR_EDIT_INPUT_VALUE +
+            '" size="7" placeholder="{titleValue}" title="{titleValue}" type="text" value="{valueValue}" /> ' +
+            '<a class="' + [CSS_CELLEDITOR_EDIT_LINK,
+            CSS_CELLEDITOR_EDIT_DELETE_OPTION].join(' ') + '" href="javascript:void(0);">{remove}</a> ' + '</div>',
 
         EDIT_ADD_LINK_TEMPLATE: '<a class="' + [CSS_CELLEDITOR_EDIT_LINK, CSS_CELLEDITOR_EDIT_ADD_OPTION].join(
             ' ') + '" href="javascript:void(0);">{addOption}</a> ',
@@ -1369,7 +1365,7 @@ var BaseOptionsCellEditor = A.Component.create({
 
             buffer.push(
                 Lang.sub(instance.EDIT_LABEL_TEMPLATE, {
-                    editOptions: strings['editOptions']
+                    editOptions: strings.editOptions
                 })
             );
 
@@ -1379,7 +1375,7 @@ var BaseOptionsCellEditor = A.Component.create({
 
             buffer.push(
                 Lang.sub(instance.EDIT_ADD_LINK_TEMPLATE, {
-                    addOption: strings['addOption']
+                    addOption: strings.addOption
                 })
             );
 
@@ -1400,9 +1396,9 @@ var BaseOptionsCellEditor = A.Component.create({
 
             return Lang.sub(
                 instance.EDIT_OPTION_ROW_TEMPLATE, {
-                    remove: strings['remove'],
-                    titleName: strings['name'],
-                    titleValue: strings['value'],
+                    remove: strings.remove,
+                    titleName: strings.name,
+                    titleValue: strings.value,
                     valueName: name,
                     valueValue: value
                 }
@@ -1416,7 +1412,7 @@ var BaseOptionsCellEditor = A.Component.create({
          * @param event
          * @protected
          */
-        _defInitEditFn: function(event) {
+        _defInitEditFn: function() {
             var instance = this;
             var editContainer = A.Node.create(instance.EDIT_TEMPLATE);
 
@@ -1471,7 +1467,7 @@ var BaseOptionsCellEditor = A.Component.create({
          * @param event
          * @protected
          */
-        _onEditEvent: function(event) {
+        _onEditEvent: function() {
             var instance = this;
 
             instance._handleInitEditEvent();
@@ -1539,7 +1535,7 @@ var BaseOptionsCellEditor = A.Component.create({
          * @param event
          * @protected
          */
-        _onSave: function(event) {
+        _onSave: function() {
             var instance = this;
 
             instance.saveOptions();
@@ -1657,7 +1653,8 @@ var TextCellEditor = A.Component.create({
     EXTENDS: A.BaseCellEditor,
 
     prototype: {
-        ELEMENT_TEMPLATE: '<input autocomplete="off" class="' + CSS_CELLEDITOR_ELEMENT + '" type="text" />'
+        ELEMENT_TEMPLATE: '<input autocomplete="off" class="' + [CSS_CELLEDITOR_ELEMENT, CSS_FORM_CONTROL].join(' ') +
+            '" type="text" />'
     }
 });
 
@@ -1693,7 +1690,8 @@ var TextAreaCellEditor = A.Component.create({
     EXTENDS: A.BaseCellEditor,
 
     prototype: {
-        ELEMENT_TEMPLATE: '<textarea class="' + CSS_CELLEDITOR_ELEMENT + '"></textarea>'
+        ELEMENT_TEMPLATE: '<textarea class="' + [CSS_CELLEDITOR_ELEMENT, CSS_FORM_CONTROL].join(' ') +
+            '"></textarea>'
     }
 });
 
@@ -1761,7 +1759,8 @@ var DropDownCellEditor = A.Component.create({
     UI_ATTRS: ['multiple'],
 
     prototype: {
-        ELEMENT_TEMPLATE: '<select class="' + CSS_CELLEDITOR_ELEMENT + '"></select>',
+        ELEMENT_TEMPLATE: '<select class="' + [CSS_CELLEDITOR_ELEMENT, CSS_FORM_CONTROL].join(' ') + '"></select>',
+
         OPTION_TEMPLATE: '<option value="{value}">{label}</option>',
 
         /**
@@ -1867,7 +1866,8 @@ var CheckboxCellEditor = A.Component.create({
 
     prototype: {
         ELEMENT_TEMPLATE: '<div class="' + CSS_CELLEDITOR_ELEMENT + '"></div>',
-        OPTION_TEMPLATE: '<input class="' + CSS_CELLEDITOR_OPTION + '" id="{id}" name="{name}" type="checkbox" value="{value}"/>',
+        OPTION_TEMPLATE: '<input class="' +
+            CSS_CELLEDITOR_OPTION + '" id="{id}" name="{name}" type="checkbox" value="{value}"/>',
         OPTION_WRAPPER: '<label class="checkbox" for="{id}"> {label}</label>',
 
         /**
@@ -2049,7 +2049,7 @@ var DateCellEditor = A.Component.create({
                 var instance = this,
                     values = [];
 
-                AArray.each(val, function(date, index) {
+                AArray.each(val, function(date) {
                     values.push(instance.formatDate(date).toString());
                 });
 
@@ -2068,7 +2068,7 @@ var DateCellEditor = A.Component.create({
                 var instance = this,
                     values = [];
 
-                AArray.each(val, function(date, index) {
+                AArray.each(val, function(date) {
                     values.push(DataType.Date.parse(instance.get('dateFormat'), date));
                 });
 
@@ -2128,7 +2128,7 @@ var DateCellEditor = A.Component.create({
          * @param event
          * @protected
          */
-        _afterDateSelect: function(event) {
+        _afterDateSelect: function() {
             var instance = this,
                 selectedDates = instance.calendar.get('selectedDates');
 

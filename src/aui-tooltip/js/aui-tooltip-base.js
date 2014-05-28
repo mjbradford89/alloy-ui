@@ -109,7 +109,7 @@ A.Tooltip = A.Base.create('tooltip', A.Widget, [
         boundingBox.setStyle('opacity', val ? instance.get('opacity') : 0);
 
         if (val) {
-            instance._loadBodyContentFromTitle();
+            instance._loadTooltipContentFromTitle();
         }
     },
 
@@ -127,38 +127,64 @@ A.Tooltip = A.Base.create('tooltip', A.Widget, [
     },
 
     /**
-     * Load tooltip content from trigger title attribute.
+     * If the HTML title attribute exists, copy its contents to data-title
+     * and remove it to prevent the browser's native tooltip.
      *
-     * @method _loadBodyContentFromTitle
+     * @method _borrowTitleAttribute
+     * @private
+     */
+    _borrowTitleAttribute: function() {
+        var trigger = this.get('trigger'),
+            title = trigger.getAttribute('title');
+
+        if (title) {
+            trigger.setAttribute('data-title', title).removeAttribute('title');
+        }
+    },
+
+    /**
+     * Set tooltip section attribute.
+     *
+     * @method _setStdModSection
+     * @param {String | Node} val
      * @protected
      */
-    _loadBodyContentFromTitle: function() {
-        var instance = this,
-            trigger,
-            dataTitle,
-            formatter,
-            title;
+    _setStdModSection: function(val) {
+        var formatter = this.get('formatter');
 
-        formatter = instance.get('formatter');
-        trigger = instance.get('trigger');
+        if (Lang.isString(val)) {
+            if (formatter) {
+                val = formatter.call(this, val);
+            }
+
+            if (!this.get('html')) {
+                val = A.Escape.html(val);
+            }
+        }
+
+        return val;
+    },
+
+    /**
+     * Load tooltip content from trigger title attribute.
+     *
+     * @method _loadTooltipContentFromTitle
+     * @protected
+     */
+    _loadTooltipContentFromTitle: function() {
+        var trigger = this.get('trigger'),
+            title;
 
         if (!trigger) {
             return;
         }
 
-        dataTitle = trigger.getAttribute('data-title');
-        title = trigger.getAttribute('title') || dataTitle;
+        this._borrowTitleAttribute();
 
-        if (formatter) {
-            title = formatter.call(instance, title);
+        title = trigger.getAttribute('data-title');
+        if (title) {
+            this.setStdModContent(A.WidgetStdMod.BODY, title);
         }
-
-        if (!dataTitle) {
-            trigger.removeAttribute('title').setAttribute('data-title', title);
-        }
-
-        instance.setStdModContent(
-            A.WidgetStdMod.BODY, trigger && title || instance.get('bodyContent'));
     },
 
     /**
@@ -221,6 +247,14 @@ A.Tooltip = A.Base.create('tooltip', A.Widget, [
         },
 
         /**
+         * @attribute bodyContent
+         * @type {String | Node}
+         */
+        bodyContent: {
+            setter: '_setStdModSection'
+        },
+
+        /**
          * Determine the tooltip constrain node.
          *
          * @attribute constrain
@@ -232,6 +266,14 @@ A.Tooltip = A.Base.create('tooltip', A.Widget, [
         },
 
         /**
+         * @attribute footerContent
+         * @type {String | Node}
+         */
+        footerContent: {
+            setter: '_setStdModSection'
+        },
+
+        /**
          * Format the title attribute before set the content of the tooltip.
          *
          * @attribute formatter
@@ -239,6 +281,26 @@ A.Tooltip = A.Base.create('tooltip', A.Widget, [
          */
         formatter: {
             validator: A.Lang.isFunction
+        },
+
+        /**
+         * @attribute headerContent
+         * @type {String | Node}
+         */
+        headerContent: {
+            setter: '_setStdModSection'
+        },
+
+        /**
+         * Determines if the tooltip allows arbitary HTML or is plain text.
+         *
+         * @attribute html
+         * @default false
+         * @type Boolean
+         */
+        html: {
+            value: false,
+            validator: Lang.isBoolean
         },
 
         /**

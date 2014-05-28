@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2013, Liferay Inc. All rights reserved.
- * Code licensed under the BSD License:
- * https://github.com/liferay/alloy-ui/blob/master/LICENSE.md
- *
- * @author Zeno Rocha <zeno.rocha@liferay.com>
- * @author Eduardo Lundgren <eduardo.lundgren@liferay.com>
- */
-
 var path = require('path');
 
 // -- Globals ------------------------------------------------------------------
@@ -21,41 +12,43 @@ module.exports = function(grunt) {
         'api-build': {
             'src': 'temp',
             'dist': path.join(ROOT, 'api'),
-            'theme': path.join(ROOT, '<%= pkg.dependencies["alloy-apidocs-theme"].folder %>'),
+            'theme': path.join(ROOT, 'bower_components/alloy-apidocs-theme'),
             'aui-version': '<%= pkg["version"] %>'
         },
 
         'api-include': {
             'all': {
                 'src': ['temp/alloy-ui/src/*/js/*.js'],
-                'repo': path.join(ROOT, '<%= pkg.dependencies["alloyui.com"].folder %>')
+                'repo': path.join(ROOT, 'bower_components/alloyui.com')
             }
         },
 
         'api-push': {
             'src': path.join(ROOT, 'api'),
-            'dist': path.join(ROOT, '<%= pkg.dependencies["alloyui.com"].folder %>', 'api'),
-            'repo': path.join(ROOT, '<%= pkg.dependencies["alloyui.com"].folder %>'),
+            'dist': path.join(ROOT, 'bower_components/alloyui.com/api'),
+            'repo': path.join(ROOT, 'bower_components/alloyui.com'),
             'branch': 'gh-pages',
             'remote': 'origin'
         },
 
         'api-watch': {
-            'src': [path.join(ROOT, 'src'), path.join(ROOT, '<%= pkg.dependencies.yui3.folder %>', 'src')],
-            'theme': path.join(ROOT, '<%= pkg.dependencies["alloy-apidocs-theme"].folder %>'),
+            'src': [path.join(ROOT, 'src'), path.join(ROOT, 'bower_components/yui3/src')],
+            'theme': path.join(ROOT, 'bower_components/alloy-apidocs-theme'),
             'aui-version': '<%= pkg["version"] %>'
         },
 
-        build: {
-            yui: {
-                'src': path.join(ROOT, '<%= pkg.dependencies.yui3.folder %>', 'src'),
-                'dist': path.join(ROOT, 'build'),
-                'cache': true,
-                'coverage': false,
-                'lint': false,
-                'replace-yuivar': 'Y',
-                'replace-version': '<%= pkg["yuiversion"] %>',
+        bowercopy: {
+            src: {
+                files: {
+                    'build': 'yui3/build'
+                }
             },
+            options: {
+                report: false
+            }
+        },
+
+        build: {
             aui: {
                 'src': path.join(ROOT, 'src'),
                 'dist': path.join(ROOT, 'build'),
@@ -75,20 +68,11 @@ module.exports = function(grunt) {
             root: '../<%= pkg["version"] %>/'
         },
 
-        compass: {
-            dist: {
-                options: {
-                    sassDir: path.join(ROOT, '<%= pkg.dependencies["alloy-bootstrap"].folder %>', 'lib'),
-                    cssDir: 'build/aui-css/css/'
-                }
-            }
-        },
-
         copy: {
             api: {
                 files: [
                     {
-                        cwd: path.join('<%= pkg.dependencies.yui3.folder %>', 'src/'),
+                        cwd: path.join('bower_components/yui3/src/'),
                         src: '**',
                         dest: 'temp/yui3/src/',
                         expand: true
@@ -98,26 +82,6 @@ module.exports = function(grunt) {
                         src: '**',
                         dest: 'temp/alloy-ui/src/',
                         expand: true
-                    }
-                ]
-            },
-            css: {
-                files: [
-                    {
-                        src: 'build/aui-css/css/responsive.css',
-                        dest: 'build/aui-css/css/bootstrap-responsive.css'
-                    }
-                ]
-            },
-            img: {
-                files: [
-                    {
-                        src: path.join(ROOT, '<%= pkg.dependencies["alloy-bootstrap"].folder %>', 'img/glyphicons-halflings-white.png'),
-                        dest: 'build/aui-css/img/glyphicons-halflings-white.png'
-                    },
-                    {
-                        src: path.join(ROOT, '<%= pkg.dependencies["alloy-bootstrap"].folder %>', 'img/glyphicons-halflings.png'),
-                        dest: 'build/aui-css/img/glyphicons-halflings.png'
                     }
                 ]
             }
@@ -146,12 +110,8 @@ module.exports = function(grunt) {
         },
 
         clean: {
-            api: [
-                'api', 'temp'
-            ],
-            css: [
-                'build/aui-css/css/responsive.css',
-            ],
+            api: ['api', 'temp'],
+            build: ['build'],
             zip: [
                 'alloy-<%= pkg["version"] %>.zip',
                 'cdn-alloy-<%= pkg["version"] %>.zip'
@@ -162,23 +122,16 @@ module.exports = function(grunt) {
             name: 'aui-test'
         },
 
-        cssmin: {
-            dist: {
-                files: {
-                    'build/aui-css/css/bootstrap.min.css': ['build/aui-css/css/bootstrap.css'],
-                    'build/aui-css/css/bootstrap-responsive.min.css': ['build/aui-css/css/bootstrap-responsive.css']
-                }
-            }
-        },
-
-        init: {
-            dependencies: '<%= pkg.dependencies %>'
+        cssbeautifier : {
+            files : [
+                'src/**/*.css',
+                '!src/aui-css/css/*.css'
+            ]
         },
 
         jsbeautifier: {
             files: [
                 'src/**/*.js',
-                'src/**/*.css',
                 'grunt/*.js',
                 '!src/aui-base/js/aui-aliases.js',
                 '!src/aui-base/js/aui-loader.js',
@@ -218,19 +171,19 @@ module.exports = function(grunt) {
 
     grunt.loadTasks('tasks');
 
+    grunt.loadNpmTasks('grunt-bowercopy');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-compass');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-cssbeautifier');
     grunt.loadNpmTasks('grunt-jsbeautifier');
 
-    grunt.registerTask('all', ['bootstrap', 'build']);
+    grunt.registerTask('all', ['clean:build', 'init', 'build']);
     grunt.registerTask('api', ['copy:api', 'api-include', 'api-build']);
     grunt.registerTask('api-deploy', ['api', 'api-push', 'clean:api']);
-    grunt.registerTask('bootstrap', ['compass', 'copy:css', 'cssmin', 'copy:img', 'clean:css']);
-    grunt.registerTask('format', ['jsbeautifier']);
+    grunt.registerTask('format', ['cssbeautifier', 'jsbeautifier']);
+    grunt.registerTask('init', ['bowercopy']);
     grunt.registerTask('lint', ['jshint']);
     grunt.registerTask('release', ['clean:zip', 'all', 'zip:release']);
     grunt.registerTask('release-cdn', ['clean:zip', 'all', 'cdn', 'zip:cdn', 'build:aui']);

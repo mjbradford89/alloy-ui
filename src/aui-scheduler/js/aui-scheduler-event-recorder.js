@@ -20,6 +20,7 @@ var Lang = A.Lang,
 
     getCN = A.getClassName,
 
+    CSS_FORM_CONTROL = getCN('form', 'control'),
     CSS_SCHEDULER_EVENT = getCN('scheduler-event'),
 
     CSS_SCHEDULER_EVENT_RECORDER = getCN('scheduler-event', 'recorder'),
@@ -32,8 +33,8 @@ var Lang = A.Lang,
         '<input type="hidden" name="endDate" value="{endDate}" />' +
         '<label class="' + 'scheduler-event-recorder-date' + '">{date}</label>',
 
-    TPL_HEADER_CONTENT = '<input class="' + CSS_SCHEDULER_EVENT_RECORDER_CONTENT +
-        '" name="content" value="{content}" />';
+    TPL_HEADER_CONTENT = '<input class="' + [CSS_SCHEDULER_EVENT_RECORDER_CONTENT, CSS_FORM_CONTROL]
+        .join(' ') + '" name="content" value="{content}" />';
 
 /**
  * A base class for `SchedulerEventRecorder`.
@@ -396,7 +397,7 @@ var SchedulerEventRecorder = A.Component.create({
          * @param {EventFacade} event
          * @protected
          */
-        _afterEventChange: function(event) {
+        _afterEventChange: function() {
             var instance = this;
 
             instance.populateForm();
@@ -530,13 +531,13 @@ var SchedulerEventRecorder = A.Component.create({
                 strings = instance.get('strings'),
                 children = [
                     {
-                        label: strings['save'],
+                        label: strings.save,
                         on: {
                             click: A.bind(instance._handleSaveEvent, instance)
                         }
                     },
                     {
-                        label: strings['cancel'],
+                        label: strings.cancel,
                         on: {
                             click: A.bind(instance._handleCancelEvent, instance)
                         }
@@ -545,7 +546,7 @@ var SchedulerEventRecorder = A.Component.create({
 
             if (event) {
                 children.push({
-                    label: strings['delete'],
+                    label: strings.delete,
                     on: {
                         click: A.bind(instance._handleDeleteEvent, instance)
                     }
@@ -581,7 +582,7 @@ var SchedulerEventRecorder = A.Component.create({
          * @param {EventFacade} event
          * @protected
          */
-        _handleClickOutSide: function(event) {
+        _handleClickOutSide: function() {
             var instance = this;
 
             instance.fire('cancel');
