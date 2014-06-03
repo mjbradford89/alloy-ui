@@ -45,6 +45,17 @@ DatePickerBase.PANES = [
 DatePickerBase.ATTRS = {
 
     /**
+    * Sets the `aria-label` for the 'DatePicker'.
+    *
+    * @attribute ariaLabel
+    * @type String
+    */
+    ariaLabel: {
+        value: 'Navigate dates with arrow keys. Select a date with spacebar or enter key. Exit Date Picker with escape key.',
+        validator: Lang.isString
+    },
+
+    /**
      * Stores the configuration of the `Calendar` instance.
      *
      * @attribute calendar
@@ -164,6 +175,22 @@ A.mix(DatePickerBase.prototype, {
             A.CalendarBase.CONTENT_TEMPLATE = originalCalendarTemplate;
         }
 
+        var trigger = instance.popover.get('trigger');
+
+        if (trigger) {
+            var originalTabindex = trigger.getAttribute('tabindex');
+
+            originalTabindex = Lang.isNumber(originalTabindex) ? originalTabindex : 0;
+
+            trigger.setAttribute('tabindex', '-1');
+
+            instance.popover.bodyNode.once('focus', function() {
+                trigger.setAttribute('tabindex', originalTabindex);
+            });
+        }
+
+        instance._setAriaElements();
+
         return calendar;
     },
 
@@ -195,6 +222,15 @@ A.mix(DatePickerBase.prototype, {
         instance.alignTo(node);
         instance.clearSelection(true);
         instance.selectDates(instance.getParsedDatesFromInputValue());
+    },
+
+    _setAriaElements: function() {
+        var instance = this,
+            popover = instance.getPopover(),
+            boundingBox = popover.get('boundingBox'),
+            table = boundingBox.one('table');
+
+        table.set('aria-label', instance.get('ariaLabel'));
     },
 
     /**
