@@ -110,6 +110,47 @@ A.mix(DatePickerBase.prototype, {
         var instance = this;
 
         instance.after('selectionChange', instance._afterDatePickerSelectionChange);
+
+        instance.bindUI();
+
+        window.datepickerinstance = instance;
+    },
+
+    bindUI: function() {
+        var instance = this;
+
+        instance.bindActiveInputUI();
+    },
+
+    bindActiveInputUI: function() {
+        var instance = this;
+
+        var activeInput = instance.get('activeInput'),
+            popover = instance.getPopover(),
+            contentBox = popover.get('contentBox');
+
+        contentBox.setAttribute('tabindex', 1);
+
+        if (activeInput) {
+            if (instance._activeInputHandler) {
+                instance._activeInputHandler.detach();
+            }
+
+            instance._activeInputHandler = activeInput.on('keydown', function(event) {
+                var keyCode = event.keyCode;
+
+                if (keyCode === 13 || keyCode === 32) {
+                    popover.once('show', function(event) {
+                        contentBox.focus();
+
+                        console.log('focus! ', contentBox);
+                    }
+                }
+            });
+        }
+        else {
+            console.log('no active input yet :(');
+        }
     },
 
     /**
