@@ -27,4 +27,6 @@ DataTableHeader.prototype = {
     CELL_TEMPLATE: '<th aria-sort="none" class="{className}" colspan="{_colspan}" id="{id}" role="columnheader" rowspan="{_rowspan}" scope="col" tabindex="0" {_id}{abbr}{title}>{content}</th>'
 };
 
+console.log('updated DataTableHeader.prototype.CELL_TEMPLATE ', DataTableHeader.prototype.CELL_TEMPLATE);
+
 A.Base.mix(A.DataTable.HeaderView, [DataTableHeader]);

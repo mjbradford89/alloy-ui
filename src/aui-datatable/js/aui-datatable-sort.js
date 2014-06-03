@@ -25,10 +25,12 @@ function DataTableSortable() {}
 DataTableSortable.NAME = 'dataTableSortable';
 
 DataTableSortable.prototype = {
-    SORTABLE_HEADER_TEMPLATE: '<div class="{className}" tabindex="-1" unselectable="on"><span aria-label="sort" class="{indicatorClass}" tabindex="0"></span></div>',
+    SORTABLE_HEADER_TEMPLATE: '<div class="{className}" tabindex="-1" unselectable="on">' +
+            '<span aria-label="sort" class="{indicatorClass}" tabindex="0"></span>' +
+        '</div>',
 
     initializer: function() {
-        var instance = this;
+        // var instance = this; // jshint
 
         console.log('i just overwrote the initializer :(');
     },
@@ -69,6 +71,8 @@ DataTableSortable.prototype = {
 // console.log('[DataTableSortable]: ', DataTableSortable.prototype);
 
 A.Base.mix(A.DataTable.Sortable, [DataTableSortable]);
+
+console.log('updated DataTableSortable.prototype.SORTABLE_HEADER_TEMPLATE ', DataTableSortable.prototype.SORTABLE_HEADER_TEMPLATE);
 
 // console.log('A.DataTable.Sortable: ', A.DataTable.Sortable.prototype);
 
