@@ -37,6 +37,12 @@
             ]
         },
 
+        "aui-datatable-sort": {
+            "jsfiles": [
+                "js/aui-datatable-sort.js"
+            ]
+        },
+
         "aui-datatable-property-list": {
             "jsfiles": [
                 "js/aui-datatable-property-list.js"
