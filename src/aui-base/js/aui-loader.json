@@ -227,6 +227,8 @@
     "aui-datatable-core": {
         "requires": [
             "aui-datatable-body",
+            "aui-datatable-head",
+            "aui-datatable-sort",
             "datatable-base",
             "event-key",
             "aui-event-base"
@@ -245,6 +247,11 @@
             "aui-datatable-core"
         ],
         "skinnable": true
+    },
+    "aui-datatable-head": {
+        "requires": [
+            "datatable-head"
+        ]
     },
     "aui-datatable-highlight": {
         "requires": [
@@ -270,6 +277,11 @@
             "aui-datatable-core"
         ],
         "skinnable": true
+    },
+    "aui-datatable-sort": {
+        "requires": [
+            "datatable-sort"
+        ]
     },
     "aui-datatype": {
         "requires": [

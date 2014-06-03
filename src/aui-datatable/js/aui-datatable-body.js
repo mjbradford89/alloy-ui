@@ -30,6 +30,15 @@ DataTableBody.NAME = 'dataTableBody';
 DataTableBody.prototype = {
 
     /**
+    HTML template used to create table cells.
+
+    @property CELL_TEMPLATE
+    @type {String}
+    @default '<td {headers} class="{className}" tabindex="0">{content}</td>'
+    **/
+    CELL_TEMPLATE: '<td {headers} class="{className}" tabindex="0">{content}</td>',
+
+    /**
      * Construction logic executed during DataTableBody instantiation.
      * Lifecycle.
      *

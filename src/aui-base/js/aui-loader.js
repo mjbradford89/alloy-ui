@@ -237,6 +237,8 @@ Y.mix(YUI.Env[Y.version].modules, {
     "aui-datatable-core": {
         "requires": [
             "aui-datatable-body",
+            "aui-datatable-head",
+            "aui-datatable-sort",
             "datatable-base",
             "event-key",
             "aui-event-base"
@@ -255,6 +257,11 @@ Y.mix(YUI.Env[Y.version].modules, {
             "aui-datatable-core"
         ],
         "skinnable": true
+    },
+    "aui-datatable-head": {
+        "requires": [
+            "datatable-head"
+        ]
     },
     "aui-datatable-highlight": {
         "requires": [
@@ -280,6 +287,11 @@ Y.mix(YUI.Env[Y.version].modules, {
             "aui-datatable-core"
         ],
         "skinnable": true
+    },
+    "aui-datatable-sort": {
+        "requires": [
+            "datatable-sort"
+        ]
     },
     "aui-datatype": {
         "requires": [
@@ -1172,4 +1184,4 @@ Y.mix(YUI.Env[Y.version].modules, {
         ]
     }
 });
-YUI.Env[Y.version].md5 = 'f452b780b344519d5790e322b997d695';
+YUI.Env[Y.version].md5 = '9b7a45df74000d0dc005796d5bffa015';
