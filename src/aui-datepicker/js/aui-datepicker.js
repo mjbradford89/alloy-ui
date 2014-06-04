@@ -111,9 +111,13 @@ A.mix(DatePickerBase.prototype, {
 
         instance.after('selectionChange', instance._afterDatePickerSelectionChange);
 
-        instance.bindUI();
+        // instance.bindUI();
 
         window.datepickerinstance = instance;
+
+        instance.on('activeInputChange', function() {
+            instance.bindActiveInputUI(); // dang. that doens't quite work either...
+        })
     },
 
     bindUI: function() {
@@ -123,9 +127,8 @@ A.mix(DatePickerBase.prototype, {
     },
 
     bindActiveInputUI: function() {
-        var instance = this;
-
-        var activeInput = instance.get('activeInput'),
+        var instance = this,
+            activeInput = instance.get('activeInput'),
             popover = instance.getPopover(),
             contentBox = popover.get('contentBox');
 
@@ -136,15 +139,25 @@ A.mix(DatePickerBase.prototype, {
                 instance._activeInputHandler.detach();
             }
 
-            instance._activeInputHandler = activeInput.on('keydown', function(event) {
+            instance._activeInputHandler = activeInput.on('keyup', function(event) {
                 var keyCode = event.keyCode;
 
                 if (keyCode === 13 || keyCode === 32) {
-                    popover.once('show', function(event) {
-                        contentBox.focus();
+                    console.log('pressed enter or spacebar...');
+
+                    popover.once('visibleChange', function() {
+                        console.log('popover shown');
+
+                        setTimeout(function() {
+
+                            console.log('focus...');
+                            contentBox.one('.yui3-calendarnav-prevmonth').focus();
+                        }, 100);
+
+                        // contentBox.focus();
 
                         console.log('focus! ', contentBox);
-                    }
+                    });
                 }
             });
         }
