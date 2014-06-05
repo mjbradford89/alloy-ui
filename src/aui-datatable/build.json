@@ -19,6 +19,12 @@
             ]
         },
 
+        "aui-datatable-head": {
+            "jsfiles": [
+                "js/aui-datatable-head.js"
+            ]
+        },
+
         "aui-datatable-highlight": {
             "jsfiles": [
                 "js/aui-datatable-highlight.js"
@@ -28,6 +34,12 @@
         "aui-datatable-selection": {
             "jsfiles": [
                 "js/aui-datatable-selection.js"
+            ]
+        },
+
+        "aui-datatable-sort": {
+            "jsfiles": [
+                "js/aui-datatable-sort.js"
             ]
         },
 
