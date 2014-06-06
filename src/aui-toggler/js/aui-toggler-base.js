@@ -7,6 +7,7 @@
 var Lang = A.Lang,
     isBoolean = Lang.isBoolean,
     isObject = Lang.isObject,
+    isString = Lang.isString,
     isUndefined = Lang.isUndefined,
 
     toInt = Lang.toInt,
@@ -91,6 +92,18 @@ var Toggler = A.Component.create({
         animating: {
             validator: isBoolean,
             value: false
+        },
+
+        /**
+         * String to be set as the 'aria-label' attribute on the header node.
+         *
+         * @attribute ariaLabel
+         * @default 'Press spacebar or enter key to toggle.'
+         * @type String
+         */
+        ariaLabel: {
+            validator: isString,
+            value: 'Press spacebar or enter key to toggle.'
         },
 
         /**
@@ -200,6 +213,8 @@ var Toggler = A.Component.create({
 
             instance.bindUI();
             instance.syncUI();
+
+            instance._setAriaLabelElements();
 
             instance._uiSetExpanded(instance.get('expanded'));
         },
@@ -404,6 +419,20 @@ var Toggler = A.Component.create({
             var instance = this;
 
             instance._uiSetExpanded(event.newVal);
+        },
+
+        /**
+         * Set the 'aria-label' attribute on the header node.
+         *
+         * @method _setAriaLabelElements
+         * @param expand
+         */
+        _setAriaLabelElements: function() {
+            var instance = this;
+
+            var header = instance.get('header');
+
+            header.setAttribute('aria-label', instance.get('ariaLabel'));
         },
 
         /**
