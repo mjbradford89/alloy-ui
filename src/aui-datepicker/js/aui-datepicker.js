@@ -213,12 +213,7 @@ A.mix(DatePickerBase.prototype, {
         popover.set('trigger', node);
         instance.set('activeInput', node);
 
-        node.on(
-            'keyup',
-            function(event) {
-                instance._activeInputKeyupHandler(event);
-            }
-        );
+        node.on('keyup', instance._activeInputKeyupHandler, instance);
 
         instance.alignTo(node);
         instance.clearSelection(true);
@@ -233,12 +228,12 @@ A.mix(DatePickerBase.prototype, {
      */
     _activeInputKeyupHandler: function(event) {
         var instance = this,
-            keyCode = event.keyCode,
-            calendar = instance.getCalendar(),
-            contentBox = calendar.get('contentBox');
+            keyCode = event.keyCode;
 
         if (keyCode === KeyMap.ENTER || keyCode === KeyMap.SPACE) {
             setTimeout(function() {
+                var calendar = instance.getCalendar(),
+                    contentBox = calendar.get('contentBox');
 
                 contentBox.setAttribute('tabindex', '1');
                 contentBox.focus();
