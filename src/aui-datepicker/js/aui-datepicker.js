@@ -220,10 +220,10 @@ A.mix(DatePickerBase.prototype, {
                 instance._activeInputFocusHandler();
             }
 
-            node.on('focus', instance._activeInputFocusHandler, instance);
+            node.once('focus', instance._activeInputFocusHandler, instance);
         }
         else {
-            node.on('keyup', instance._activeInputKeyupHandler, instance);
+            node.once('keyup', instance._activeInputKeyupHandler, instance);
         }
 
         node.setAttribute('aria-haspopup', 'true');
