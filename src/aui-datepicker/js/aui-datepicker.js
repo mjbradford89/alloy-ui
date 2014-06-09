@@ -5,6 +5,14 @@
  */
 
 var Lang = A.Lang,
+    KeyMap = {
+        DOWN: 40,
+        ENTER: 13,
+        LEFT: 37,
+        RIGHT: 39,
+        SPACE: 32,
+        UP: 38
+    },
 
     clamp = function(value, min, max) {
         return Math.min(Math.max(value, min), max);
@@ -43,6 +51,17 @@ DatePickerBase.PANES = [
  * @static
  */
 DatePickerBase.ATTRS = {
+
+    /**
+    * Sets the `aria-label` for the 'DatePicker'.
+    *
+    * @attribute ariaLabel
+    * @type String
+    */
+    ariaLabel: {
+        value: 'Navigate dates with arrow keys. Select a date with spacebar or enter key. Exit Date Picker with escape key.',
+        validator: Lang.isString
+    },
 
     /**
      * Stores the configuration of the `Calendar` instance.
@@ -162,6 +181,8 @@ A.mix(DatePickerBase.prototype, {
 
             // Restore the original CalendarBase template.
             A.CalendarBase.CONTENT_TEMPLATE = originalCalendarTemplate;
+
+            instance._setAriaElements();
         }
 
         return calendar;
@@ -192,9 +213,49 @@ A.mix(DatePickerBase.prototype, {
         popover.set('trigger', node);
         instance.set('activeInput', node);
 
+        node.on('keyup', instance._activeInputKeyupHandler, instance);
+
         instance.alignTo(node);
         instance.clearSelection(true);
         instance.selectDates(instance.getParsedDatesFromInputValue());
+    },
+
+    /**
+     * Fires after a keyup on an active input element.
+     *
+     * @method _activeInputKeyupHandler
+     * @protected
+     */
+    _activeInputKeyupHandler: function(event) {
+        var instance = this,
+            keyCode = event.keyCode;
+
+        if (keyCode === KeyMap.ENTER || keyCode === KeyMap.SPACE) {
+            setTimeout(function() {
+                var calendar = instance.getCalendar(),
+                    contentBox = calendar.get('contentBox');
+
+                contentBox.setAttribute('tabindex', '1');
+                contentBox.focus();
+
+                contentBox.once(
+                    'keyup',
+                    function(event) {
+                        var keyCode = event.keyCode;
+
+                        if (keyCode === KeyMap.UP ||
+                            keyCode === KeyMap.DOWN ||
+                            keyCode === KeyMap.LEFT ||
+                            keyCode === KeyMap.RIGHT ||
+                            keyCode === KeyMap.ENTER ||
+                            keyCode === KeyMap.SPACE) {
+
+                            contentBox.one('table').focus();
+                        }
+                    }
+                );
+            }, 10);
+        }
     },
 
     /**
@@ -238,6 +299,20 @@ A.mix(DatePickerBase.prototype, {
         var instance = this;
 
         instance._setCalendarToFirstSelectedDate();
+    },
+
+    /**
+     * Sets the aria-label on the 'DatePicker' popover.
+     *
+     * @method _setAriaElements
+     * @protected
+     */
+    _setAriaElements: function() {
+        var instance = this,
+            calendar = instance.getCalendar(),
+            contentBox = calendar.get('contentBox');
+
+        contentBox.set('aria-label', instance.get('ariaLabel'));
     },
 
     /**
