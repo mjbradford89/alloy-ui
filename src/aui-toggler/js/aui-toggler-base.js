@@ -98,12 +98,12 @@ var Toggler = A.Component.create({
          * String to be set as the 'aria-label' attribute on the header node.
          *
          * @attribute ariaLabel
-         * @default 'Press spacebar or enter key to toggle.'
+         * @default 'Toggle content with spacebar or enter.'
          * @type String
          */
         ariaLabel: {
             validator: isString,
-            value: 'Press spacebar or enter key to toggle.'
+            value: 'Toggle content with spacebar or enter.'
         },
 
         /**
