@@ -208,12 +208,25 @@ A.mix(DatePickerBase.prototype, {
      */
     useInputNode: function(node) {
         var instance = this,
-            popover = instance.getPopover();
+            popover = instance.getPopover(),
+            tagName = node.get('tagName');
 
         popover.set('trigger', node);
         instance.set('activeInput', node);
 
-        node.on('keyup', instance._activeInputKeyupHandler, instance);
+        if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
+            if (node.compareTo(document.activeElement)) {
+                instance._activeInputFocusHandler();
+            }
+
+            node.on('focus', instance._activeInputFocusHandler, instance);
+        }
+        else {
+            node.on('keyup', instance._activeInputKeyupHandler, instance);
+        }
+
+        node.setAttribute('aria-haspopup', 'true');
+        node.setAttribute('aria-owns', popover.get('id'));
 
         instance.alignTo(node);
         instance.clearSelection(true);
@@ -231,31 +244,25 @@ A.mix(DatePickerBase.prototype, {
             keyCode = event.keyCode;
 
         if (keyCode === KeyMap.ENTER || keyCode === KeyMap.SPACE) {
-            setTimeout(function() {
-                var calendar = instance.getCalendar(),
-                    contentBox = calendar.get('contentBox');
-
-                contentBox.setAttribute('tabindex', '1');
-                contentBox.focus();
-
-                contentBox.once(
-                    'keyup',
-                    function(event) {
-                        var keyCode = event.keyCode;
-
-                        if (keyCode === KeyMap.UP ||
-                            keyCode === KeyMap.DOWN ||
-                            keyCode === KeyMap.LEFT ||
-                            keyCode === KeyMap.RIGHT ||
-                            keyCode === KeyMap.ENTER ||
-                            keyCode === KeyMap.SPACE) {
-
-                            contentBox.one('table').focus();
-                        }
-                    }
-                );
-            }, 10);
+            instance._focusAndBindPopover();
         }
+    },
+
+    /**
+     * Fires after a focus on an active input element (textarea or text).
+     *
+     * @method _activeInputFocusHandler
+     * @protected
+     */
+    _activeInputFocusHandler: function(event) {
+        var instance = this,
+            popover = instance.getPopover();
+
+        if (!popover.get('visible')) {
+            popover.show();
+        }
+
+        instance._focusAndBindPopover();
     },
 
     /**
@@ -299,6 +306,41 @@ A.mix(DatePickerBase.prototype, {
         var instance = this;
 
         instance._setCalendarToFirstSelectedDate();
+    },
+
+    /**
+     * Focuses the popover and binds keyups to calendar.
+     *
+     * @method _focusAndBindPopover
+     * @protected
+     */
+    _focusAndBindPopover: function() {
+        var instance = this;
+
+        setTimeout(function() {
+            var calendar = instance.getCalendar(),
+                contentBox = calendar.get('contentBox');
+
+            contentBox.setAttribute('tabindex', '1');
+            contentBox.focus();
+
+            contentBox.once(
+                'keyup',
+                function(event) {
+                    var keyCode = event.keyCode;
+
+                    if (keyCode === KeyMap.UP ||
+                        keyCode === KeyMap.DOWN ||
+                        keyCode === KeyMap.LEFT ||
+                        keyCode === KeyMap.RIGHT ||
+                        keyCode === KeyMap.ENTER ||
+                        keyCode === KeyMap.SPACE) {
+
+                        contentBox.one('table').focus();
+                    }
+                }
+            );
+        }, 10);
     },
 
     /**
