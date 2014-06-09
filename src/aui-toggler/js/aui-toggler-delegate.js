@@ -6,6 +6,7 @@
 
 var Lang = A.Lang,
     isBoolean = Lang.isBoolean,
+    isNumber = Lang.isNumber,
     isObject = Lang.isObject,
     isString = Lang.isString,
 
@@ -66,6 +67,18 @@ var TogglerDelegate = A.Component.create({
             validator: isBoolean,
             value: false,
             writeOnce: true
+        },
+
+        /**
+         * String to be set as the 'aria-label' attribute on the header node.
+         *
+         * @attribute ariaLabel
+         * @default 'Press spacebar or enter key to toggle.'
+         * @type String
+         */
+        ariaLabel: {
+            validator: isString,
+            value: 'Press spacebar or enter key to toggle.'
         },
 
         /**
@@ -166,6 +179,7 @@ var TogglerDelegate = A.Component.create({
 
             instance.bindUI();
             instance.renderUI();
+            instance._setAriaLabelElements();
         },
 
         /**
@@ -365,6 +379,21 @@ var TogglerDelegate = A.Component.create({
             var instance = this;
 
             instance.animating = event.newVal;
+        },
+
+        /**
+         * Set the 'aria-label' attribute on the header node.
+         *
+         * @method _setAriaLabelElements
+         * @param expand
+         */
+        _setAriaLabelElements: function() {
+            var instance = this,
+                container = instance.get('container'),
+                header = instance.get('header'),
+                triggers = container.all(header + ' > *');
+
+            triggers.setAttribute('aria-label', instance.get('ariaLabel'));
         }
 
     }

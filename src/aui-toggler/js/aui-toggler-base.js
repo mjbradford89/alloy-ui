@@ -7,6 +7,7 @@
 var Lang = A.Lang,
     isBoolean = Lang.isBoolean,
     isObject = Lang.isObject,
+    isString = Lang.isString,
     isUndefined = Lang.isUndefined,
 
     toInt = Lang.toInt,
@@ -91,6 +92,18 @@ var Toggler = A.Component.create({
         animating: {
             validator: isBoolean,
             value: false
+        },
+
+        /**
+         * String to be set as the 'aria-label' attribute on the header node.
+         *
+         * @attribute ariaLabel
+         * @default 'Toggle content with spacebar or enter.'
+         * @type String
+         */
+        ariaLabel: {
+            validator: isString,
+            value: 'Toggle content with spacebar or enter.'
         },
 
         /**
@@ -200,6 +213,8 @@ var Toggler = A.Component.create({
 
             instance.bindUI();
             instance.syncUI();
+
+            instance._setAriaLabelElements();
 
             instance._uiSetExpanded(instance.get('expanded'));
         },
@@ -407,6 +422,22 @@ var Toggler = A.Component.create({
         },
 
         /**
+         * Set the 'aria-label' attribute on the header node.
+         *
+         * @method _setAriaLabelElements
+         * @param expand
+         */
+        _setAriaLabelElements: function() {
+            var instance = this,
+                content = instance.get('content'),
+                header = instance.get('header');
+
+            content.setAttribute('tabindex', '0');
+
+            header.setAttribute('aria-label', instance.get('ariaLabel'));
+        },
+
+        /**
          * Set the `expanded` attribute on the UI.
          *
          * @method _uiSetExpanded
@@ -414,12 +445,22 @@ var Toggler = A.Component.create({
          * @protected
          */
         _uiSetExpanded: function(val) {
-            var instance = this;
+            var instance = this,
+                content = instance.get('content'),
+                header = instance.get('header');
 
-            instance.get('content').replaceClass(CSS_TOGGLER_CONTENT_STATE[!val], CSS_TOGGLER_CONTENT_STATE[val]);
-            instance.get('header').replaceClass(CSS_TOGGLER_HEADER_STATE[!val], CSS_TOGGLER_HEADER_STATE[val]);
+            content.replaceClass(CSS_TOGGLER_CONTENT_STATE[!val], CSS_TOGGLER_CONTENT_STATE[val]);
+            header.replaceClass(CSS_TOGGLER_HEADER_STATE[!val], CSS_TOGGLER_HEADER_STATE[val]);
+
+            if (val) {
+                content.setAttribute('tabindex', 0);
+                header.setAttribute('aria-label', 'toggled on'); // to-do use instance.get('strings').on (or something similar)
+            }
+            else {
+                content.setAttribute('tabindex', -1);
+                header.setAttribute('aria-label', 'toggled off'); // to-do use instance.get('strings').off (or something similar)
+            }
         }
-
     }
 });
 
