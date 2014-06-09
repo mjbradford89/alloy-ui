@@ -6,12 +6,11 @@
  * @submodule aui-node-accessible
  */
 
-var ANode = A.Node,
-    getClassName = A.getClassName,
+var getClassName = A.getClassName,
 
     CSS_BOOTSTRAP_SR_ONLY = getClassName('sr-only'),
 
-    NODE_PROTO = ANode.prototype;
+    NODE_PROTO = A.Node.prototype;
 
 A.mix(
     NODE_PROTO, {
