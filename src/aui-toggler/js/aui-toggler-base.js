@@ -428,9 +428,11 @@ var Toggler = A.Component.create({
          * @param expand
          */
         _setAriaLabelElements: function() {
-            var instance = this;
+            var instance = this,
+                content = instance.get('content'),
+                header = instance.get('header');
 
-            var header = instance.get('header');
+            content.setAttribute('tabindex', '0');
 
             header.setAttribute('aria-label', instance.get('ariaLabel'));
         },
@@ -443,12 +445,22 @@ var Toggler = A.Component.create({
          * @protected
          */
         _uiSetExpanded: function(val) {
-            var instance = this;
+            var instance = this,
+                content = instance.get('content'),
+                header = instance.get('header');
 
-            instance.get('content').replaceClass(CSS_TOGGLER_CONTENT_STATE[!val], CSS_TOGGLER_CONTENT_STATE[val]);
-            instance.get('header').replaceClass(CSS_TOGGLER_HEADER_STATE[!val], CSS_TOGGLER_HEADER_STATE[val]);
+            content.replaceClass(CSS_TOGGLER_CONTENT_STATE[!val], CSS_TOGGLER_CONTENT_STATE[val]);
+            header.replaceClass(CSS_TOGGLER_HEADER_STATE[!val], CSS_TOGGLER_HEADER_STATE[val]);
+
+            if (val) {
+                content.setAttribute('tabindex', 0);
+                header.setAttribute('aria-label', 'toggled on'); // to-do use instance.get('strings').on (or something similar)
+            }
+            else {
+                content.setAttribute('tabindex', -1);
+                header.setAttribute('aria-label', 'toggled off'); // to-do use instance.get('strings').off (or something similar)
+            }
         }
-
     }
 });
 
