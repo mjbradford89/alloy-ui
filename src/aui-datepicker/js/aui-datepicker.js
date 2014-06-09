@@ -209,12 +209,12 @@ A.mix(DatePickerBase.prototype, {
     useInputNode: function(node) {
         var instance = this,
             popover = instance.getPopover(),
-            tagName = node.get('tagName');
+            tagName = node.get('tagName').toLowerCase();
 
         popover.set('trigger', node);
         instance.set('activeInput', node);
 
-        if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
+        if (tagName === 'input' || tagName === 'textarea') {
             if (node.compareTo(document.activeElement)) {
                 instance._activeInputFocusHandler();
             }
