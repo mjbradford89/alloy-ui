@@ -215,16 +215,20 @@ A.mix(DatePickerBase.prototype, {
         popover.set('trigger', node);
         instance.set('activeInput', node);
 
-        if ((tagName === 'input' && type === 'text') || tagName === 'textarea') {
-            if (node.compareTo(document.activeElement)) {
-                instance._activeInputFocusHandler();
-            }
+        var text = (((tagName === 'input' && type === 'text') ||(tagName === 'textarea')) && node.compareTo(document.activeElement));
 
-            node.once('focus', instance._activeInputFocusHandler, instance);
-        }
-        else {
-            node.once('keyup', instance._activeInputKeyupHandler, instance);
-        }
+        node.once(
+            'keyup',
+            function(event) {
+                var keyCode = event.keyCode;
+
+                if ((keyCode === KeyMap.ENTER) || (text && (keyCode === KeyMap.SPACE))) {
+                    event.preventDefault();
+
+                    instance._focusPopover();
+                }
+            }
+        );
 
         node.setAttribute('aria-haspopup', 'true');
         node.setAttribute('aria-owns', popover.get('id'));
@@ -245,7 +249,7 @@ A.mix(DatePickerBase.prototype, {
             keyCode = event.keyCode;
 
         if (keyCode === KeyMap.ENTER || keyCode === KeyMap.SPACE) {
-            instance._focusAndBindPopover();
+            instance._focusPopover();
         }
     },
 
@@ -263,7 +267,7 @@ A.mix(DatePickerBase.prototype, {
             popover.show();
         }
 
-        instance._focusAndBindPopover();
+        instance._focusPopover();
     },
 
     /**
@@ -312,13 +316,14 @@ A.mix(DatePickerBase.prototype, {
     /**
      * Focuses the popover and binds keyups to calendar.
      *
-     * @method _focusAndBindPopover
+     * @method _focusPopover
      * @protected
      */
-    _focusAndBindPopover: function() {
+    _focusPopover: function() {
         var instance = this;
 
-        setTimeout(function() {
+        setTimeout(
+            function() {
             var calendar = instance.getCalendar(),
                 contentBox = calendar.get('contentBox');
 
