@@ -217,12 +217,12 @@ A.mix(DatePickerBase.prototype, {
 
         var text = (((tagName === 'input' && type === 'text') ||(tagName === 'textarea')) && node.compareTo(document.activeElement));
 
-        node.once(
+        node.on(
             'keyup',
             function(event) {
                 var keyCode = event.keyCode;
 
-                if ((keyCode === KeyMap.ENTER) || (text && (keyCode === KeyMap.SPACE))) {
+                if (((keyCode === KeyMap.ENTER || keyCode === KeyMap.SPACE) && !text) || (text && (keyCode === KeyMap.ENTER))) {
                     event.preventDefault();
 
                     instance._focusPopover();
@@ -320,7 +320,12 @@ A.mix(DatePickerBase.prototype, {
      * @protected
      */
     _focusPopover: function() {
-        var instance = this;
+        var instance = this,
+            popover = instance.getPopover();
+
+        if (!popover.get('visible')) {
+            popover.show();
+        }
 
         setTimeout(
             function() {
