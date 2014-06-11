@@ -7,7 +7,6 @@
 var Lang = A.Lang,
     isBoolean = Lang.isBoolean,
     isObject = Lang.isObject,
-    isString = Lang.isString,
     isUndefined = Lang.isUndefined,
 
     toInt = Lang.toInt,
@@ -95,18 +94,6 @@ var Toggler = A.Component.create({
         },
 
         /**
-        * String to be set as the 'aria-label' attribute on the header node.
-        *
-        * @attribute ariaLabel
-        * @default 'Toggle content with spacebar or enter.'
-        * @type String
-        */
-         ariaLabel: {
-            validator: isString,
-            value: 'Toggle content with spacebar or enter.'
-         },
-
-        /**
          * Determine if the `A.Toggler` should bind DOM events or not.
          *
          * @attribute bindDOMEvents
@@ -137,6 +124,19 @@ var Toggler = A.Component.create({
          * @type Boolean
          */
         expanded: {
+            setter: function(val) {
+                var instance = this,
+                    content = instance.get('content'),
+                    header = instance.get('header');
+
+                if (!content.getAttribute('aria-hidden')) {
+                    content.setAttribute('aria-hidden', !val);
+                }
+
+                if (!header.getAttribute('aria-expanded')) {
+                    header.setAttribute('aria-expanded', val);
+                }
+            },
             validator: isBoolean,
             value: true
         },
@@ -221,7 +221,7 @@ var Toggler = A.Component.create({
             instance.bindUI();
             instance.syncUI();
 
-            instance._setAriaLabelElements();
+            instance._setAriaElements();
 
             instance._uiSetExpanded(instance.get('expanded'));
         },
@@ -301,9 +301,13 @@ var Toggler = A.Component.create({
          * @method collapse
          */
         collapse: function(payload) {
-            var instance = this;
+            var instance = this,
+                expand = false;
 
-            return instance.toggle(false, payload);
+            instance.get('content').setAttribute('aria-hidden', !expand);
+            instance.get('header').setAttribute('aria-expanded', expand);
+
+            return instance.toggle(expand, payload);
         },
 
         /**
@@ -312,9 +316,13 @@ var Toggler = A.Component.create({
          * @method expand
          */
         expand: function(payload) {
-            var instance = this;
+            var instance = this,
+                expand = true;
 
-            return instance.toggle(true, payload);
+            instance.get('content').setAttribute('aria-hidden', !expand);
+            instance.get('header').setAttribute('aria-expanded', expand);
+
+            return instance.toggle(expand, payload);
         },
 
         /**
@@ -412,6 +420,9 @@ var Toggler = A.Component.create({
                 instance.set('expanded', expand, payload);
             }
 
+            instance.get('content').setAttribute('aria-hidden', !expand);
+            instance.get('header').setAttribute('aria-expanded', expand);
+
             return expand;
         },
 
@@ -429,26 +440,18 @@ var Toggler = A.Component.create({
         },
 
         /**
-         * Set the 'aria-label' attribute on the header node.
+         * Set the 'aria' attributes on the header and content nodes.
          *
          * @method _setAriaLabelElements
          * @param expand
          */
-        _setAriaLabelElements: function() {
+        _setAriaElements: function() {
             var instance = this,
                 content = instance.get('content'),
-                header = instance.get('header');
+                header = instance.get('header'),
+                id = content.attr('id') || content.guid();
 
-            if (!content.getAttribute('id')) {
-                content.resetId();
-            }
-
-            header.setAttrs({
-                'aria-controls': content.getAttribute('id'),
-                'aria-label': instance.get('ariaLabel'),
-                'role': 'button',
-                'tabIndex': '0'
-            });
+            header.setAttribute('aria-controls', id);
         },
 
         /**
@@ -465,24 +468,6 @@ var Toggler = A.Component.create({
 
             content.replaceClass(CSS_TOGGLER_CONTENT_STATE[!val], CSS_TOGGLER_CONTENT_STATE[val]);
             header.replaceClass(CSS_TOGGLER_HEADER_STATE[!val], CSS_TOGGLER_HEADER_STATE[val]);
-
-            if (val) {
-                content.setAttrs({
-                    'aria-hidden': 'false',
-                    'tabIndex': 0
-                });
-            }
-            else {
-                content.setAttrs({
-                    'aria-hidden': 'true',
-                    'tabIndex': 1
-                });
-            }
-
-            header.setAttrs({
-                'aria-expanded': val,
-                'aria-pressed': val
-            });
         }
     }
 });
