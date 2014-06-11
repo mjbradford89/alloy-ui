@@ -59,8 +59,8 @@ DatePickerBase.ATTRS = {
     * @type String
     */
     ariaLabel: {
-        value: 'Navigate dates with arrow keys. Select a date with spacebar or enter key. Exit Date Picker with escape key.',
-        validator: Lang.isString
+        validator: Lang.isString,
+        value: 'Navigate dates with arrow keys. Select a date with spacebar or enter key. Exit Date Picker with escape key.'
     },
 
     /**
@@ -329,29 +329,31 @@ A.mix(DatePickerBase.prototype, {
 
         setTimeout(
             function() {
-            var calendar = instance.getCalendar(),
-                contentBox = calendar.get('contentBox');
+                var calendar = instance.getCalendar(),
+                    contentBox = calendar.get('contentBox');
 
-            contentBox.setAttribute('tabindex', '1');
-            contentBox.focus();
+                contentBox.setAttribute('tabindex', 1);
+                contentBox.focus();
 
-            contentBox.once(
-                'keyup',
-                function(event) {
-                    var keyCode = event.keyCode;
+                contentBox.once(
+                    'keyup',
+                    function(event) {
+                        var keyCode = event.keyCode;
 
-                    if (keyCode === KeyMap.UP ||
-                        keyCode === KeyMap.DOWN ||
-                        keyCode === KeyMap.LEFT ||
-                        keyCode === KeyMap.RIGHT ||
-                        keyCode === KeyMap.ENTER ||
-                        keyCode === KeyMap.SPACE) {
+                        if (keyCode === KeyMap.UP ||
+                            keyCode === KeyMap.DOWN ||
+                            keyCode === KeyMap.LEFT ||
+                            keyCode === KeyMap.RIGHT ||
+                            keyCode === KeyMap.ENTER ||
+                            keyCode === KeyMap.SPACE) {
 
-                        contentBox.one('table').focus();
+                            contentBox.one('table').focus();
+                        }
                     }
-                }
-            );
-        }, 10);
+                );
+            },
+            10
+        );
     },
 
     /**
