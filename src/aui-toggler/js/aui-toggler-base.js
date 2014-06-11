@@ -95,6 +95,18 @@ var Toggler = A.Component.create({
         },
 
         /**
+        * String to be set as the 'aria-label' attribute on the header node.
+        *
+        * @attribute ariaLabel
+        * @default 'Toggle content with spacebar or enter.'
+        * @type String
+        */
+         ariaLabel: {
+            validator: isString,
+            value: 'Toggle content with spacebar or enter.'
+         },
+
+        /**
          * Determine if the `A.Toggler` should bind DOM events or not.
          *
          * @attribute bindDOMEvents
@@ -214,6 +226,8 @@ var Toggler = A.Component.create({
 
             instance.bindUI();
             instance.syncUI();
+
+            instance._setAriaLabelElements();
 
             instance._uiSetExpanded(instance.get('expanded'));
         },
@@ -421,6 +435,29 @@ var Toggler = A.Component.create({
         },
 
         /**
+         * Set the 'aria-label' attribute on the header node.
+         *
+         * @method _setAriaLabelElements
+         * @param expand
+         */
+        _setAriaLabelElements: function() {
+            var instance = this,
+                content = instance.get('content'),
+                header = instance.get('header');
+
+            if (!content.getAttribute('id')) {
+                content.resetId();
+            }
+
+            header.setAttrs({
+                'aria-controls': content.getAttribute('id'),
+                'aria-label': instance.get('ariaLabel'),
+                'role': 'button',
+                'tabIndex': '0'
+            });
+        },
+
+        /**
          * Set the `expanded` attribute on the UI.
          *
          * @method _uiSetExpanded
@@ -428,12 +465,31 @@ var Toggler = A.Component.create({
          * @protected
          */
         _uiSetExpanded: function(val) {
-            var instance = this;
+            var instance = this,
+                content = instance.get('content'),
+                header = instance.get('header');
 
-            instance.get('content').replaceClass(CSS_TOGGLER_CONTENT_STATE[!val], CSS_TOGGLER_CONTENT_STATE[val]);
-            instance.get('header').replaceClass(CSS_TOGGLER_HEADER_STATE[!val], CSS_TOGGLER_HEADER_STATE[val]);
+            content.replaceClass(CSS_TOGGLER_CONTENT_STATE[!val], CSS_TOGGLER_CONTENT_STATE[val]);
+            header.replaceClass(CSS_TOGGLER_HEADER_STATE[!val], CSS_TOGGLER_HEADER_STATE[val]);
+
+            if (val) {
+                content.setAttrs({
+                    'aria-hidden': 'false',
+                    'tabIndex': 0
+                });
+            }
+            else {
+                content.setAttrs({
+                    'aria-hidden': 'true',
+                    'tabIndex': 1
+                });
+            }
+
+            header.setAttrs({
+                'aria-expanded': val,
+                'aria-pressed': val
+            });
         }
-
     }
 });
 
