@@ -78,12 +78,18 @@ var AArray = A.Array,
                 target = event.currentTarget,
                 index = parseInt(target.getData('index'));
 
-            if (keyCode === 37 || keyCode === 39) {
+            if (37 <= keyCode && keyCode <= 40) {
                 if (keyCode === 37) {
                     index = index - 1;
                 }
+                else if (keyCode === 38) {
+                    index = index - 10;
+                }
                 else if (keyCode === 39) {
                     index = index + 1;
+                }
+                else if (keyCode === 40) {
+                    index = index + 10;
                 }
 
                 var items = instance.get('boundingBox').all('.' + CSS_PALETTE_ITEM_INNER),
