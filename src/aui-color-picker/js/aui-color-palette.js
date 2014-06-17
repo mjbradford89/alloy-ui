@@ -95,7 +95,7 @@ var AArray = A.Array,
                 var items = instance.get('boundingBox').all('.' + CSS_PALETTE_ITEM_INNER),
                     item = instance.getItemByIndex(index);
 
-                if(item) {
+                if (item) {
                     var toSelectItem = item.one('.' + CSS_PALETTE_ITEM_INNER);
 
                     if (toSelectItem) {
