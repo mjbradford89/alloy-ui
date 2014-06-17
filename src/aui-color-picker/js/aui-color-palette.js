@@ -121,7 +121,7 @@ var AArray = A.Array,
             var instance = this,
                 items = instance.get('items');
 
-            AArray.each(items, function(item, index, collection) {
+            AArray.each(items, function(item, index) {
                     if (index === toSelectIndex) {
                         instance.toggleSelection(index);
                     }
