@@ -214,7 +214,7 @@ var AArray = A.Array,
                         index: index,
                         row: row,
                         selectedClassName: selected ? CSS_PALETTE_ITEM_SELECTED : '',
-                        tabindex: index == 0 ? 0 : -1,
+                        tabindex: index === 0 ? 0 : -1,
                         title: item.name,
                         value: item.value
                     }
