@@ -1190,26 +1190,26 @@ var AColor = A.Color,
             var instance = this,
                 ariaLabels = instance.get('ariaLabels');
 
-            instance._setAriaAttr(ariaLabels.hex, 'label', instance._outputContainer);
-            instance._setAriaAttr(ariaLabels.h, 'label', instance._hContainer);
-            instance._setAriaAttr(ariaLabels.s, 'label', instance._sContainer);
-            instance._setAriaAttr(ariaLabels.r, 'label', instance._rContainer);
-            instance._setAriaAttr(ariaLabels.g, 'label', instance._gContainer);
             instance._setAriaAttr(ariaLabels.b, 'label', instance._bContainer);
+            instance._setAriaAttr(ariaLabels.g, 'label', instance._gContainer);
+            instance._setAriaAttr(ariaLabels.h, 'label', instance._hContainer);
+            instance._setAriaAttr(ariaLabels.hex, 'label', instance._outputContainer);
+            instance._setAriaAttr(ariaLabels.r, 'label', instance._rContainer);
+            instance._setAriaAttr(ariaLabels.s, 'label', instance._sContainer);
             instance._setAriaAttr(ariaLabels.v, 'label', instance._vContainer);
 
+            instance._setAriaAttr(MAX_COLOR, 'valuemax', instance._bContainer);
+            instance._setAriaAttr(MAX_COLOR, 'valuemax', instance._gContainer);
+            instance._setAriaAttr(MAX_COLOR, 'valuemax', instance._rContainer);
             instance._setAriaAttr(MAX_HUE, 'valuemax', instance._hContainer);
             instance._setAriaAttr(MAX_SATURATION, 'valuemax', instance._sContainer);
-            instance._setAriaAttr(MAX_COLOR, 'valuemax', instance._rContainer);
-            instance._setAriaAttr(MAX_COLOR, 'valuemax', instance._gContainer);
-            instance._setAriaAttr(MAX_COLOR, 'valuemax', instance._bContainer);
             instance._setAriaAttr(MAX_VALUE, 'valuemax', instance._vContainer);
 
+            instance._setAriaAttr(MIN_COLOR, 'valuemin', instance._bContainer);
+            instance._setAriaAttr(MIN_COLOR, 'valuemin', instance._gContainer);
+            instance._setAriaAttr(MIN_COLOR, 'valuemin', instance._rContainer);
             instance._setAriaAttr(MIN_HUE, 'valuemin', instance._hContainer);
             instance._setAriaAttr(MIN_SATURATION, 'valuemin', instance._sContainer);
-            instance._setAriaAttr(MIN_COLOR, 'valuemin', instance._rContainer);
-            instance._setAriaAttr(MIN_COLOR, 'valuemin', instance._gContainer);
-            instance._setAriaAttr(MIN_COLOR, 'valuemin', instance._bContainer);
             instance._setAriaAttr(MIN_VALUE, 'valuemin', instance._vContainer);
         },
 
@@ -1631,8 +1631,8 @@ var AColor = A.Color,
                     b: 'Blue',
                     g: 'Green',
                     h: 'Hue',
-                    r: 'Red',
                     hex: 'Hex',
+                    r: 'Red',
                     s: 'Saturation',
                     v: 'Value'
                 }
