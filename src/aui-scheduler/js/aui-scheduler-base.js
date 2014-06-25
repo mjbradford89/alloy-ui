@@ -51,7 +51,7 @@ var CSS_SCHEDULER_VIEW_ = A.getClassName('scheduler-base', 'view', ''),
     TPL_SCHEDULER_NAV = '<div class="btn-group"></div>',
     TPL_SCHEDULER_TODAY = '<button type="button" class="' + [CSS_SCHEDULER_TODAY, CSS_BTN, CSS_BTN_DEFAULT].join(' ') +
         '">{today}</button>',
-    TPL_SCHEDULER_VIEW = '<button type="button" class="' + [CSS_SCHEDULER_VIEW, CSS_SCHEDULER_VIEW_].join(' ') +
+    TPL_SCHEDULER_VIEW = '<button role="button" aria-label="{ariaLabel}" type="button" class="' + [CSS_SCHEDULER_VIEW, CSS_SCHEDULER_VIEW_].join(' ') +
         '{name}" data-view-name="{name}">{label}</button>',
     TPL_SCHEDULER_VIEW_DATE = '<span class="' + CSS_SCHEDULER_VIEW_DATE + '"></span>',
     TPL_SCHEDULER_VIEWS = '<div class="col col-lg-5 col-md-5 col-sm-5 ' + CSS_SCHEDULER_VIEWS + '"></div>';
@@ -385,6 +385,18 @@ var SchedulerBase = A.Component.create({
      */
     ATTRS: {
 
+        ariaLabels: {
+            value: {
+                'today': 'Got to today.',
+                'next': 'Next',
+                'prev': 'Previous',
+                'week': 'Week View',
+                'day': 'Day View',
+                'month': 'Month View',
+                'agenda': 'Agenda View'
+            }
+        },
+
         /**
          * Contains the active view.
          *
@@ -663,6 +675,13 @@ var SchedulerBase = A.Component.create({
             return instance.viewStack[name];
         },
 
+        getAriaLabel: function(name) {
+            var instance = this;
+            var labels = instance.get('ariaLabels');
+
+            return labels[name];
+        },
+
         /**
          * Returns this `Scheduler`'s `strings` attribute value.
          *
@@ -796,6 +815,9 @@ var SchedulerBase = A.Component.create({
             if (instance.get('rendered')) {
                 var activeView = event.newVal;
                 var lastActiveView = event.prevVal;
+                var activeViewName = activeView.get('name');
+
+                instance.updateViewButtonsAriaPressed(activeViewName);
 
                 if (lastActiveView) {
                     lastActiveView.hide();
@@ -813,6 +835,16 @@ var SchedulerBase = A.Component.create({
             }
         },
 
+        updateViewButtonsAriaPressed: function(activeViewName) {
+            var instance = this;
+            var viewsNode = instance.viewsNode;
+            var activeViewButton = viewsNode.one('[data-view-name="' + activeViewName + '"]');
+            var notActiveViewButtons = activeViewButton.siblings();
+
+            activeViewButton.setAttribute('aria-pressed', true);
+            notActiveViewButtons.setAttribute('aria-pressed', false);
+        },
+
         /**
          * Handles `render` events.
          *
@@ -822,13 +854,18 @@ var SchedulerBase = A.Component.create({
          */
         _afterRender: function() {
             var instance = this,
-                activeView = instance.get('activeView');
+                activeView = instance.get('activeView'),
+                activeViewName = activeView.get('name');
+
+            instance._initAria();
 
             instance.renderView(activeView);
             instance.renderButtonGroup();
 
             instance._uiSetDate(instance.get('date'));
             instance._uiSetActiveView(activeView);
+
+            instance.updateViewButtonsAriaPressed(activeViewName);
         },
 
         /**
@@ -866,7 +903,8 @@ var SchedulerBase = A.Component.create({
                     A.Node.create(
                         A.Lang.sub(TPL_SCHEDULER_VIEW, {
                             name: name,
-                            label: (instance.getString(name) || name)
+                            label: (instance.getString(name) || name),
+                            ariaLabel: (instance.getAriaLabel(name) || name)
                         })
                     )
                 );
@@ -892,6 +930,21 @@ var SchedulerBase = A.Component.create({
             }
 
             return date;
+        },
+
+        _initAria: function() {
+            var instance = this,
+                activeView = instance.get('activeView');
+
+            var today = A.one('.' + CSS_SCHEDULER_TODAY);
+            var next = A.one('.' + CSS_SCHEDULER_ICON_NEXT);
+            var prev = A.one('.' + CSS_SCHEDULER_ICON_PREV);
+
+            today.setAttribute('aria-label', instance.getAriaLabel('today'));
+            next.setAttribute('aria-label', instance.getAriaLabel('next'));
+            prev.setAttribute('aria-label', instance.getAriaLabel('prev'));
+
+            activeView.setAriaLabelsDate();
         },
 
         /**

@@ -360,7 +360,7 @@ var SchedulerEventRecorder = A.Component.create({
         },
 
         /**
-         * Hides this Scheduler event recorder's `popover` component.
+         * Shows this Scheduler event recorder's `popover` component.
          *
          * @method showPopover
          */
