@@ -102,6 +102,14 @@ var SchedulerMonthView = A.Component.create({
 
     prototype: {
 
+        bindUI: function() {
+            var instance = this;
+
+            instance.columnTableGrid.on('key', instance._onNewKeyUp, 'up:78', instance);
+            instance.columnTableGrid.on('key', instance._onNewKeyDown, 'down:78', instance);
+            instance.columnTableGrid.on('key', instance._onEnterKeyDown, 'down:13', instance);
+        },
+
         /**
          * Returns a date value of the first day of the month with its time
          * adjusted to midnight.
@@ -175,6 +183,19 @@ var SchedulerMonthView = A.Component.create({
             });
         },
 
+        _afterVisibleChange: function(event) {
+            var instance = this;
+
+            if (instance.get('rendered')) {
+                if (instance.get('visible')) {
+                    instance.columnTableGrid.setAttribute('tabindex', 0);
+                }
+                else {
+                    instance.columnTableGrid.removeAttribute('tabindex');
+                }
+            }
+        },
+
         /**
          * Returns the current interval start by finding the first day of the
          * week with the `Scheduler`'s `viewDate`.
@@ -207,8 +228,83 @@ var SchedulerMonthView = A.Component.create({
             var firstDayOfWeek = scheduler.get('firstDayOfWeek');
 
             return DateMath.getFirstDayOfWeek(date, firstDayOfWeek);
-        }
+        },
 
+        /**
+         * Fires on enter key down on table cell.
+         *
+         * @method _onEnterKeyDown
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onEnterKeyDown: function(event) {
+            var instance = this,
+                target = event.target,
+                position = target.getData('position')
+                scheduler = instance.get('scheduler'),
+                date = instance._getPositionDate([position.col, position.row]),
+                dayView = scheduler.getViewByName('day');
+
+            if (dayView) {
+                scheduler.set('date', date);
+                scheduler.set('activeView', dayView);
+            }
+        },
+
+        /**
+         * Fires on 'N' key down on table cell.
+         *
+         * @method _onNewKeyDown
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onNewKeyDown: function(event) {
+            var instance = this,
+                target = event.target,
+                centerXY = target.getCenterXY();
+
+            event.pageX = centerXY[0];
+            event.pageY = centerXY[1];
+
+            instance._onMouseDownGrid(event);
+
+            instance._enterTabHandler = instance.columnTableGrid.on('key', instance._onNewKeyTab, 'up:9', instance);
+        },
+
+        /**
+         * Fires on 'tab' key on table cell.
+         *
+         * @method _onNewKeyTab
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onNewKeyTab: function(event) {
+            var instance = this,
+                target = event.target,
+                centerXY = target.getCenterXY();
+
+            event.pageX = centerXY[0];
+            event.pageY = centerXY[1];
+
+            instance._onMouseMoveGrid(event);
+        },
+
+        /**
+         * Fires on 'N' key up on table cell.
+         *
+         * @method _onNewKeyUp
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onNewKeyUp: function(event) {
+            var instance = this,
+                target = event.target,
+                centerXY = target.getCenterXY();
+
+            instance._onMouseUpGrid();
+
+            instance._enterTabHandler.detach();
+        }
     }
 });
 
