@@ -582,7 +582,7 @@ var SchedulerDayView = A.Component.create({
                 'mouseup', A.bind(instance._onMouseUpTableCol, instance), '.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL);
 
             instance.columnTime.on(
-                'keydown', A.bind(instance._onKeydownTime, instance), '.' + CSS_SCHEDULER_VIEW_DAY_TABLE_TIME);
+                'key', A.bind(instance._onKeydownTime, instance), 'down:13', '.' + CSS_SCHEDULER_VIEW_DAY_TABLE_TIME);
 
             instance.on('drag:end', instance._onEventDragEnd);
             instance.on('drag:start', instance._onEventDragStart);
@@ -1141,6 +1141,23 @@ var SchedulerDayView = A.Component.create({
             dd.actXY[0] = null;
         },
 
+        _afterVisibleChange: function(event) {
+            var instance = this,
+                scheduler = instance.get('scheduler'),
+                date = scheduler.get('date'),
+                events = scheduler.getEventsByDay(date);
+
+            A.Array.each(events, function(event, i){
+                var node = event.get('node');
+
+                node.setAttribute('tabindex', 0);
+
+                if (i === 0) {
+                    node.item(0).focus();
+                }
+            });
+        },
+
         /**
          * Aligns the dragging `SchedulerEvent` to the X axis while bound to the
          * Y axis on the `activeColumn`.
@@ -1369,33 +1386,32 @@ var SchedulerDayView = A.Component.create({
 
         _onKeydownTime: function(event) {
             var instance = this,
-                keyCode = event.keyCode,
                 scheduler = instance.get('scheduler'),
+                recorder = scheduler.get('eventRecorder'),
                 target = event.target,
-                date = scheduler.get('date'),
-                dateHalfHour = date,
-                hour = target.attr('data-time');
+                hour = parseInt(target.getData('time')),
+                startDate = new Date(scheduler.get('date')),
+                endDate;
 
-            if (keyCode === 13) {
-                date.setHours(hour);
-                date.setMinutes(0);
-                dateHalfHour.setHours(hour);
-                dateHalfHour.setMinutes(30);
+            if (recorder && !scheduler.get('disabled')) {
+                startDate.setHours(hour);
+                startDate.setMinutes(0);
 
-                var events = scheduler.getEventsByDay(date);
+                endDate = DateMath.add(startDate, DateMath.MINUTES, recorder.get('duration'));
 
-                A.Array.each(events, function(event) {
-                    var evtStartDate = event.get('startDate'),
-                        evtEndDate = event.get('endDate');
-
-                    if (DateMath.between(date, evtStartDate, evtEndDate) || DateMath.between(dateHalfHour, evtStartDate, evtEndDate)) {
-
-                        var node = event.get('node');
-
-                        node.setAttribute('tabindex', 0);
-                        node.item(0).focus();
-                    }
+                recorder.move(startDate, {
+                    silent: true
                 });
+
+                recorder.setAttrs({
+                    allDay: false,
+                    endDate: endDate
+                }, {
+                    silent: true
+                });
+
+                instance.plotEvent(recorder);
+                recorder.showPopover();
             }
         },
 
@@ -1406,7 +1422,7 @@ var SchedulerDayView = A.Component.create({
          * @param {EventFacade} event
          * @protected
          */
-        _onMouseDownTableCol: function(event) {
+        _onMouseDownTableCol: function(event, force) {
             var instance = this;
             var target = event.target;
             var scheduler = instance.get('scheduler');
@@ -1415,7 +1431,7 @@ var SchedulerDayView = A.Component.create({
             if (recorder && !scheduler.get('disabled')) {
                 recorder.hidePopover();
 
-                if (target.test('.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL_SHIM)) {
+                if (target.test('.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL_SHIM) || force) {
                     instance.startXY = [event.pageX, event.pageY];
 
                     var colNumber = toNumber(event.currentTarget.attr('data-colnumber'));
