@@ -248,14 +248,14 @@ var SchedulerMonthView = A.Component.create({
         _onEnterKeyDown: function(event) {
             var instance = this,
                 target = event.target,
-                position = target.getData('position')
+                position = target.getData('position'),
                 scheduler = instance.get('scheduler'),
                 date = instance._getPositionDate([position.col, position.row]),
                 dayView = scheduler.getViewByName('day');
 
             if (dayView) {
-                scheduler.set('date', date);
                 scheduler.set('activeView', dayView);
+                scheduler.set('date', date);
             }
         },
 
