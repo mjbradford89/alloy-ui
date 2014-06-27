@@ -1682,16 +1682,16 @@ var SchedulerDayView = A.Component.create({
          * @return {Node} The `timesNode` value.
          */
         _valueTimesNode: function() {
-            var instance = this;
-            var isoTime = instance.get('isoTime');
-            var buffer = [],
-                hour;
+            var instance = this,
+                buffer = [],
+                hour,
+                isoTime = instance.get('isoTime');
 
             for (hour = 0; hour <= 23; hour++) {
                 buffer.push(
                     Lang.sub(
                         TPL_SCHEDULER_VIEW_DAY_TABLE_TIME, {
-                            hour: isoTime ? isoTimeString : DateMath.toUsTimeString(hour, false,
+                            hour: isoTime ? undefined : DateMath.toUsTimeString(hour, false,
                                 true),
                             isoTime: hour
                         }
