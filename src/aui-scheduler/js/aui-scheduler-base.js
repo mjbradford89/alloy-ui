@@ -51,8 +51,8 @@ var CSS_SCHEDULER_VIEW_ = A.getClassName('scheduler-base', 'view', ''),
     TPL_SCHEDULER_NAV = '<div class="btn-group"></div>',
     TPL_SCHEDULER_TODAY = '<button type="button" class="' + [CSS_SCHEDULER_TODAY, CSS_BTN, CSS_BTN_DEFAULT].join(' ') +
         '">{today}</button>',
-    TPL_SCHEDULER_VIEW = '<button role="button" aria-label="{ariaLabel}" type="button" class="' + [CSS_SCHEDULER_VIEW, CSS_SCHEDULER_VIEW_].join(' ') +
-        '{name}" data-view-name="{name}">{label}</button>',
+    TPL_SCHEDULER_VIEW = '<button aria-label="{ariaLabel}" role="button" type="button" class="' +
+        [CSS_SCHEDULER_VIEW, CSS_SCHEDULER_VIEW_].join(' ') + '{name}" data-view-name="{name}">{label}</button>',
     TPL_SCHEDULER_VIEW_DATE = '<span class="' + CSS_SCHEDULER_VIEW_DATE + '"></span>',
     TPL_SCHEDULER_VIEWS = '<div class="col col-lg-5 col-md-5 col-sm-5 ' + CSS_SCHEDULER_VIEWS + '"></div>';
 
