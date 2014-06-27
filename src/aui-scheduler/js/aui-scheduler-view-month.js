@@ -305,9 +305,7 @@ var SchedulerMonthView = A.Component.create({
          * @protected
          */
         _onNewKeyUp: function(event) {
-            var instance = this,
-                target = event.target,
-                centerXY = target.getCenterXY();
+            var instance = this;
 
             instance._onMouseUpGrid();
 
