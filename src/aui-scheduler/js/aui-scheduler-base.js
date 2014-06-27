@@ -902,9 +902,9 @@ var SchedulerBase = A.Component.create({
                     'triggerNode',
                     A.Node.create(
                         A.Lang.sub(TPL_SCHEDULER_VIEW, {
-                            name: name,
+                            ariaLabel: (instance.getAriaLabel(name) || name),
                             label: (instance.getString(name) || name),
-                            ariaLabel: (instance.getAriaLabel(name) || name)
+                            name: name
                         })
                     )
                 );
@@ -934,11 +934,10 @@ var SchedulerBase = A.Component.create({
 
         _initAria: function() {
             var instance = this,
-                activeView = instance.get('activeView');
-
-            var today = A.one('.' + CSS_SCHEDULER_TODAY);
-            var next = A.one('.' + CSS_SCHEDULER_ICON_NEXT);
-            var prev = A.one('.' + CSS_SCHEDULER_ICON_PREV);
+                activeView = instance.get('activeView'),
+                today = A.one('.' + CSS_SCHEDULER_TODAY),
+                next = A.one('.' + CSS_SCHEDULER_ICON_NEXT),
+                prev = A.one('.' + CSS_SCHEDULER_ICON_PREV);
 
             today.setAttribute('aria-label', instance.getAriaLabel('today'));
             next.setAttribute('aria-label', instance.getAriaLabel('next'));
