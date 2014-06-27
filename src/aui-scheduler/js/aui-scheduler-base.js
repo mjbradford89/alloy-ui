@@ -835,10 +835,10 @@ var SchedulerBase = A.Component.create({
             }
         },
 
-        updateViewButtonsAriaPressed: function(activeViewName) {
+        updateViewButtonsAriaPressed: function(viewName) {
             var instance = this;
             var viewsNode = instance.viewsNode;
-            var activeViewButton = viewsNode.one('[data-view-name="' + activeViewName + '"]');
+            var activeViewButton = viewsNode.one('[data-view-name="' + viewName + '"]');
             var notActiveViewButtons = activeViewButton.siblings();
 
             activeViewButton.setAttribute('aria-pressed', true);
