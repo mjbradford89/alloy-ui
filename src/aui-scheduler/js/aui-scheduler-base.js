@@ -387,13 +387,13 @@ var SchedulerBase = A.Component.create({
 
         ariaLabels: {
             value: {
-                'today': 'Got to today.',
-                'next': 'Next',
-                'prev': 'Previous',
-                'week': 'Week View',
-                'day': 'Day View',
-                'month': 'Month View',
-                'agenda': 'Agenda View'
+                agenda: 'Agenda View',
+                day: 'Day View',
+                month: 'Month View',
+                next: 'Next',
+                prev: 'Previous',
+                today: 'Got to today.',
+                week: 'Week View'
             }
         },
 
