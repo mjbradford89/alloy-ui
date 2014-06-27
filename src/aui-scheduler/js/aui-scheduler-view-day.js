@@ -1102,7 +1102,9 @@ var SchedulerDayView = A.Component.create({
         setAriaLabelsDate: function() {
             var instance = this;
 
-            instance.colHeaderDaysNode.all('.' + CSS_SCHEDULER_VIEW_DAY_HEADER_INNER_DAY).each(instance.updateAriaDateString, instance);
+            var daysList = instance.colHeaderDaysNode.all('.' + CSS_SCHEDULER_VIEW_DAY_HEADER_INNER_DAY);
+
+            daysList.each(instance.updateAriaDateString, instance);
         },
 
         /**
