@@ -105,9 +105,17 @@ var SchedulerMonthView = A.Component.create({
         bindUI: function() {
             var instance = this;
 
-            instance.columnTableGrid.on('key', instance._onNewKeyUp, 'up:78', instance);
-            instance.columnTableGrid.on('key', instance._onNewKeyDown, 'down:78', instance);
-            instance.columnTableGrid.on('key', instance._onEnterKeyDown, 'down:13', instance);
+            instance._eventHandles = [
+                instance.columnTableGrid.on('key', instance._onNewKeyUp, 'up:78', instance),
+                instance.columnTableGrid.on('key', instance._onNewKeyDown, 'down:78', instance),
+                instance.columnTableGrid.on('key', instance._onEnterKeyDown, 'down:13', instance)
+            ];
+        },
+
+        destructor: function() {
+            var instance = this;
+
+            (new A.EventHandle(instance._eventHandles)).detach();
         },
 
         /**
