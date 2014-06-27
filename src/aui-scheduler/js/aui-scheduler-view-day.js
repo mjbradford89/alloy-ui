@@ -1149,12 +1149,12 @@ var SchedulerDayView = A.Component.create({
                 date = scheduler.get('date'),
                 events = scheduler.getEventsByDay(date);
 
-            A.Array.each(events, function(event, i){
+            A.Array.each(events, function(event, index){
                 var node = event.get('node');
 
                 node.setAttribute('tabindex', 0);
 
-                if (i === 0) {
+                if (index === 0) {
                     node.item(0).focus();
                 }
             });
