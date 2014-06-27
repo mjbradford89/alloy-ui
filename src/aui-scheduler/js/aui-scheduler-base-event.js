@@ -1033,8 +1033,8 @@ var SchedulerEvent = A.Component.create({
                 schedulerEvent = event.target.getData('scheduler-event'),
                 eventRecorder = scheduler.get('eventRecorder');
 
-                eventRecorder.set('event', schedulerEvent);
-                eventRecorder.showPopover();
+            eventRecorder.set('event', schedulerEvent);
+            eventRecorder.showPopover();
         },
 
         /**
