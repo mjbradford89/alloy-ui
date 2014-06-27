@@ -333,14 +333,21 @@ var SchedulerView = A.Component.create({
         syncEventUI: function() {},
 
         /**
+         * Handles `visible` events.
+         *
+         * @method _afterVisibleChange
+         * @param {EventFacade} event
+         * @protected
+         */
+        _afterVisibleChange: function() {},
+
+        /**
          * Sets `date` on the UI.
          *
          * @method _uiSetDate
          * @protected
          */
         _uiSetDate: function() {},
-
-        _afterVisibleChange: function() {},
 
         /**
          * Handles `render` events.
