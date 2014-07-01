@@ -358,6 +358,23 @@ var SchedulerMonthView = A.Component.create({
                         instance._onMouseMoveGrid(event);
                     }
                 }
+                else {
+                    var scheduler = instance.get('scheduler');
+
+                    if (index >= instance.get('displayDaysInterval')) {
+                        scheduler.set('date', instance.get('nextDate'));
+                    }
+                    else if (index < 0) {
+                        scheduler.set('date', instance.get('prevDate'));
+                    }
+
+                    instance.columnTableGrid.removeAttribute('tabindex');
+
+                    var firstGridNode = instance.columnTableGrid.first();
+
+                    firstGridNode.setAttribute('tabindex', instance.get('tabIndex'));
+                    firstGridNode.focus();
+                }
             }
         }
     }
