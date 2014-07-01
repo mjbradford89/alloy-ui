@@ -8,6 +8,7 @@
 var Lang = A.Lang,
     isBoolean = Lang.isBoolean,
     isFunction = Lang.isFunction,
+    isNumber = Lang.isNumber,
     isString = Lang.isString,
 
     DateMath = A.DataType.DateMath,
@@ -226,6 +227,8 @@ var SchedulerView = A.Component.create({
             var instance = this;
 
             instance.after('render', instance._afterRender);
+
+            instance.after('visibleChange', instance._afterVisibleChange);
         },
 
         /**
@@ -348,7 +351,18 @@ var SchedulerView = A.Component.create({
             instance._uiSetScrollable(
                 instance.get('scrollable')
             );
+
+            instance._afterVisibleChange();
         },
+
+        /**
+         * Handles 'visibleChange' events.
+         *
+         * @method _afterVisibleChange
+         * @param {EventFacade} event
+         * @protected
+         */
+        _afterVisibleChange: function(event) { },
 
         /**
          * Sets this `SchedulerView`'s `scheduler` object to the given value.

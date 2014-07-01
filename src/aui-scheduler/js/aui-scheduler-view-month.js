@@ -7,13 +7,16 @@
 
 var Lang = A.Lang,
     isFunction = Lang.isFunction,
+    isNumber = Lang.isNumber,
 
     DateMath = A.DataType.DateMath,
+    WEEK_LENGTH = DateMath.WEEK_LENGTH,
 
     getCN = A.getClassName,
 
     CSS_SVM_TABLE_DATA_COL_NOMONTH = getCN('scheduler-view-month', 'table', 'data', 'col', 'nomonth'),
-    CSS_SVT_TABLE_DATA_COL_TITLE = getCN('scheduler-view', 'table', 'data', 'col', 'title');
+    CSS_SVT_TABLE_DATA_COL_TITLE = getCN('scheduler-view', 'table', 'data', 'col', 'title'),
+    CSS_SVT_COLGRID = getCN('scheduler-view', 'table', 'colgrid');
 
 /**
  * A base class for `SchedulerMonthView`.
@@ -88,6 +91,19 @@ var SchedulerMonthView = A.Component.create({
                 );
             },
             validator: isFunction
+        },
+
+        /**
+         * Determines the 'tabindex' property to be used on elements
+         * in this view.
+         *
+         * @attribute tabIndex
+         * @default 1
+         * @type {Number}
+         */
+        tabIndex: {
+            value: 1,
+            validator: isNumber
         }
     },
 
@@ -101,6 +117,48 @@ var SchedulerMonthView = A.Component.create({
     EXTENDS: A.SchedulerTableView,
 
     prototype: {
+
+        /**
+         * Binds keys for keyboard month view accessibility.
+         *
+         * @method bindKeys
+         */
+        bindKeys: function() {
+            var instance = this;
+            var boundingBox = instance.get('boundingBox');
+
+            instance._eventHandles = [
+                boundingBox.on('key', instance._onArrowKey, 'down:37,38,39,40', instance),
+                boundingBox.on('key', instance._onNewKeyUp, 'up:13', instance)
+            ];
+        },
+
+        /**
+        * Destructor lifecycle implementation for the `scheduler-view-month`.
+        *
+        * @method destructor
+        * @protected
+        */
+        destructor: function() {
+            var instance = this;
+
+            (new A.EventHandle(instance._eventHandles)).detach();
+        },
+
+        /**
+         * Focuses a cell node and removes tabindex from all others.
+         *
+         * @method focusCell
+         * @param {Node} cellNode
+         */
+        focusCell: function(cellNode) {
+            var instance = this;
+
+            instance.columnTableGrid.removeAttribute('tabindex');
+
+            cellNode.setAttribute('tabindex', instance.get('tabIndex'));
+            cellNode.focus();
+        },
 
         /**
          * Returns a date value of the first day of the month with its time
@@ -176,6 +234,29 @@ var SchedulerMonthView = A.Component.create({
         },
 
         /**
+         * Fires after month view visibleChange
+         *
+         * @method _afterVisibleChange
+         * @param {EventFacade} event
+         * @protected
+         */
+        _afterVisibleChange: function(event) {
+            var instance = this;
+
+            if (instance.get('visible') && instance.get('rendered') && !instance._eventHandles) {
+                var firstGridNode = instance.columnTableGrid.first();
+
+                instance.bindKeys();
+                instance._syncCellDimensions();
+
+                instance.focusCell(firstGridNode);
+
+                instance.removeLasso();
+                instance.renderLasso([0, 0], [0, 0]);
+            }
+        },
+
+        /**
          * Returns the current interval start by finding the first day of the
          * week with the `Scheduler`'s `viewDate`.
          *
@@ -207,8 +288,105 @@ var SchedulerMonthView = A.Component.create({
             var firstDayOfWeek = scheduler.get('firstDayOfWeek');
 
             return DateMath.getFirstDayOfWeek(date, firstDayOfWeek);
-        }
+        },
 
+        /**
+         * Fires on new key up event.
+         *
+         * @method _onNewKeyUp
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onNewKeyUp: function(event) {
+            var instance = this;
+            var target = event.target;
+            var scheduler = instance.get('scheduler');
+            var recorder = scheduler.get('eventRecorder');
+
+            instance._onMouseUpGrid();
+
+            recorder.popover.once('visibleChange', function(event) {
+                target.focus();
+            }, instance);
+        },
+
+        /**
+         * Fires on arrow key down event.
+         *
+         * @method _onArrowKey
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onArrowKey: function(event) {
+            var instance = this;
+            var keyCode = event.keyCode;
+            var target = event.target;
+
+            if (target.hasClass(CSS_SVT_COLGRID)) {
+                var position = target.getData('position');
+                var index = instance._getCellIndex(position);
+
+                if (keyCode === 37) {
+                    index = index - 1;
+                }
+                else if (keyCode === 38) {
+                    index = index - WEEK_LENGTH;
+                }
+                else if (keyCode === 39) {
+                    index = index + 1;
+                }
+                else if (keyCode === 40) {
+                    index = index + WEEK_LENGTH;
+                }
+
+                var toCellNode = instance.columnTableGrid.item(index);
+                var toCellPosition;
+
+                if (toCellNode) {
+                    instance.focusCell(toCellNode);
+
+                    toCellPosition = toCellNode.getData('position');
+
+                    instance.lassoLastPosition = toCellPosition;
+
+                    if (event.shiftKey) {
+                        if (!instance._recording) {
+                            instance.lassoStartPosition = position;
+
+                            instance._recording = true;
+                        }
+                    }
+                    else {
+                        instance.lassoStartPosition = instance.lassoLastPosition;
+                    }
+                }
+                else {
+                    var scheduler = instance.get('scheduler');
+
+                    if (index >= instance.get('displayDaysInterval')) {
+                        scheduler.set('date', instance.get('nextDate'));
+
+                        toCellNode = instance.columnTableGrid.first();
+                    }
+                    else if (index < 0) {
+                        scheduler.set('date', instance.get('prevDate'));
+
+                        toCellNode = instance.columnTableGrid.last();
+                    }
+
+                    toCellPosition = toCellNode.getData('position');
+
+                    instance.focusCell(toCellNode);
+
+                    instance.lassoStartPosition = instance.lassoLastPosition = toCellNode.getData('position');
+                }
+
+                if (toCellPosition) {
+                    instance.removeLasso();
+                    instance.renderLasso(instance.lassoStartPosition, toCellPosition);
+                }
+            }
+        }
     }
 });
 
