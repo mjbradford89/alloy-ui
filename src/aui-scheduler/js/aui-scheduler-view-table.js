@@ -59,7 +59,7 @@ var Lang = A.Lang,
 
     TPL_SVT_EVENTS_OVERLAY_NODE = '<div class="' + CSS_SVT_EVENTS_OVERLAY_NODE + '">' +
         '<div class="' + CSS_SVT_EVENTS_OVERLAY_NODE_BODY + '"></div>' +
-        '<a href="javascript:;" class="' + CSS_SVT_EVENTS_OVERLAY_NODE_CLOSE + '">{label}</a>' +
+        '<a href="javascript:;" class="' + CSS_SVT_EVENTS_OVERLAY_NODE_CLOSE + '" tabindex="{tabIndex}">{label}</a>' +
         '</div>',
 
     TPL_SVT_GRID_COLUMN = '<td class="' + CSS_SVT_COLGRID + '">&nbsp;</td>',
@@ -72,7 +72,7 @@ var Lang = A.Lang,
         '</tbody>' +
         '</table>',
 
-    TPL_SVT_MORE = '<a href="javascript:;" class="' + CSS_SVT_MORE + '">{labelPrefix} {count} {labelSuffix}</a>',
+    TPL_SVT_MORE = '<a href="javascript:;" class="' + CSS_SVT_MORE + '" tabindex={tabIndex}>{labelPrefix} {count} {labelSuffix}</a>',
 
     TPL_SVT_ROW = '<div class="' + CSS_SVT_ROW + '" style="top: {top}%; height: {height}%;"></div>',
 
@@ -414,7 +414,8 @@ var SchedulerTableView = A.Component.create({
                             TPL_SVT_MORE, {
                                 count: (events.length - (displayRows - 1)),
                                 labelPrefix: strings.show,
-                                labelSuffix: strings.more
+                                labelSuffix: strings.more,
+                                tabIndex: instance.get('tabIndex')
                             }
                         )
                     );
@@ -1026,7 +1027,8 @@ var SchedulerTableView = A.Component.create({
                 },
                 bodyContent: Lang.sub(
                     TPL_SVT_EVENTS_OVERLAY_NODE, {
-                        label: strings.close
+                        label: strings.close,
+                        tabIndex: instance.get('tabIndex')
                     }
                 ),
                 render: instance.get('boundingBox'),
