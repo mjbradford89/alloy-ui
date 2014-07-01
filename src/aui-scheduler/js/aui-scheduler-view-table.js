@@ -963,6 +963,8 @@ var SchedulerTableView = A.Component.create({
                     columnNode.addClass(CSS_SVT_COLGRID_FIRST);
                 }
 
+                columnNode.setData('position', [i, rowIndex]);
+
                 instance.columnTableGrid.push(columnNode);
             }
 
@@ -1089,6 +1091,8 @@ var SchedulerTableView = A.Component.create({
             }
 
             var evtNode = evtNodeList.item(paddingNodeIndex);
+
+            evtNode.setAttribute('tabindex', instance.get('tabIndex'));
 
             evtNode.setStyles({
                 height: 'auto',
