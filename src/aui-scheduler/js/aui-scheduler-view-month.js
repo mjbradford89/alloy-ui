@@ -7,13 +7,16 @@
 
 var Lang = A.Lang,
     isFunction = Lang.isFunction,
+    isNumber = Lang.isNumber,
 
     DateMath = A.DataType.DateMath,
+    WEEK_LENGTH = DateMath.WEEK_LENGTH,
 
     getCN = A.getClassName,
 
     CSS_SVM_TABLE_DATA_COL_NOMONTH = getCN('scheduler-view-month', 'table', 'data', 'col', 'nomonth'),
-    CSS_SVT_TABLE_DATA_COL_TITLE = getCN('scheduler-view', 'table', 'data', 'col', 'title');
+    CSS_SVT_TABLE_DATA_COL_TITLE = getCN('scheduler-view', 'table', 'data', 'col', 'title'),
+    CSS_SVT_COLGRID = getCN('scheduler-view', 'table', 'colgrid');
 
 /**
  * A base class for `SchedulerMonthView`.
@@ -88,6 +91,19 @@ var SchedulerMonthView = A.Component.create({
                 );
             },
             validator: isFunction
+        },
+
+        /**
+         * Determines the 'tabindex' property to be used on elements
+         * in this view.
+         *
+         * @attribute tabIndex
+         * @default 1
+         * @type {Number}
+         */
+        tabIndex: {
+            value: 1,
+            validator: isNumber
         }
     },
 
@@ -101,6 +117,20 @@ var SchedulerMonthView = A.Component.create({
     EXTENDS: A.SchedulerTableView,
 
     prototype: {
+
+        /**
+         * Binds keys for keyboard month view accessibility.
+         *
+         * @method bindKeys
+         */
+        bindKeys: function() {
+            var instance = this;
+            var boundingBox = instance.get('boundingBox');
+
+            instance.arrowKeyHandler = boundingBox.on('key', instance._onArrowKey, 'down:37,38,39,40', instance);
+            instance.newKeyDownHandler = boundingBox.on('key', instance._onNewKeyDown, 'down:13', instance);
+            instance.newKeyUpHandler = boundingBox.on('key', instance._onNewKeyUp, 'up:13', instance);
+        },
 
         /**
          * Returns a date value of the first day of the month with its time
@@ -176,6 +206,42 @@ var SchedulerMonthView = A.Component.create({
         },
 
         /**
+         * Unbindes keys for month view accessibility.
+         *
+         * @method unbindKeys
+         */
+        unbindKeys: function() {
+            var instance = this;
+
+            instance.arrowKeyHandler.detach();
+        },
+
+        /**
+         * Fires after month view visibleChange
+         *
+         * @method _afterVisibleChange
+         * @param {EventFacade} event
+         * @protected
+         */
+        _afterVisibleChange: function(event) {
+            var instance = this;
+
+            if (instance.get('visible') && instance.get('rendered')) {
+                var firstGridNode = instance.columnTableGrid.first();
+
+                instance.bindKeys();
+
+                if (!A.Node(document.activeElement).hasClass(CSS_SVT_COLGRID)) {
+                    firstGridNode.setAttribute('tabindex', instance.get('tabIndex'));
+                    firstGridNode.focus();
+                }
+            }
+            else if (instance.arrowKeyHandler) {
+                instance.unbindKeys();
+            }
+        },
+
+        /**
          * Returns the current interval start by finding the first day of the
          * week with the `Scheduler`'s `viewDate`.
          *
@@ -207,8 +273,93 @@ var SchedulerMonthView = A.Component.create({
             var firstDayOfWeek = scheduler.get('firstDayOfWeek');
 
             return DateMath.getFirstDayOfWeek(date, firstDayOfWeek);
-        }
+        },
 
+        /**
+         * Fires on new key up event.
+         *
+         * @method _onNewKeyUp
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onNewKeyUp: function(event) {
+            var instance = this;
+            var target = event.target;
+            var scheduler = instance.get('scheduler');
+            var recorder = scheduler.get('eventRecorder');
+
+            instance._onMouseUpGrid();
+
+            recorder.popover.once('visibleChange', function(event) {
+                target.focus();
+            }, instance);
+        },
+
+        /**
+         * Fires on new key down event.
+         *
+         * @method _onNewKeyDown
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onNewKeyDown: function(event) {
+            var instance = this;
+            var target = event.target;
+            var centerXY = target.getCenterXY();
+
+            event.pageX = centerXY[0];
+            event.pageY = centerXY[1];
+
+            instance._onMouseDownGrid(event);
+        },
+
+        /**
+         * Fires on arrpw key down event.
+         *
+         * @method _onArrowKey
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onArrowKey: function(event) {
+            var instance = this;
+            var keyCode = event.keyCode;
+            var target = event.target;
+
+            if (target.hasClass(CSS_SVT_COLGRID)) {
+                var position = target.getData('position');
+                var index = instance._getCellIndex(position);
+
+                if (keyCode === 37) {
+                    index = index - 1;
+                }
+                else if (keyCode === 38) {
+                    index = index - WEEK_LENGTH;
+                }
+                else if (keyCode === 39) {
+                    index = index + 1;
+                }
+                else if (keyCode === 40) {
+                    index = index + WEEK_LENGTH;
+                }
+
+                var toCellNode = instance.columnTableGrid.item(index);
+
+                if (toCellNode) {
+                    target.removeAttribute('tabindex')
+                    toCellNode.setAttribute('tabindex', instance.get('tabIndex'));
+                    toCellNode.focus();
+
+                    if (instance._recording) {
+                        var centerXY = toCellNode.getCenterXY();
+
+                        event.pageX = centerXY[0];
+                        event.pageY = centerXY[1];
+
+                        instance._onMouseMoveGrid(event);
+                    }
+                }
+            }
+        }
     }
 });
 
