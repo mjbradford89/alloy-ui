@@ -8,7 +8,6 @@
 var Lang = A.Lang,
     isBoolean = Lang.isBoolean,
     isFunction = Lang.isFunction,
-    isNumber = Lang.isNumber,
     isString = Lang.isString,
 
     DateMath = A.DataType.DateMath,
