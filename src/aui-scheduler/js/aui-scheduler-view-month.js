@@ -317,10 +317,10 @@ var SchedulerMonthView = A.Component.create({
          */
         _onArrowKey: function(event) {
             var instance = this;
-            var keyCode = event.keyCode;
             var target = event.target;
 
             if (target.hasClass(CSS_SVT_COLGRID)) {
+                var keyCode = event.keyCode;
                 var position = target.getData('position');
                 var index = instance._getCellIndex(position);
 
