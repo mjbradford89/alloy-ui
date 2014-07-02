@@ -225,7 +225,12 @@ var SchedulerView = A.Component.create({
         initializer: function() {
             var instance = this;
 
-            instance.after('render', instance._afterRender);
+            instance.after({
+                render: instance._afterRender,
+                visibleChange: instance._afterVisibleChange
+            });
+
+            A.getDoc().on('key', instance._onNavKey, 'down:37,39', instance);
         },
 
         /**
@@ -328,6 +333,15 @@ var SchedulerView = A.Component.create({
         syncEventUI: function() {},
 
         /**
+         * Handles `visible` events.
+         *
+         * @method _afterVisibleChange
+         * @param {EventFacade} event
+         * @protected
+         */
+        _afterVisibleChange: function() {},
+
+        /**
          * Sets `date` on the UI.
          *
          * @method _uiSetDate
@@ -348,6 +362,8 @@ var SchedulerView = A.Component.create({
             instance._uiSetScrollable(
                 instance.get('scrollable')
             );
+
+            instance._afterVisibleChange();
         },
 
         /**

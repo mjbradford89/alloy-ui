@@ -963,6 +963,11 @@ var SchedulerTableView = A.Component.create({
                     columnNode.addClass(CSS_SVT_COLGRID_FIRST);
                 }
 
+                columnNode.setData('position', {
+                    row: rowIndex,
+                    col: i
+                });
+
                 instance.columnTableGrid.push(columnNode);
             }
 

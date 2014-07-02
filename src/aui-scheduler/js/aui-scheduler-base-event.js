@@ -395,6 +395,8 @@ var SchedulerEvent = A.Component.create({
                 repeatedChange: instance._afterRepeatedChange,
                 visibleChange: instance._afterVisibleChange
             });
+
+            instance.get('node').on('key', instance._onEnterKey, 'down:13', instance);
         },
 
         /**
@@ -1016,6 +1018,23 @@ var SchedulerEvent = A.Component.create({
             }
 
             return val;
+        },
+
+        /**
+         * Fires on enter key press event.
+         *
+         * @method _onEnterKey
+         * @param event
+         * @protected
+         */
+        _onEnterKey: function(event) {
+            var instance = this,
+                scheduler = instance.get('scheduler'),
+                schedulerEvent = event.target.getData('scheduler-event'),
+                eventRecorder = scheduler.get('eventRecorder');
+
+            eventRecorder.set('event', schedulerEvent);
+            eventRecorder.showPopover();
         },
 
         /**

@@ -11,6 +11,7 @@ var Lang = A.Lang,
     isNumber = Lang.isNumber,
     isObject = Lang.isObject,
     isString = Lang.isString,
+    LString = Lang.String,
 
     DateMath = A.DataType.DateMath,
     WidgetStdMod = A.WidgetStdMod,
@@ -67,6 +68,7 @@ var Lang = A.Lang,
     CSS_SCHEDULER_VIEW_DAY_HEADER_COL = getCN('scheduler-view', 'day', 'header', 'col'),
     CSS_SCHEDULER_VIEW_DAY_HEADER_DAY = getCN('scheduler-view', 'day', 'header', 'day'),
     CSS_SCHEDULER_VIEW_DAY_HEADER_DAY_FIRST = getCN('scheduler-view', 'day', 'header', 'day', 'first'),
+    CSS_SCHEDULER_VIEW_DAY_HEADER_INNER_DAY = getCN('scheduler-view', 'day', 'inner', 'header', 'day'),
     CSS_SCHEDULER_VIEW_DAY_HEADER_TABLE = getCN('scheduler-view', 'day', 'header', 'table'),
     CSS_SCHEDULER_VIEW_DAY_HEADER_VIEW_LABEL = getCN('scheduler-view', 'day', 'header', 'view', 'label'),
     CSS_SCHEDULER_VIEW_DAY_ICON_GRIP_HORIZONTAL = getCN('scheduler-view', 'icon', 'grip', 'horizontal'),
@@ -119,7 +121,8 @@ var Lang = A.Lang,
         '<div class="' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL_SHIM + '">&nbsp;</div>' +
         '</td>',
 
-    TPL_SCHEDULER_VIEW_DAY_TABLE_TIME = '<div class="' + CSS_SCHEDULER_VIEW_DAY_TABLE_TIME + '">{hour}</div>',
+    TPL_SCHEDULER_VIEW_DAY_TABLE_TIME = '<div tabindex="0" data-time="{isoTime}" class="' +
+        CSS_SCHEDULER_VIEW_DAY_TABLE_TIME + '">{hour}</div>',
 
     TPL_SCHEDULER_VIEW_DAY_HEADER_TABLE = '<table cellspacing="0" cellpadding="0" class="' +
         CSS_SCHEDULER_VIEW_DAY_HEADER_TABLE + '">' +
@@ -129,9 +132,9 @@ var Lang = A.Lang,
         '</table>',
 
     TPL_SCHEDULER_VIEW_DAY_HEADER_DAY = '<th class="' + CSS_SCHEDULER_VIEW_DAY_HEADER_DAY +
-        '" data-colnumber="{colNumber}"><a href="#">&nbsp;</a></th>',
-    TPL_SCHEDULER_VIEW_DAY_HEADER_DAY_FIRST = '<td class="' + [CSS_SCHEDULER_VIEW_DAY_HEADER_DAY,
-        CSS_SCHEDULER_VIEW_DAY_HEADER_DAY_FIRST].join(' ') + '"></td>';
+        '" data-colnumber="{colNumber}"><a class="' + CSS_SCHEDULER_VIEW_DAY_HEADER_INNER_DAY +
+        '" href="#">&nbsp;</a></th>', TPL_SCHEDULER_VIEW_DAY_HEADER_DAY_FIRST = '<td class="' +
+        [CSS_SCHEDULER_VIEW_DAY_HEADER_DAY, CSS_SCHEDULER_VIEW_DAY_HEADER_DAY_FIRST].join(' ') + '"></td>';
 
 /**
  * A base class for `SchedulerDayView`.
@@ -336,6 +339,23 @@ var SchedulerDayView = A.Component.create({
                 );
             },
             validator: isFunction
+        },
+
+        ariaLabelDateFormatter: {
+            value: function(date) {
+                var instance = this;
+                var scheduler = instance.get('scheduler');
+                var locale = scheduler.get('locale');
+
+                var startDateLabel = A.DataType.Date.format(
+                    date, {
+                        format: '%B %d %Y',
+                        locale: locale
+                    }
+                );
+
+                return startDateLabel;
+            }
         },
 
         /**
@@ -561,6 +581,9 @@ var SchedulerDayView = A.Component.create({
             instance.columnData.delegate(
                 'mouseup', A.bind(instance._onMouseUpTableCol, instance), '.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL);
 
+            instance.columnTime.on(
+                'key', A.bind(instance._onKeydownTime, instance), 'down:13', '.' + CSS_SCHEDULER_VIEW_DAY_TABLE_TIME);
+
             instance.on('drag:end', instance._onEventDragEnd);
             instance.on('drag:start', instance._onEventDragStart);
             instance.on('drag:tickAlignY', instance._dragTickAlignY);
@@ -662,6 +685,20 @@ var SchedulerDayView = A.Component.create({
             var viewDate = instance.get('scheduler').get('viewDate');
 
             return DateMath.toMidnight(DateMath.subtract(viewDate, DateMath.DAY, 1));
+        },
+
+        /**
+         * Returns the 'Node' by column number.
+         *
+         * @method getHEaderByColumn
+         * @param colNumber
+         * @return The 'Node' determined by the column number.
+         */
+        getHeaderByColumn: function(colNumber) {
+            var instance = this;
+            var headerNodes = instance.get('colHeaderDaysNode');
+
+            return headerNodes.item(colNumber);
         },
 
         /**
@@ -1058,6 +1095,37 @@ var SchedulerDayView = A.Component.create({
         },
 
         /**
+         * Sets the aria-label attributes for all column headers.
+         *
+         * @method setAriaLabelsDate
+         */
+        setAriaLabelsDate: function() {
+            var instance = this;
+
+            var daysList = instance.colHeaderDaysNode.all('.' + CSS_SCHEDULER_VIEW_DAY_HEADER_INNER_DAY);
+
+            daysList.each(instance.updateAriaDateString, instance);
+        },
+
+        /**
+         * Sets the aria-label attribute for a given column header.
+         *
+         * @method updateAriaDateString
+         * @param {Node} innerColHeader Node to set aria-label
+         * @param {Number} colNumber Column number
+         */
+        updateAriaDateString: function(innerColHeader, colNumber) {
+            var instance = this;
+            var date = instance.getDateByColumn(colNumber);
+            var formatter = instance.get('ariaLabelDateFormatter');
+            var ariaLabel = LString.unescapeEntities(formatter.call(instance, date));
+
+            if (innerColHeader && ariaLabel) {
+                innerColHeader.setAttribute('aria-label', ariaLabel);
+            }
+        },
+
+        /**
          * Handles `dragAlign` events.
          *
          * @method _afterDragAlign
@@ -1073,6 +1141,23 @@ var SchedulerDayView = A.Component.create({
             }
 
             dd.actXY[0] = null;
+        },
+
+        _afterVisibleChange: function(event) {
+            var instance = this,
+                scheduler = instance.get('scheduler'),
+                date = scheduler.get('date'),
+                events = scheduler.getEventsByDay(date);
+
+            A.Array.each(events, function(event, index){
+                var node = event.get('node');
+
+                node.setAttribute('tabindex', 0);
+
+                if (index === 0) {
+                    node.item(0).focus();
+                }
+            });
         },
 
         /**
@@ -1210,6 +1295,7 @@ var SchedulerDayView = A.Component.create({
 
             instance.syncColumnsUI();
             instance.syncDaysHeaderUI();
+            instance.setAriaLabelsDate();
         },
 
         /**
@@ -1300,6 +1386,37 @@ var SchedulerDayView = A.Component.create({
             }
         },
 
+        _onKeydownTime: function(event) {
+            var instance = this,
+                scheduler = instance.get('scheduler'),
+                recorder = scheduler.get('eventRecorder'),
+                target = event.target,
+                hour = parseInt(target.getData('time')),
+                startDate = new Date(scheduler.get('date')),
+                endDate;
+
+            if (recorder && !scheduler.get('disabled')) {
+                startDate.setHours(hour);
+                startDate.setMinutes(0);
+
+                endDate = DateMath.add(startDate, DateMath.MINUTES, recorder.get('duration'));
+
+                recorder.move(startDate, {
+                    silent: true
+                });
+
+                recorder.setAttrs({
+                    allDay: false,
+                    endDate: endDate
+                }, {
+                    silent: true
+                });
+
+                instance.plotEvent(recorder);
+                recorder.showPopover();
+            }
+        },
+
         /**
          * Handles `mouseDownTableCol` events.
          *
@@ -1307,7 +1424,7 @@ var SchedulerDayView = A.Component.create({
          * @param {EventFacade} event
          * @protected
          */
-        _onMouseDownTableCol: function(event) {
+        _onMouseDownTableCol: function(event, force) {
             var instance = this;
             var target = event.target;
             var scheduler = instance.get('scheduler');
@@ -1316,7 +1433,7 @@ var SchedulerDayView = A.Component.create({
             if (recorder && !scheduler.get('disabled')) {
                 recorder.hidePopover();
 
-                if (target.test('.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL_SHIM)) {
+                if (target.test('.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL_SHIM) || force) {
                     instance.startXY = [event.pageX, event.pageY];
 
                     var colNumber = toNumber(event.currentTarget.attr('data-colnumber'));
@@ -1565,17 +1682,19 @@ var SchedulerDayView = A.Component.create({
          * @return {Node} The `timesNode` value.
          */
         _valueTimesNode: function() {
-            var instance = this;
-            var isoTime = instance.get('isoTime');
-            var buffer = [],
-                hour;
+            var instance = this,
+                buffer = [],
+                hour,
+                isoTime = instance.get('isoTime'),
+                isoTimeString = DateMath.toIsoTimeString(hour);
 
             for (hour = 0; hour <= 23; hour++) {
                 buffer.push(
                     Lang.sub(
                         TPL_SCHEDULER_VIEW_DAY_TABLE_TIME, {
-                            hour: isoTime ? DateMath.toIsoTimeString(hour) : DateMath.toUsTimeString(hour, false,
-                                true)
+                            hour: isoTime ? isoTimeString : DateMath.toUsTimeString(hour, false,
+                                true),
+                            isoTime: hour
                         }
                     )
                 );
