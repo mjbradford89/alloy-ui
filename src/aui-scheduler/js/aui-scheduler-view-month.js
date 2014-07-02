@@ -305,9 +305,7 @@ var SchedulerMonthView = A.Component.create({
 
             instance._onMouseUpGrid();
 
-            recorder.popover.once('visibleChange', function(event) {
-                target.focus();
-            }, instance);
+            recorder.popover.once('visibleChange', target.focus, target);
         },
 
         /**
