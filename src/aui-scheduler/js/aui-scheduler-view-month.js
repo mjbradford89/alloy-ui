@@ -102,8 +102,8 @@ var SchedulerMonthView = A.Component.create({
          * @type {Number}
          */
         tabIndex: {
-            value: 1,
-            validator: isNumber
+            validator: isNumber,
+            value: 1
         }
     },
 
