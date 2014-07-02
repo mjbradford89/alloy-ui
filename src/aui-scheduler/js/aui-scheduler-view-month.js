@@ -127,8 +127,22 @@ var SchedulerMonthView = A.Component.create({
             var instance = this;
             var boundingBox = instance.get('boundingBox');
 
-            instance.arrowKeyHandler = boundingBox.on('key', instance._onArrowKey, 'down:37,38,39,40', instance);
-            instance.newKeyUpHandler = boundingBox.on('key', instance._onNewKeyUp, 'up:13', instance);
+            instance._eventHandles = [
+                boundingBox.on('key', instance._onArrowKey, 'down:37,38,39,40', instance),
+                boundingBox.on('key', instance._onNewKeyUp, 'up:13', instance)
+            ];
+        },
+
+        /**
+        * Destructor lifecycle implementation for the `scheduler-view-month`.
+        *
+        * @method destructor
+        * @protected
+        */
+        destructor: function() {
+            var instance = this;
+
+            (new A.EventHandle(instance._eventHandles)).detach();
         },
 
         /**
@@ -220,17 +234,6 @@ var SchedulerMonthView = A.Component.create({
         },
 
         /**
-         * Unbindes keys for month view accessibility.
-         *
-         * @method unbindKeys
-         */
-        unbindKeys: function() {
-            var instance = this;
-
-            instance.arrowKeyHandler.detach();
-        },
-
-        /**
          * Fires after month view visibleChange
          *
          * @method _afterVisibleChange
@@ -240,18 +243,16 @@ var SchedulerMonthView = A.Component.create({
         _afterVisibleChange: function(event) {
             var instance = this;
 
-            if (instance.get('visible') && instance.get('rendered')) {
+            if (instance.get('visible') && instance.get('rendered') && !instance._eventHandles) {
                 var firstGridNode = instance.columnTableGrid.first();
 
                 instance.bindKeys();
                 instance._syncCellDimensions();
 
-                if (!A.Node(document.activeElement).hasClass(CSS_SVT_COLGRID)) {
-                    instance.focusCell(firstGridNode);
-                }
-            }
-            else if (instance.arrowKeyHandler) {
-                instance.unbindKeys();
+                instance.focusCell(firstGridNode);
+
+                instance.removeLasso();
+                instance.renderLasso([0, 0], [0, 0]);
             }
         },
 
@@ -372,6 +373,8 @@ var SchedulerMonthView = A.Component.create({
 
                         toCellNode = instance.columnTableGrid.last();
                     }
+
+                    toCellPosition = toCellNode.getData('position');
 
                     instance.focusCell(toCellNode);
 
