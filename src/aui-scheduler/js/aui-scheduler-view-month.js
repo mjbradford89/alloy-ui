@@ -102,8 +102,8 @@ var SchedulerMonthView = A.Component.create({
          * @type {Number}
          */
         tabIndex: {
-            value: 1,
-            validator: isNumber
+            validator: isNumber,
+            value: 1
         }
     },
 
@@ -305,9 +305,7 @@ var SchedulerMonthView = A.Component.create({
 
             instance._onMouseUpGrid();
 
-            recorder.popover.once('visibleChange', function(event) {
-                target.focus();
-            }, instance);
+            recorder.popover.once('visibleChange', target.focus, target);
         },
 
         /**
@@ -319,10 +317,10 @@ var SchedulerMonthView = A.Component.create({
          */
         _onArrowKey: function(event) {
             var instance = this;
-            var keyCode = event.keyCode;
             var target = event.target;
 
             if (target.hasClass(CSS_SVT_COLGRID)) {
+                var keyCode = event.keyCode;
                 var position = target.getData('position');
                 var index = instance._getCellIndex(position);
 
