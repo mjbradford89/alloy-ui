@@ -128,8 +128,22 @@ var SchedulerMonthView = A.Component.create({
             var boundingBox = instance.get('boundingBox');
 
             instance.arrowKeyHandler = boundingBox.on('key', instance._onArrowKey, 'down:37,38,39,40', instance);
-            instance.newKeyDownHandler = boundingBox.on('key', instance._onNewKeyDown, 'down:13', instance);
             instance.newKeyUpHandler = boundingBox.on('key', instance._onNewKeyUp, 'up:13', instance);
+        },
+
+        /**
+         * Focuses a cell node and removes tabindex from all others.
+         *
+         * @method focusCell
+         * @param {Node} cellNode
+         */
+        focusCell: function(cellNode) {
+            var instance = this;
+
+            instance.columnTableGrid.removeAttribute('tabindex');
+
+            cellNode.setAttribute('tabindex', instance.get('tabIndex'));
+            cellNode.focus();
         },
 
         /**
@@ -230,10 +244,10 @@ var SchedulerMonthView = A.Component.create({
                 var firstGridNode = instance.columnTableGrid.first();
 
                 instance.bindKeys();
+                instance._syncCellDimensions();
 
                 if (!A.Node(document.activeElement).hasClass(CSS_SVT_COLGRID)) {
-                    firstGridNode.setAttribute('tabindex', instance.get('tabIndex'));
-                    firstGridNode.focus();
+                    instance.focusCell(firstGridNode);
                 }
             }
             else if (instance.arrowKeyHandler) {
@@ -296,25 +310,7 @@ var SchedulerMonthView = A.Component.create({
         },
 
         /**
-         * Fires on new key down event.
-         *
-         * @method _onNewKeyDown
-         * @param {EventFacade} event
-         * @protected
-         */
-        _onNewKeyDown: function(event) {
-            var instance = this;
-            var target = event.target;
-            var centerXY = target.getCenterXY();
-
-            event.pageX = centerXY[0];
-            event.pageY = centerXY[1];
-
-            instance._onMouseDownGrid(event);
-        },
-
-        /**
-         * Fires on arrpw key down event.
+         * Fires on arrow key down event.
          *
          * @method _onArrowKey
          * @param {EventFacade} event
@@ -343,19 +339,24 @@ var SchedulerMonthView = A.Component.create({
                 }
 
                 var toCellNode = instance.columnTableGrid.item(index);
+                var toCellPosition;
 
                 if (toCellNode) {
-                    target.removeAttribute('tabindex')
-                    toCellNode.setAttribute('tabindex', instance.get('tabIndex'));
-                    toCellNode.focus();
+                    instance.focusCell(toCellNode);
 
-                    if (instance._recording) {
-                        var centerXY = toCellNode.getCenterXY();
+                    toCellPosition = toCellNode.getData('position');
 
-                        event.pageX = centerXY[0];
-                        event.pageY = centerXY[1];
+                    instance.lassoLastPosition = toCellPosition;
 
-                        instance._onMouseMoveGrid(event);
+                    if (event.shiftKey) {
+                        if (!instance._recording) {
+                            instance.lassoStartPosition = position;
+
+                            instance._recording = true;
+                        }
+                    }
+                    else {
+                        instance.lassoStartPosition = instance.lassoLastPosition;
                     }
                 }
                 else {
@@ -363,17 +364,23 @@ var SchedulerMonthView = A.Component.create({
 
                     if (index >= instance.get('displayDaysInterval')) {
                         scheduler.set('date', instance.get('nextDate'));
+
+                        toCellNode = instance.columnTableGrid.first();
                     }
                     else if (index < 0) {
                         scheduler.set('date', instance.get('prevDate'));
+
+                        toCellNode = instance.columnTableGrid.last();
                     }
 
-                    instance.columnTableGrid.removeAttribute('tabindex');
+                    instance.focusCell(toCellNode);
 
-                    var firstGridNode = instance.columnTableGrid.first();
+                    instance.lassoStartPosition = instance.lassoLastPosition = toCellNode.getData('position');
+                }
 
-                    firstGridNode.setAttribute('tabindex', instance.get('tabIndex'));
-                    firstGridNode.focus();
+                if (toCellPosition) {
+                    instance.removeLasso();
+                    instance.renderLasso(instance.lassoStartPosition, toCellPosition);
                 }
             }
         }
