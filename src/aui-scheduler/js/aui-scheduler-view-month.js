@@ -128,8 +128,7 @@ var SchedulerMonthView = A.Component.create({
             var boundingBox = instance.get('boundingBox');
 
             instance._eventHandles = [
-                boundingBox.on('key', instance._onArrowKey, 'down:37,38,39,40', instance),
-                boundingBox.on('key', instance._onNewKeyUp, 'up:13', instance)
+                boundingBox.delegate('keydown', A.bind(instance._onKeyDown, instance), '.' + CSS_SVT_COLGRID)
             ];
         },
 
@@ -291,49 +290,37 @@ var SchedulerMonthView = A.Component.create({
         },
 
         /**
-         * Fires on new key up event.
-         *
-         * @method _onNewKeyUp
-         * @param {EventFacade} event
-         * @protected
-         */
-        _onNewKeyUp: function(event) {
-            var instance = this;
-            var target = event.target;
-            var scheduler = instance.get('scheduler');
-            var recorder = scheduler.get('eventRecorder');
-
-            instance._onMouseUpGrid();
-
-            recorder.popover.once('visibleChange', target.focus, target);
-        },
-
-        /**
          * Fires on arrow key down event.
          *
-         * @method _onArrowKey
+         * @method _onKeyDown
          * @param {EventFacade} event
          * @protected
          */
-        _onArrowKey: function(event) {
+        _onKeyDown: function(event) {
             var instance = this;
             var target = event.target;
+            var position = target.getData('position');
+            var index = instance._getCellIndex(position);
+            var scheduler = instance.get('scheduler');
 
-            if (target.hasClass(CSS_SVT_COLGRID)) {
-                var keyCode = event.keyCode;
-                var position = target.getData('position');
-                var index = instance._getCellIndex(position);
+            if (event.isKey('enter')) {
+                var recorder = scheduler.get('eventRecorder');
 
-                if (keyCode === 37) {
+                instance._showRecorderPopover();
+
+                recorder.popover.once('visibleChange', target.focus, target);
+            }
+            else {
+                if (event.isKey('left')) {
                     index = index - 1;
                 }
-                else if (keyCode === 38) {
+                else if (event.isKey('up')) {
                     index = index - WEEK_LENGTH;
                 }
-                else if (keyCode === 39) {
+                else if (event.isKey('right')) {
                     index = index + 1;
                 }
-                else if (keyCode === 40) {
+                else if (event.isKey('down')) {
                     index = index + WEEK_LENGTH;
                 }
 
@@ -359,8 +346,6 @@ var SchedulerMonthView = A.Component.create({
                     }
                 }
                 else {
-                    var scheduler = instance.get('scheduler');
-
                     if (index >= instance.get('displayDaysInterval')) {
                         scheduler.set('date', instance.get('nextDate'));
 
