@@ -501,24 +501,7 @@ A.mix(A.SchedulerTableViewDD.prototype, {
         var recorder = scheduler.get('eventRecorder');
 
         if (recorder && instance._recording && !scheduler.get('disabled')) {
-            var startPositionDate = instance._getPositionDate(instance.lassoStartPosition);
-            var endPositionDate = instance._getPositionDate(instance.lassoLastPosition);
-
-            var startDate = new Date(Math.min(startPositionDate, endPositionDate));
-            startDate.setHours(0, 0, 0);
-
-            var endDate = new Date(Math.max(startPositionDate, endPositionDate));
-            endDate.setHours(23, 59, 59);
-
-            recorder.setAttrs({
-                allDay: true,
-                endDate: endDate,
-                startDate: startDate
-            }, {
-                silent: true
-            });
-
-            recorder.showPopover(instance.lasso);
+            instance._showRecorderPopover();
 
             instance._recording = false;
         }
@@ -553,6 +536,38 @@ A.mix(A.SchedulerTableViewDD.prototype, {
             moveOnEnd: false,
             positionProxy: false
         });
+    },
+
+    /**
+     * Shows  the `recorder` popover.
+     *
+     * @method _showRecorderPopover
+     * @protected
+     */
+    _showRecorderPopover: function() {
+        var instance = this;
+
+        var startPositionDate = instance._getPositionDate(instance.lassoStartPosition);
+        var endPositionDate = instance._getPositionDate(instance.lassoLastPosition);
+
+        var startDate = new Date(Math.min(startPositionDate, endPositionDate));
+        startDate.setHours(0, 0, 0);
+
+        var endDate = new Date(Math.max(startPositionDate, endPositionDate));
+        endDate.setHours(23, 59, 59);
+
+        var scheduler = instance.get('scheduler');
+        var recorder = scheduler.get('eventRecorder');
+
+        recorder.setAttrs({
+            allDay: true,
+            endDate: endDate,
+            startDate: startDate
+        }, {
+            silent: true
+        });
+
+        recorder.showPopover(instance.lasso);
     },
 
     /**
