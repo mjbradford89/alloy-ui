@@ -576,7 +576,8 @@ var SchedulerDayView = A.Component.create({
             instance.columnData.delegate(
                 'mouseup', A.bind(instance._onMouseUpTableCol, instance), '.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL);
 
-            boundingBox.delegate('key', A.bind(instance._onArrowKey, instance), 'down:38,40');
+            boundingBox.delegate('key', A.bind(instance._onKeyDown, instance), 'down:13,38,40');
+            boundingBox.delegate('key', A.bind(instance._onKeyUp, instance), 'up:13');
 
             instance.on('drag:end', instance._onEventDragEnd);
             instance.on('drag:start', instance._onEventDragStart);
@@ -1282,67 +1283,99 @@ var SchedulerDayView = A.Component.create({
         /**
          * Fires on arrow key down event.
          *
-         * @method _onArrowKey
+         * @method _onKeyDown
          * @protected
          */
-        _onArrowKey: function(event) {
+        _onKeyDown: function(event) {
             var instance = this;
-            var target = event.target;
+            var target = A.Node(document.activeElement);
             var keyCode = event.keyCode;
             var scheduler = instance.get('scheduler');
+            var recorder = scheduler.get('eventRecorder');
             var index = parseInt(target.getData('index'));
             var isTopOfHour = target.hasClass(CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION);
             var focusSibling = false;
             var toFocus = target;
 
-            if (keyCode === 38) {
-                if (isTopOfHour) {
-                    index = index - 1;
-                }
-                else {
-                    focusSibling = true
-                }
-            }
-            else if (keyCode === 40) {
-                if (!isTopOfHour) {
-                    index = index + 1;
-                }
-                else {
-                    focusSibling = true
-                }
-            }
+            instance._spoofKeyToMouseEvent(event);
 
-            if (index >= 0 && index <= 23) {
-                if (!focusSibling) {
-                    var marker = instance.markercellsNode.item(index);
+            if (keyCode === 13) {
+                instance._enterKeyDown = true;
 
+                instance._onMouseDownTableCol(event);
+            }
+            else {
+                if (keyCode === 38) {
                     if (isTopOfHour) {
-                        toFocus = instance.getChildMarker(marker, false);
+                        index = index - 1;
                     }
                     else {
-                        toFocus = instance.getChildMarker(marker, true);
+                        focusSibling = true;
                     }
                 }
-                else {
-                    toFocus = target.siblings().first();
+                else if (keyCode === 40) {
+                    if (!isTopOfHour) {
+                        index = index + 1;
+                    }
+                    else {
+                        focusSibling = true;
+                    }
                 }
 
-                if (toFocus) {
-                    instance.focusMarker(toFocus);
+                if (index >= 0 && index <= 23) {
+                    if (!focusSibling) {
+                        var marker = instance.markercellsNode.item(index);
+
+                        if (isTopOfHour) {
+                            toFocus = instance.getChildMarker(marker, false);
+                        }
+                        else {
+                            toFocus = instance.getChildMarker(marker, true);
+                        }
+                    }
+                    else {
+                        toFocus = target.siblings().first();
+                    }
+
+                    if (toFocus) {
+                        instance.focusMarker(toFocus);
+
+                        if (instance._enterKeyDown) {
+                            instance._onMouseMoveTableCol(event);
+                        }
+                    }
                 }
-            }
-            else if (index < 0) {
-                scheduler.set('date', instance.get('prevDate'));
+                else if (index < 0) {
+                    scheduler.set('date', instance.get('prevDate'));
 
-                instance.focusMarker(instance.getChildMarker(instance.markercellsNode.last(), false));
-            }
-            else if (index > 23) {
-                scheduler.set('date', instance.get('nextDate'));
+                    instance.focusMarker(instance.getChildMarker(instance.markercellsNode.last(), false));
+                }
+                else if (index > 23) {
+                    scheduler.set('date', instance.get('nextDate'));
 
-                instance.focusMarker(instance.getChildMarker(instance.markercellsNode.first(), true));
+                    instance.focusMarker(instance.getChildMarker(instance.markercellsNode.first(), true));
+                }
             }
 
             event.preventDefault();
+        },
+
+        /**
+         * Fires on enter key up event.
+         *
+         * @method _onKeyUp
+         * @protected
+         */
+        _onKeyUp: function(event) {
+            var instance = this;
+
+            instance._enterKeyDown = false;
+
+            instance._spoofKeyToMouseEvent(event);
+
+            instance._updateRecorderDate(event);
+
+            instance._onMouseUpTableCol(event);
         },
 
         /**
@@ -1449,7 +1482,7 @@ var SchedulerDayView = A.Component.create({
             if (recorder && !scheduler.get('disabled')) {
                 recorder.hidePopover();
 
-                if (target.test('.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL_SHIM)) {
+                if (target.test('.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL_SHIM) || event.type === 'key') {
                     instance.startXY = [event.pageX, event.pageY];
 
                     var colNumber = toNumber(event.currentTarget.attr('data-colnumber'));
@@ -1611,6 +1644,38 @@ var SchedulerDayView = A.Component.create({
         },
 
         /**
+         * Updates dates on recorder based on Key event.
+         *
+         *
+         * @method _updateRecorderDate
+         * @param {EventFacade} event
+         * @protected
+         */
+        _updateRecorderDate: function(event) {
+            var instance = this;
+            var target = event.target;
+            var scheduler = instance.get('scheduler');
+            var recorder = scheduler.get('eventRecorder');
+            var date = DateMath.clone(scheduler.get('date'));
+            var focusedMarker = A.Node(document.activeElement);
+            var hour = parseInt(focusedMarker.getData('index'));
+            var startDate = recorder.get('startDate');
+
+            date.setHours(hour);
+
+            if (!focusedMarker.hasClass(CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION)) {
+                date.setMinutes(30);
+            }
+
+            if (DateMath.after(date, startDate)) {
+                recorder.set('endDate', date);
+            }
+            else {
+                recorder.set('startDate', date);
+            }
+        },
+
+        /**
          * Removes the `SchedulerView`'s resizer `Node` from the DOM.
          *
          * @method _removeResizer
@@ -1620,6 +1685,24 @@ var SchedulerDayView = A.Component.create({
             var instance = this;
 
             instance.resizerNode.remove();
+        },
+
+        /**
+         * Sets properties on key event so it can be passed to mouse
+         * event handlers.
+         *
+         * @method _spoofKeyToMouseEvent
+         * @protected
+         */
+        _spoofKeyToMouseEvent: function(event) {
+            var instance = this;
+            var centerXY = event.target.getCenterXY();
+            var scheduler = instance.get('scheduler');
+            var column = instance.getColumnByDate(DateMath.clone(scheduler.get('date')));
+
+            event.pageX = centerXY[0];
+            event.pageY = centerXY[1];
+            event.currentTarget = column;
         },
 
         /**
