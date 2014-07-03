@@ -101,14 +101,18 @@
 }
 
 .scheduler-view-markercell {
-    height: 52px;
+    height: 51px;
 }
 
 .scheduler-view-marker-division {
     border-bottom: 1px dotted #ddd;
     border-top: 1px solid #ddd;
+}
+
+.scheduler-view-marker-child {
     height: 25px;
 }
+
 /* scheduler-base-event */
 .scheduler-event-hidden {
     display: none;
