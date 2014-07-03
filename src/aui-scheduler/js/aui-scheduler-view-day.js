@@ -71,6 +71,7 @@ var Lang = A.Lang,
     CSS_SCHEDULER_VIEW_DAY_HEADER_VIEW_LABEL = getCN('scheduler-view', 'day', 'header', 'view', 'label'),
     CSS_SCHEDULER_VIEW_DAY_ICON_GRIP_HORIZONTAL = getCN('scheduler-view', 'icon', 'grip', 'horizontal'),
     CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION = getCN('scheduler-view', 'marker', 'division'),
+    CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD = getCN('scheduler-view', 'marker', 'child'),
     CSS_SCHEDULER_VIEW_DAY_MARKERCELL = getCN('scheduler-view', 'markercell'),
     CSS_SCHEDULER_VIEW_DAY_MARKERS = getCN('scheduler-view', 'markers'),
     CSS_SCHEDULER_VIEW_DAY_RESIZER = getCN('scheduler-view', 'day', 'resizer'),
@@ -89,8 +90,8 @@ var Lang = A.Lang,
         '</div>',
 
     TPL_SCHEDULER_VIEW_DAY_MARKERCELL = '<div class="' + CSS_SCHEDULER_VIEW_DAY_MARKERCELL + '">' +
-        '<div class="' + CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION + '"></div>' +
-        '</div>',
+        '<div class="' + [CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION, CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD].join(' ') + '" data-index="{index}"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD + '" data-index="{index}"></div></div>',
 
     TPL_SCHEDULER_VIEW_DAY_HEADER_VIEW_LABEL = '<span class="' + CSS_SCHEDULER_VIEW_DAY_HEADER_VIEW_LABEL +
         '">{label}</span>',
@@ -437,6 +438,19 @@ var SchedulerDayView = A.Component.create({
         },
 
         /**
+         * Determines the 'tabindex' property to be used on elements
+         * in this view.
+         *
+         * @attribute tabIndex
+         * @default 1
+         * @type {Number}
+         */
+        tabIndex: {
+            value: 1,
+            validator: isNumber
+        },
+
+        /**
          * Contains the function that returns the `times` node.
          *
          * @attribute timesNode
@@ -540,6 +554,7 @@ var SchedulerDayView = A.Component.create({
          */
         bindUI: function() {
             var instance = this;
+            var boundingBox = instance.get('boundingBox');
 
             instance.headerTableNode.delegate(
                 'click', A.bind(instance._onClickDaysHeader, instance), '.' + CSS_SCHEDULER_VIEW_DAY_HEADER_DAY);
@@ -561,11 +576,29 @@ var SchedulerDayView = A.Component.create({
             instance.columnData.delegate(
                 'mouseup', A.bind(instance._onMouseUpTableCol, instance), '.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL);
 
+            boundingBox.delegate('key', A.bind(instance._onArrowKey, instance), 'down:38,40');
+
             instance.on('drag:end', instance._onEventDragEnd);
             instance.on('drag:start', instance._onEventDragStart);
             instance.on('drag:tickAlignY', instance._dragTickAlignY);
             instance.on('schedulerChange', instance._onSchedulerChange);
             instance.after('drag:align', instance._afterDragAlign);
+        },
+
+        /**
+         * Focuses the marker node and removes 'tabindex' from all other marker nodes.
+         *
+         * @method focusMarker
+         * @param {Node} markerNode
+         * @protected
+         */
+        focusMarker: function(markerNode) {
+            var instance = this;
+
+            instance.markercellsNode.all('.' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD).removeAttribute('tabindex');
+
+            markerNode.setAttribute('tabindex', instance.get('tabIndex'));
+            markerNode.focus();
         },
 
         /**
@@ -688,6 +721,25 @@ var SchedulerDayView = A.Component.create({
             var instance = this;
 
             return instance.columnShims.item(instance.getDateDaysOffset(date));
+        },
+
+        /**
+         * Returns the first or last child marker from parent marker.
+         *
+         * @method getChildMarker
+         * @param {Node} parentMarker
+         * @param {boolean} first
+         * @return {Node} The first or last child marker determined by given parentMarker.
+         */
+        getChildMarker : function(parentMarker, first) {
+            var instance = this;
+            var children = parentMarker.get('children');
+
+            if (first) {
+                return children.first();
+            }
+
+            return children.last();
         },
 
         /**
@@ -1076,6 +1128,21 @@ var SchedulerDayView = A.Component.create({
         },
 
         /**
+         * Fires after day view visibleChange
+         *
+         * @method _afterVisibleChange
+         * @param {EventFacade} event
+         * @protected
+         */
+        _afterVisibleChange: function(event) {
+            var instance = this;
+
+            if (instance.get('visible') && instance.get('rendered') && instance.get('name') == 'day') {
+                instance.focusMarker(instance.getChildMarker(instance.markercellsNode.first(), true));
+            }
+        },
+
+        /**
          * Aligns the dragging `SchedulerEvent` to the X axis while bound to the
          * Y axis on the `activeColumn`.
          *
@@ -1210,6 +1277,72 @@ var SchedulerDayView = A.Component.create({
 
             instance.syncColumnsUI();
             instance.syncDaysHeaderUI();
+        },
+
+        /**
+         * Fires on arrow key down event.
+         *
+         * @method _onArrowKey
+         * @protected
+         */
+        _onArrowKey: function(event) {
+            var instance = this;
+            var target = event.target;
+            var keyCode = event.keyCode;
+            var scheduler = instance.get('scheduler');
+            var index = parseInt(target.getData('index'));
+            var isTopOfHour = target.hasClass(CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION);
+            var focusSibling = false;
+            var toFocus = target;
+
+            if (keyCode === 38) {
+                if (isTopOfHour) {
+                    index = index - 1;
+                }
+                else {
+                    focusSibling = true
+                }
+            }
+            else if (keyCode === 40) {
+                if (!isTopOfHour) {
+                    index = index + 1;
+                }
+                else {
+                    focusSibling = true
+                }
+            }
+
+            if (index >= 0 && index <= 23) {
+                if (!focusSibling) {
+                    var marker = instance.markercellsNode.item(index);
+
+                    if (isTopOfHour) {
+                        toFocus = instance.getChildMarker(marker, false);
+                    }
+                    else {
+                        toFocus = instance.getChildMarker(marker, true);
+                    }
+                }
+                else {
+                    toFocus = target.siblings().first();
+                }
+
+                if (toFocus) {
+                    instance.focusMarker(toFocus);
+                }
+            }
+            else if (index < 0) {
+                scheduler.set('date', instance.get('prevDate'));
+
+                instance.focusMarker(instance.getChildMarker(instance.markercellsNode.last(), false));
+            }
+            else if (index > 23) {
+                scheduler.set('date', instance.get('nextDate'));
+
+                instance.focusMarker(instance.getChildMarker(instance.markercellsNode.first(), true));
+            }
+
+            event.preventDefault();
         },
 
         /**
@@ -1551,7 +1684,13 @@ var SchedulerDayView = A.Component.create({
                 i;
 
             for (i = 0; i <= 23; i++) {
-                buffer.push(TPL_SCHEDULER_VIEW_DAY_MARKERCELL);
+                buffer.push(
+                    Lang.sub(
+                        TPL_SCHEDULER_VIEW_DAY_MARKERCELL, {
+                            index: i
+                        }
+                    )
+                );
             }
 
             return A.NodeList.create(buffer.join(''));
