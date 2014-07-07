@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AlloyUI - Token Input</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../build/aui-css/css/bootstrap.css">
+    <script src="../../build/aui/aui.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>AlloyUI - Token Input</h1>
+
+    <h3>Token Input</h3>
+
+    <input type="text" id="tags" />
+
+    <h3>Token Input with AutoComplete</h3>
+
+    <input type="text" id="ac" />
+</div>
+<script>
+    YUI({ filter:'raw' }).use('aui-base', 'aui-token-input', 'autocomplete', function(Y) {
+        Y.one('#tags').plug(Y.Plugin.TokenInput);
+
+        Y.one('#ac').plug(Y.Plugin.TokenInput).plug(Y.Plugin.AutoComplete);
+    });
+</script>
+</body>
+</html>
