@@ -1,0 +1,7 @@
+{
+    "aui-token-input": {
+        "requires": [
+            "yui-base"
+        ]
+    }
+}
