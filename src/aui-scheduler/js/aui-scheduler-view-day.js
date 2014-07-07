@@ -1369,13 +1369,15 @@ var SchedulerDayView = A.Component.create({
         _onKeyUp: function(event) {
             var instance = this;
 
-            instance._enterKeyDown = false;
+            if (instance.get('name') === 'day') {
+                instance._enterKeyDown = false;
 
-            instance._spoofKeyToMouseEvent(event);
+                instance._spoofKeyToMouseEvent(event);
 
-            instance._updateRecorderDate(event);
+                instance._updateRecorderDate(event);
 
-            instance._onMouseUpTableCol(event);
+                instance._onMouseUpTableCol(event);
+            }
         },
 
         /**
