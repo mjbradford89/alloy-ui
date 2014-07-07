@@ -3,6 +3,7 @@
         "requires": [
             "array-extras",
             "aui-classnamemanager",
+            "aui-component",
             "event-focus",
             "event-valuechange",
             "node-event-delegate",
