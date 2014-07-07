@@ -12,7 +12,6 @@
 var doc = Y.config.doc,
 
     Lang   = Y.Lang,
-    Node   = Y.Node,
     YArray = Y.Array,
 
     getClassName = Y.bind(Y.ClassNameManager.getClassName, null, 'tokeninput'),
@@ -199,7 +198,7 @@ var TokenInput = A.Component.create(
             REMOVE_TEMPLATE : '<a href="#" title="Remove"><span role="img">\u00D7</span></a>',
 
             // -- Lifecycle Methods ----------------------------------------------------
-            initializer: function (config) {
+            initializer: function () {
                 var keys      = {},
                     selectors = {},
                     initialTokens;
@@ -261,7 +260,7 @@ var TokenInput = A.Component.create(
                 newTokens = Lang.isArray(newTokens) ? newTokens :
                         newTokens.split(this.get(DELIMITER));
 
-                YArray.each(newTokens, function (token, i) {
+                YArray.each(newTokens, function (token, index) {
                     token = Lang.trim(token);
 
                     if (token) {
@@ -538,8 +537,8 @@ var TokenInput = A.Component.create(
              *   prevented.
              * @protected
              */
-            _keyBackspace: function (e) {
-                var node = e.currentTarget,
+            _keyBackspace: function (event) {
+                var node = event.currentTarget,
                     index, selection;
 
                 if (node.hasClass(TokenInput.CLASS_NAMES.input)) {
@@ -578,8 +577,8 @@ var TokenInput = A.Component.create(
              *   prevented.
              * @protected
              */
-            _keyDelete: function (e) {
-                var node = e.currentTarget,
+            _keyDelete: function (event) {
+                var node = event.currentTarget,
                     index;
 
                 if (!node.hasClass(TokenInput.CLASS_NAMES.token)) {
@@ -609,8 +608,8 @@ var TokenInput = A.Component.create(
              *   prevented.
              * @protected
              */
-            _keyDown: function (e) {
-                return this._keyRight(e);
+            _keyDown: function (event) {
+                return this._keyRight(event);
             },
 
             /**
@@ -622,7 +621,7 @@ var TokenInput = A.Component.create(
              *   prevented.
              * @protected
              */
-            _keyEnter: function (e) {
+            _keyEnter: function (event) {
                 var value = Lang.trim(this._inputNode.get(VALUE));
 
                 if (!this.get('tokenizeOnEnter') || !value) {
@@ -641,8 +640,8 @@ var TokenInput = A.Component.create(
              *   prevented.
              * @protected
              */
-            _keyLeft: function (e) {
-                var node = e.currentTarget;
+            _keyLeft: function (event) {
+                var node = event.currentTarget;
 
                 if (node.hasClass(TokenInput.CLASS_NAMES.input) &&
                         this._getSelection(node).start !== 0) {
@@ -661,8 +660,8 @@ var TokenInput = A.Component.create(
              *   prevented.
              * @protected
              */
-            _keyRight: function (e) {
-                var node = e.currentTarget;
+            _keyRight: function (event) {
+                var node = event.currentTarget;
 
                 if (node.hasClass(TokenInput.CLASS_NAMES.input)) {
                     return false;
@@ -680,8 +679,8 @@ var TokenInput = A.Component.create(
              *   prevented.
              * @protected
              */
-            _keyUp: function (e) {
-                return this._keyLeft(e);
+            _keyUp: function (event) {
+                return this._keyLeft(event);
             },
 
             /**
@@ -789,7 +788,7 @@ var TokenInput = A.Component.create(
                 this._contentBox[this.get('fauxInput') ? 'addClass' : 'removeClass'](
                         TokenInput.CLASS_NAMES.fauxinput);
 
-                YArray.each(tokens, function (token, i) {
+                YArray.each(tokens, function (token, index) {
                     items.push(this._createItem({
                         text     : Lang.trim(token),
                         token    : true
@@ -909,7 +908,7 @@ var TokenInput = A.Component.create(
              * @param {EventFacade} e
              * @protected
              */
-            _afterBlur: function (e) {
+            _afterBlur: function (event) {
                 var that = this;
 
                 if (this.get('tokenizeOnBlur')) {
@@ -926,7 +925,7 @@ var TokenInput = A.Component.create(
              * @param {EventFacade} e
              * @protected
              */
-            _afterFauxInputChange: function (e) {
+            _afterFauxInputChange: function (event) {
                 this._sync();
             },
 
@@ -937,10 +936,10 @@ var TokenInput = A.Component.create(
              * @param {EventFacade} e
              * @protected
              */
-            _afterFocus: function (e) {
+            _afterFocus: function (event) {
                 var that = this;
 
-                if (!e.target.ancestor(this._selectors.item, true)) {
+                if (!event.target.ancestor(this._selectors.item, true)) {
                     setTimeout(function () {
                         // FIXME: this doesn't display the keyboard in iOS.
                         that._inputNode.focus();
@@ -955,8 +954,8 @@ var TokenInput = A.Component.create(
              * @param {EventFacade} e
              * @protected
              */
-            _afterInputValueChange: function (e) {
-                this._tokenizeValue(e.currentTarget, e.newVal);
+            _afterInputValueChange: function (event) {
+                this._tokenizeValue(event.currentTarget, event.newVal);
             },
 
             /**
@@ -966,7 +965,7 @@ var TokenInput = A.Component.create(
              * @param {EventFacade} e
              * @protected
              */
-            _afterRemoveButtonChange: function (e) {
+            _afterRemoveButtonChange: function (event) {
                 this._sync();
             },
 
@@ -977,10 +976,10 @@ var TokenInput = A.Component.create(
              * @param {EventFacade} e
              * @protected
              */
-            _afterTokensChange: function (e) {
+            _afterTokensChange: function (event) {
                 // Only do a full sync for non-atomic changes (i.e., changes that are
                 // made via some means other than the add()/remove() methods).
-                if (e.atomic) {
+                if (event.atomic) {
                     this._syncHost();
                 } else {
                     this._sync();
@@ -994,14 +993,14 @@ var TokenInput = A.Component.create(
              * @param {EventFacade} e
              * @protected
              */
-            _onKey: function (e) {
-                var handler = this._keys[e.keyCode];
+            _onKey: function (event) {
+                var handler = this._keys[event.keyCode];
 
                 if (handler) {
                     // A handler may return false to indicate that it doesn't wish
                     // to prevent the default key behavior.
-                    if (handler.call(this, e) !== false) {
-                        e.preventDefault();
+                    if (handler.call(this, event) !== false) {
+                        event.preventDefault();
                     }
                 }
             },
@@ -1013,9 +1012,9 @@ var TokenInput = A.Component.create(
              * @param {EventFacade} e
              * @protected
              */
-            _onRemoveClick: function (e) {
-                var item = e.currentTarget.ancestor(this._selectors.item);
-                e.preventDefault();
+            _onRemoveClick: function (event) {
+                var item = event.currentTarget.ancestor(this._selectors.item);
+                event.preventDefault();
                 this.remove(this._tokenNodes.indexOf(item));
             },
 
@@ -1026,8 +1025,8 @@ var TokenInput = A.Component.create(
              * @param {EventFacade} e
              * @protected
              */
-            _onTokenBlur: function (e) {
-                e.currentTarget.removeClass(TokenInput.CLASS_NAMES.focus);
+            _onTokenBlur: function (event) {
+                event.currentTarget.removeClass(TokenInput.CLASS_NAMES.focus);
             },
 
             /**
@@ -1037,8 +1036,8 @@ var TokenInput = A.Component.create(
              * @param {EventFacade} e
              * @protected
              */
-            _onTokenFocus: function (e) {
-                e.currentTarget.addClass(TokenInput.CLASS_NAMES.focus);
+            _onTokenFocus: function (event) {
+                event.currentTarget.addClass(TokenInput.CLASS_NAMES.focus);
             },
 
             /**
@@ -1048,8 +1047,8 @@ var TokenInput = A.Component.create(
              * @param {EventFacade} e
              * @protected
              */
-            _onTokenMouseOut: function (e) {
-                e.currentTarget.removeClass(TokenInput.CLASS_NAMES.hover);
+            _onTokenMouseOut: function (event) {
+                event.currentTarget.removeClass(TokenInput.CLASS_NAMES.hover);
             },
 
             /**
@@ -1059,8 +1058,8 @@ var TokenInput = A.Component.create(
              * @param {EventFacade} e
              * @protected
              */
-            _onTokenMouseOver: function (e) {
-                e.currentTarget.addClass(TokenInput.CLASS_NAMES.hover);
+            _onTokenMouseOver: function (event) {
+                event.currentTarget.addClass(TokenInput.CLASS_NAMES.hover);
             }
         }
     }
