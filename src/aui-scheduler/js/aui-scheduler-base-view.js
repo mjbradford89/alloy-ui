@@ -226,6 +226,8 @@ var SchedulerView = A.Component.create({
             var instance = this;
 
             instance.after('render', instance._afterRender);
+
+            instance.after('visibleChange', instance._afterVisibleChange);
         },
 
         /**
@@ -348,7 +350,18 @@ var SchedulerView = A.Component.create({
             instance._uiSetScrollable(
                 instance.get('scrollable')
             );
+
+            instance._uiSetVisible(true);
         },
+
+        /**
+         * Handles 'visibleChange' events.
+         *
+         * @method _afterVisibleChange
+         * @param {EventFacade} event
+         * @protected
+         */
+        _afterVisibleChange: function(event) { },
 
         /**
          * Sets this `SchedulerView`'s `scheduler` object to the given value.
@@ -390,6 +403,19 @@ var SchedulerView = A.Component.create({
                 bodyNode.toggleClass(CSS_SCHEDULER_VIEW_SCROLLABLE, val);
                 bodyNode.toggleClass(CSS_SCHEDULER_VIEW_NOSCROLL, !val);
             }
+        },
+
+        /**
+         * Sets `visible` on the UI.
+         *
+         * @method _uiSetVisible
+         * @param {Boolean} val The value of the property.
+         * @protected
+         */
+        _uiSetVisible: function(val) {
+            var instance = this;
+
+            instance.set('visible', val);
         }
     }
 });
