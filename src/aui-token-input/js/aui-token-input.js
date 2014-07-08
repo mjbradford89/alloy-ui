@@ -13,6 +13,7 @@ var doc = A.config.doc,
 
     Lang   = A.Lang,
     AArray = A.Array,
+    Node = A.Node,
 
     getClassName = A.bind(A.ClassNameManager.getClassName, null, 'tokeninput'),
 
