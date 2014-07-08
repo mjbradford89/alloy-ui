@@ -9,12 +9,12 @@
  * @param {Object} config Configuration object.
  */
 
-var doc = Y.config.doc,
+var doc = A.config.doc,
 
-    Lang   = Y.Lang,
-    YArray = Y.Array,
+    Lang   = A.Lang,
+    AArray = A.Array,
 
-    getClassName = Y.bind(Y.ClassNameManager.getClassName, null, 'tokeninput'),
+    getClassName = A.bind(A.ClassNameManager.getClassName, null, 'tokeninput'),
 
     // keyCode constants.
     KEY_BACKSPACE = 8,
@@ -38,7 +38,7 @@ var TokenInput = A.Component.create(
 
         NS  : 'tokenInput',
 
-        EXTENDS: Y.Plugin.Base,
+        EXTENDS: A.Plugin.Base,
 
         ATTRS: {
             /**
@@ -130,7 +130,7 @@ var TokenInput = A.Component.create(
              *   elsewhere.
              */
             removeButton: {
-                value: !!Y.UA.mobile
+                value: !!A.UA.mobile
             },
 
             /**
@@ -184,7 +184,7 @@ var TokenInput = A.Component.create(
             input    : getClassName('input'),
             item     : getClassName('item'),
             list     : getClassName('list'),
-            os       : getClassName(Y.UA.os),
+            os       : getClassName(A.UA.os),
             remove   : getClassName('remove'),
             token    : getClassName('token')
         },
@@ -203,7 +203,7 @@ var TokenInput = A.Component.create(
                     selectors = {},
                     initialTokens;
 
-                Y.Object.each(TokenInput.CLASS_NAMES, function (className, name) {
+                A.Object.each(TokenInput.CLASS_NAMES, function (className, name) {
                     selectors[name] = '.' + className;
                 }, this);
 
@@ -260,7 +260,7 @@ var TokenInput = A.Component.create(
                 newTokens = Lang.isArray(newTokens) ? newTokens :
                         newTokens.split(this.get(DELIMITER));
 
-                YArray.each(newTokens, function (token, index) {
+                AArray.each(newTokens, function (token, index) {
                     token = Lang.trim(token);
 
                     if (token) {
@@ -281,7 +281,7 @@ var TokenInput = A.Component.create(
                 }, this);
 
                 if (items.length && addTokens.length) {
-                    items = Y.all(items).toFrag();
+                    items = A.all(items).toFrag();
 
                     if ((index || index === 0) && index < tokens.length) {
                         tokens = tokens.concat();
@@ -365,7 +365,7 @@ var TokenInput = A.Component.create(
                         mouseout : this._onTokenMouseOut
                     }, selectors.token, this),
 
-                    list.delegate(Y.UA.gecko ? 'keypress' : 'keydown', this._onKey,
+                    list.delegate(A.UA.gecko ? 'keypress' : 'keydown', this._onKey,
                             selectors.input + ',' + selectors.token, this),
 
                     list.delegate('click', this._onRemoveClick, selectors.remove, this),
@@ -407,7 +407,7 @@ var TokenInput = A.Component.create(
 
                 item.addClass(classNames.item);
 
-                YArray.each(['editable', 'hidden', 'token'], function (option) {
+                AArray.each(['editable', 'hidden', 'token'], function (option) {
                     if (options[option]) {
                         item.addClass(classNames[option]);
                     }
@@ -770,7 +770,7 @@ var TokenInput = A.Component.create(
              */
             _setTokens: function (tokens) {
                 // Filter out empty tokens.
-                return YArray.filter(tokens, function (token) {
+                return AArray.filter(tokens, function (token) {
                     return !!Lang.trim(token);
                 });
             },
@@ -788,7 +788,7 @@ var TokenInput = A.Component.create(
                 this._contentBox[this.get('fauxInput') ? 'addClass' : 'removeClass'](
                         TokenInput.CLASS_NAMES.fauxinput);
 
-                YArray.each(tokens, function (token, index) {
+                AArray.each(tokens, function (token, index) {
                     items.push(this._createItem({
                         text     : Lang.trim(token),
                         token    : true
@@ -801,7 +801,7 @@ var TokenInput = A.Component.create(
                 this._set('inputNode', this._inputNode);
 
                 items.push(this._inputItem);
-                items = Y.all(items).toFrag();
+                items = A.all(items).toFrag();
 
                 this._clearItems();
                 this._list.append(items);
@@ -858,7 +858,7 @@ var TokenInput = A.Component.create(
             _tokenizeValue: function (node, value, options) {
                 var tokens;
 
-                options = Y.merge({
+                options = A.merge({
                     updateUI: true
                 }, options || EMPTY_OBJECT);
 
@@ -1065,4 +1065,4 @@ var TokenInput = A.Component.create(
     }
 );
 
-Y.Plugin.TokenInput = TokenInput;
+A.Plugin.TokenInput = TokenInput;
