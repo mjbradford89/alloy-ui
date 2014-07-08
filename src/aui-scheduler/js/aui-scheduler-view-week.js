@@ -7,8 +7,18 @@
 
 var Lang = A.Lang,
     isFunction = Lang.isFunction,
+    isNumber = Lang.isNumber,
 
     DateMath = A.DataType.DateMath,
+    getCN = A.getClassName,
+
+    CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD = getCN('scheduler-view', 'marker', 'child'),
+    CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER = getCN('scheduler-view', 'week', 'day', 'marker'),
+    CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION = getCN('scheduler-view', 'marker', 'division'),
+    CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD = getCN('scheduler-view', 'marker', 'child'),
+    CSS_SCHEDULER_VIEW_DAY_TABLE_COL = getCN('scheduler-view', 'day', 'table', 'col'),
+
+    TPL_SCHEDULER_VIEW_WEEK_MARKERCELL = '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-weekday="{weekday}"></div>',
 
     WEEK_LENGTH = DateMath.WEEK_LENGTH;
 
@@ -97,6 +107,19 @@ var SchedulerWeekView = A.Component.create({
                 return this._valueNavigationDateFormatter;
             },
             validator: isFunction
+        },
+
+        /**
+         * Determines the 'tabindex' property to be used on elements
+         * in this view.
+         *
+         * @attribute tabIndex
+         * @default 1
+         * @type {Number}
+         */
+        tabIndex: {
+            value: 1,
+            validator: isNumber
         }
     },
 
@@ -110,6 +133,36 @@ var SchedulerWeekView = A.Component.create({
     EXTENDS: A.SchedulerDayView,
 
     prototype: {
+
+        initializer: function() {
+            var instance = this;
+
+            instance.createWeekdayMarkerNodes();
+        },
+
+        createWeekdayMarkerNodes: function() {
+            var instance = this;
+
+            if (!instance.weekdayMarkers) {
+                var markerChildren = instance.markercellsNode.get('children');
+
+                A.Array.each(markerChildren, function(item, index) {
+                    item.each(function(node, index) {
+                        for (var i = 0; i < instance.get('days'); i++) {
+                            var dayNode = A.Node.create(
+                                    Lang.sub(TPL_SCHEDULER_VIEW_WEEK_MARKERCELL, {
+                                        weekday: i
+                                    }
+                                ));
+
+                            node.append(dayNode);
+                        }
+                    });
+                });
+
+                instance.weekdayMarkers = instance.markercellsNode.all('.' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER);
+            }
+        },
 
         /**
          * Returns a date value of the first day of the week with its time
@@ -184,6 +237,188 @@ var SchedulerWeekView = A.Component.create({
             var firstDayOfWeek = scheduler.get('firstDayOfWeek');
 
             return DateMath.getFirstDayOfWeek(date, firstDayOfWeek);
+        },
+
+        _onKeyDown: function(event) {
+            var instance = this;
+
+            if (instance.get('visible') && instance.get('name') === 'week') {
+                var target = A.Node(document.activeElement);
+                var parent = target.ancestor('.' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD);
+                var isTopOfHour = parent.hasClass(CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION);
+                var col = parent.ancestor('.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL);
+                var weekday = parseInt(target.getData('weekday'));
+                var row = parseInt(parent.getData('index'));
+                var focusTopOfHour = false;
+                var toFocus = target;
+
+                if (event.isKey('enter')) {
+                    instance._spoofKeyToMouseEvent(event, weekday);
+
+                    instance._enterKeyDown = true;
+
+                    instance._onMouseDownTableCol(event);
+                }
+                else {
+                    if (event.isKey('up')) {
+                        if (isTopOfHour) {
+                            row = row - 1;
+
+                            if (row < 0) {
+                                row = 0;
+                                focusTopOfHour = true;
+                            }
+                        }
+                        else {
+                            focusTopOfHour = true;
+                        }
+                    }
+                    else if (event.isKey('right')) {
+                        weekday = Math.min(weekday + 1, 6);
+                        focusTopOfHour = isTopOfHour;
+                    }
+                    else if (event.isKey('down')) {
+                        if (!isTopOfHour) {
+                            row = row + 1;
+
+                            if (row > 23) {
+                                row = 23;
+                                focusTopOfHour = false;
+                            }
+                            else {
+                                focusTopOfHour = true;
+                            }
+                        }
+                        else {
+                            focusTopOfHour = false;
+                        }
+                    }
+                    else if (event.isKey('left')) {
+                        weekday = Math.max(weekday - 1, 0);
+                        focusTopOfHour = isTopOfHour;
+                    }
+
+                    toFocus = instance.getChildMarker(row, weekday, focusTopOfHour);
+
+                    instance.focusMarker(toFocus);
+
+                    if (instance._enterKeyDown) {
+                        instance._spoofKeyToMouseEvent(event, weekday);
+
+                        instance._onMouseMoveTableCol(event);
+                    }
+                }
+
+                event.preventDefault();
+            }
+        },
+
+        _spoofKeyToMouseEvent: function(event, weekday) {
+            var instance = this;
+            var centerXY = event.target.getCenterXY();
+            var scheduler = instance.get('scheduler');
+            var column = instance.columnData.one('[data-colnumber="' + weekday + '"]');
+
+            event.pageX = centerXY[0];
+            event.pageY = centerXY[1];
+            event.currentTarget = column;
+        },
+
+        /**
+         * Fires on enter key up event.
+         *
+         * @method _onKeyUp
+         * @protected
+         */
+        _onKeyUp: function(event) {
+            var instance = this;
+
+            if (instance.get('visible') && instance.get('name') === 'week') {
+                var target = event.target;
+                var column = target.getData('weekday');
+
+                instance._enterKeyDown = false;
+
+                instance._spoofKeyToMouseEvent(event, column);
+
+                instance._updateRecorderDate(event);
+
+                instance._onMouseUpTableCol(event);
+            }
+        },
+
+        /**
+         * Updates dates on recorder based on Key event.
+         *
+         *
+         * @method _updateRecorderDate
+         * @param {EventFacade} event
+         * @protected
+         */
+        _updateRecorderDate: function(event) {
+            var instance = this;
+            var target = event.target;
+            var col = parseInt(target.getData('weekday'));
+            var scheduler = instance.get('scheduler');
+            var recorder = scheduler.get('eventRecorder');
+            var date = instance.getDateByColumn(col);
+            var focusedMarker = A.Node(document.activeElement);
+            var hour = parseInt(focusedMarker.ancestor().getData('index'));
+            var startDate = recorder.get('startDate');
+
+            date.setHours(hour);
+
+            if (!focusedMarker.hasClass(CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION)) {
+                date.setMinutes(30);
+            }
+
+            if (DateMath.after(date, startDate)) {
+                recorder.set('endDate', date);
+            }
+            else {
+                recorder.set('startDate', date);
+            }
+        },
+
+        focusMarker: function(markerNode) {
+            var instance = this;
+
+            instance.weekdayMarkers.removeAttribute('tabindex');
+
+            markerNode.setAttribute('tabindex', instance.get('tabIndex'));
+
+            markerNode.focus();
+        },
+
+        getChildMarker: function(row, weekday, first) {
+            var instance = this;
+
+            var markercellsNodes = instance.markercellsNode.all('[data-index="' + row + '"]');
+            var markercellsNode;
+
+            if (first) {
+                markercellsNode = markercellsNodes.first();
+            }
+            else {
+                markercellsNode = markercellsNodes.last();
+            }
+
+            return markercellsNode.one('[data-weekday="' + weekday + '"]');
+        },
+
+        /**
+         * Fires after day view visibleChange
+         *
+         * @method _afterVisibleChange
+         * @param {EventFacade} event
+         * @protected
+         */
+        _afterVisibleChange: function(event) {
+            var instance = this;
+
+            if (instance.get('visible') && instance.get('rendered') && instance.get('name') == 'week') {
+                instance.focusMarker(instance.getChildMarker(0, 0, true));
+            }
         },
 
         /**
