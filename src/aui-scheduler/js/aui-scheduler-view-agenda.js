@@ -7,6 +7,7 @@
 
 var Lang = A.Lang,
     isFunction = Lang.isFunction,
+    isNumber = Lang.isNumber,
 
     AArray = A.Array,
     DateMath = A.DataType.DateMath,
@@ -61,7 +62,7 @@ var Lang = A.Lang,
     TPL_EVENTS_HEADER = '<div class="' + [CSS_HEADER, CSS_CLEARFIX].join(' ') +
         ' {firstClassName} {lastClassName}">' +
         '<div class="' + CSS_HEADER_DAY + '">{day}</div>' +
-        '<a href="javascript:;" class="' + CSS_HEADER_EXTRA + '" data-timestamp="{timestamp}">{extra}</a>' +
+        '<a href="javascript:;" class="' + CSS_HEADER_EXTRA + '" data-timestamp="{timestamp}" tabindex="-1">{extra}</a>' +
         '</div>',
 
     TPL_EVENTS_CONTAINER = '<div class="' + CSS_EVENTS + '">{content}</div>',
@@ -264,6 +265,19 @@ var SchedulerAgendaView = A.Component.create({
             value: {
                 noEvents: 'No future events.'
             }
+        },
+
+        /**
+         * Contains the number represent the tabindex property of events and
+         * event headers.
+         *
+         * @attribute eventTabIndex
+         * @default 0
+         * @type Number
+         */
+        eventTabIndex: {
+            validator: isNumber,
+            value: 0
         }
     },
 
@@ -286,11 +300,28 @@ var SchedulerAgendaView = A.Component.create({
          */
         bindUI: function() {
             var instance = this,
-
                 boundingBox = instance.get('boundingBox');
 
             boundingBox.delegate('click', instance._onSchedulerEventClick, '.' + CSS_EVENT, instance);
             boundingBox.delegate('click', instance._onEventsHeaderClick, '.' + CSS_HEADER_EXTRA, instance);
+            boundingBox.on('key', instance._onKeyDown, 'down:13,37,38,39,40', instance);
+        },
+
+        /**
+        * Focuses the marker node and removes 'tabindex' from all other marker nodes.
+        *
+        * @method focusMarker
+        * @param {Node} markerNode
+        * @protected
+        */
+        focusMarker: function(markerNode) {
+            var instance = this;
+
+            instance.events.removeAttribute('tabindex');
+            instance.eventHeaders.removeAttribute('tabindex');
+
+            markerNode.setAttribute('tabindex', instance.get('eventTabIndex'));
+            markerNode.focus();
         },
 
         /**
@@ -330,6 +361,8 @@ var SchedulerAgendaView = A.Component.create({
          */
         plotEvents: function() {
             var instance = this,
+
+                boundingBox = instance.get('boundingBox'),
 
                 strings = instance.get('strings'),
 
@@ -425,6 +458,15 @@ var SchedulerAgendaView = A.Component.create({
             });
 
             instance.set('bodyContent', content);
+
+            instance.events = boundingBox.all('.' + CSS_EVENT);
+            instance.eventHeaders = boundingBox.all('.' + CSS_HEADER);
+
+            var firstEvent = instance.events.first();
+
+            if (firstEvent) {
+                instance.focusMarker(firstEvent);
+            }
         },
 
         /**
@@ -491,6 +533,42 @@ var SchedulerAgendaView = A.Component.create({
             if (dayView) {
                 scheduler.set('date', date);
                 scheduler.set('activeView', dayView);
+            }
+        },
+
+        /**
+         * Handles KeyDown events.
+         *
+         * @method _onKeyDown
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onKeyDown: function(event) {
+            var instance = this,
+                target = event.target,
+                toFocus;
+
+            if (event.isKey('enter')) {
+                event.currentTarget = target;
+
+                if (target.hasClass(CSS_EVENT)) {
+                    instance._onSchedulerEventClick(event);
+                }
+                else if (target.hasClass(CSS_HEADER)) {
+                    instance._onEventsHeaderClick(event);
+                }
+            }
+            else {
+                if (event.isKey('up')) {
+                    toFocus = target.previous();
+                }
+                else if (event.isKey('down')) {
+                    toFocus = target.next();
+                }
+
+                if (toFocus && (toFocus.hasClass(CSS_EVENT) || toFocus.hasClass(CSS_HEADER))) {
+                    instance.focusMarker(toFocus);
+                }
             }
         },
 
