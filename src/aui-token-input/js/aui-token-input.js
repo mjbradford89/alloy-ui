@@ -891,12 +891,6 @@ var TokenInput = A.Component.create(
                     }
                 }
 
-                if (options.updateUI) {
-                    // Adjust the width of the input field as necessary to fit its
-                    // contents.
-                    node.setStyle('width', Math.max(5, value.length + 3) + 'ex');
-                }
-
                 return tokens;
             },
 
