@@ -736,11 +736,7 @@ var SchedulerDayView = A.Component.create({
             var instance = this;
             var children = parentMarker.get('children');
 
-            if (first) {
-                return children.first();
-            }
-
-            return children.last();
+            return first ? children.first() : children.last();
         },
 
         /**
