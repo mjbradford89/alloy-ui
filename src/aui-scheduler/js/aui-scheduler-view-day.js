@@ -1134,7 +1134,7 @@ var SchedulerDayView = A.Component.create({
         _afterVisibleChange: function(event) {
             var instance = this;
 
-            if (instance.get('visible') && instance.get('rendered') && instance.get('name') == 'day') {
+            if (instance.get('visible') && instance.get('rendered') && instance.get('name') === 'day') {
                 instance.focusMarker(instance.getChildMarker(instance.markercellsNode.first(), true));
             }
         },
@@ -1287,7 +1287,6 @@ var SchedulerDayView = A.Component.create({
             var target = A.Node(document.activeElement);
             var keyCode = event.keyCode;
             var scheduler = instance.get('scheduler');
-            var recorder = scheduler.get('eventRecorder');
             var index = parseInt(target.getData('index'));
             var isTopOfHour = target.hasClass(CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION);
             var focusSibling = false;
@@ -1649,7 +1648,6 @@ var SchedulerDayView = A.Component.create({
          */
         _updateRecorderDate: function(event) {
             var instance = this;
-            var target = event.target;
             var scheduler = instance.get('scheduler');
             var recorder = scheduler.get('eventRecorder');
             var date = DateMath.clone(scheduler.get('date'));
