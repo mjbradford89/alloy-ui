@@ -131,7 +131,7 @@ var TokenInput = A.Component.create(
              *   elsewhere.
              */
             removeButton: {
-                value: !!A.UA.mobile
+                value: true
             },
 
             /**
