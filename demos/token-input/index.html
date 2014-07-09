@@ -5,24 +5,198 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../../build/aui-css/css/bootstrap.css">
     <script src="../../build/aui/aui.js"></script>
+
+    <style>
+    pre {
+        word-wrap: normal;
+    }
+    .yui3-tokeninput-hidden {
+        left: -10000px;
+        position: absolute;
+    }
+
+    .yui3-tokeninput,
+    .yui3-tokeninput-content,
+    .yui3-tokeninput-item,
+    .yui3-tokeninput-list {
+        display: inline-block;
+        vertical-align: bottom;
+        zoom: 1;
+    }
+
+    .yui3-tokeninput-item .close {
+        vertical-align: top;
+
+        font-family: Arial;
+        display: inline-block;
+        line-height: 100%;
+        font-size: 1.1em;
+        line-height: 1.49em;
+        margin-left: 5px;
+        float: none;
+        height: 100%;
+        padding-right: 4px;
+    }
+
+    .yui3-tokeninput-content,
+    .yui3-tokeninput-list { width: 100%; }
+
+    .yui3-tokeninput-input {
+        *vertical-align: top;
+        -webkit-appearance: none; /* prevents inner shadow on iOS */
+        border: 0;
+        outline: none;
+    }
+
+    .yui3-tokeninput-item {
+        margin: 1px 2px;
+    }
+
+    .yui3-tokeninput-list {
+        cursor: text;
+        list-style: none;
+        overflow: hidden;
+        height: auto;
+        padding-left: 1em;
+        padding-top: 5px;
+        margin-bottom: 0;
+    }
+
+    .yui3-tokeninput-token { cursor: pointer; }
+
+    .yui3-tokeninput-token {
+        border-radius: 3px;
+        display: inline-block;
+        border: 1px solid #d9d9d9;
+        background-color: #ededed;
+        white-space: nowrap;
+        margin: 0 5px 5px 0;
+        vertical-align: baseline;
+        cursor: default;
+        padding-left: 0.5em;
+
+        margin: 0 0 5px 0;
+    }
+
+    .yui3-tokeninput-input, .yui3-tokeninput-editable {
+        width: 100%;
+    }
+
+    .yui3-tokeninput.form-control {
+        height: auto;
+        min-height: 34px;
+        padding: 0;
+        padding-bottom: 0px;
+    }
+
+    .yui3-tokeninput-editable {
+        vertical-align: top;
+        margin: 0 0 5px 0;
+    }
+
+    .yui3-aclist-content {
+        -moz-box-shadow: 1px 1px 4px #888;
+        -webkit-box-shadow: 1px 1px 4px #888;
+        background: #fff;
+        border: 1px solid #afafaf;
+        box-shadow: 1px 1px 4px #888;
+    }
+    </style>
 </head>
 <body>
 <div class="container">
     <h1>AlloyUI - Token Input</h1>
 
+    <p>
+        This example demonstrates how to attach the node-tokeninput plugin to an input field to allow tokenized input, using commas as a delimiter. Inspired by rgrove's <a href="https://github.com/rgrove/node-tokeninput">node-tokeninput</a> and sliptree's <a href="http://sliptree.github.io/bootstrap-tokenfield/">tokenfield</a>.
+    </p>
     <h3>Token Input</h3>
 
-    <input type="text" id="tags" />
+<pre>
+YUI().use('aui-token-input', function (Y) {
+    Y.one('#tags').plug(Y.Plugin.TokenInput);
+});
+</pre>
+
+    <div class="form-group">
+        <input class="form-control" type="text" id="tags" />
+    </div>
 
     <h3>Token Input with AutoComplete</h3>
 
-    <input type="text" id="ac" />
+<pre>
+YUI().use('aui-token-input', 'autocomplete', 'autocomplete-filters', 'autocomplete-highlighters', function(Y) {
+    Y.one('#ac').plug(Y.Plugin.TokenInput).plug(Y.Plugin.AutoComplete);
+
+    // List of tags to use for completion, just for the demo.
+    var tags = [
+        'apple', 'banana', 'cherry', 'date', 'fig', 'grapefruit', 'jujube',
+        'kumquat', 'lemon', 'mango', 'nectarine', 'orange', 'pineapple',
+        'raspberry', 'strawberry', 'tangerine', 'watermelon'
+    ];
+
+    // Attach the node-tokeninput and autocomplete plugins.
+    inputNode.plug(Y.Plugin.TokenInput).plug(Y.Plugin.AutoComplete, {
+        resultFilters: 'charMatch',
+        resultHighlighter: 'charMatch',
+        source: tags
+    });
+});
+</pre>
+
+    <div class="form-group">
+        <input class="form-control" type="text" id="ac" />
+    </div>
+
+    <h3>Just a regular Node plugged with AutoComplete</h3>
+
+    <p>
+        I can use the keyboard to navigate the autocomplete search results list. The tokeninput example can't do this for some reason.
+    </p>
+
+    <div class="form-group">
+        <input class="form-control" type="text" id="test" />
+    </div>
+
+    <h4>Also...</h4>
+    <p>
+        I don't like how the height slighty shifts when adding an item to the TokenInput lists. It's probably my terrible CSS.
+    </p>
+
+    <h4>Mobile...</h4>
+    <p>
+        I need to tap the left part of the input to focus.
+    </p>
 </div>
 <script>
-    YUI({ filter:'raw' }).use('aui-base', 'aui-token-input', 'autocomplete', function(Y) {
+    YUI({ filter:'raw' }).use('aui-token-input', function(Y) {
         Y.one('#tags').plug(Y.Plugin.TokenInput);
+    });
+</script>
 
-        Y.one('#ac').plug(Y.Plugin.TokenInput).plug(Y.Plugin.AutoComplete);
+<script>
+    YUI({ filter:'raw' }).use('aui-token-input', 'autocomplete', 'autocomplete-filters', 'autocomplete-highlighters', function(Y) {
+        var inputNode = Y.one('#ac'),
+
+        // List of tags to use for completion, just for the demo.
+        tags = [
+            'apple', 'banana', 'cherry', 'date', 'fig', 'grapefruit', 'jujube',
+            'kumquat', 'lemon', 'mango', 'nectarine', 'orange', 'pineapple',
+            'raspberry', 'strawberry', 'tangerine', 'watermelon'
+        ];
+
+        // Attach the node-tokeninput and autocomplete plugins.
+        inputNode.plug(Y.Plugin.TokenInput).plug(Y.Plugin.AutoComplete, {
+            resultFilters: 'charMatch',
+            resultHighlighter: 'charMatch',
+            source: tags
+        });
+
+        Y.one('#test').plug(Y.Plugin.AutoComplete, {
+            resultFilters: 'charMatch',
+            resultHighlighter: 'charMatch',
+            source: tags
+        });
     });
 </script>
 </body>
