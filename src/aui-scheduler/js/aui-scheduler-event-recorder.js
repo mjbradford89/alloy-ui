@@ -400,7 +400,9 @@ var SchedulerEventRecorder = A.Component.create({
         _afterEventChange: function() {
             var instance = this;
 
-            instance.populateForm();
+            if (instance.get('event')) {
+                instance.populateForm();
+            }
         },
 
         /**
@@ -448,6 +450,8 @@ var SchedulerEventRecorder = A.Component.create({
             var schedulerBB = scheduler.get('boundingBox');
 
             schedulerBB.delegate('click', A.bind(instance._onClickSchedulerEvent, instance), '.' +
+                CSS_SCHEDULER_EVENT);
+            schedulerBB.delegate('key', A.bind(instance._onKeyDownSchedulerEvent, instance), 'down:13', '.' +
                 CSS_SCHEDULER_EVENT);
         },
 
@@ -637,15 +641,15 @@ var SchedulerEventRecorder = A.Component.create({
             var instance = this,
                 eventName = instance.get('event') ? 'edit' : 'save';
 
-            instance.fire(eventName, {
-                newSchedulerEvent: instance.getUpdatedSchedulerEvent()
-            });
+            event.preventDefault();
 
             if (event.domEvent) {
                 event.domEvent.preventDefault();
             }
 
-            event.preventDefault();
+            instance.fire(eventName, {
+                newSchedulerEvent: instance.getUpdatedSchedulerEvent()
+            });
         },
 
         /**
@@ -667,6 +671,26 @@ var SchedulerEventRecorder = A.Component.create({
                 instance.showPopover(event.currentTarget);
 
                 instance.get('node').remove();
+            }
+        },
+
+        /**
+         * Handles 'KeyDown' events on the scheduler.
+         *
+         * @method _onKeyDownSchedulerEvent
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onKeyDownSchedulerEvent: function(event) {
+            var instance = this,
+                contentNode = instance.getContentNode();
+
+            instance._onClickSchedulerEvent(event);
+
+            if (contentNode) {
+                setTimeout(function() {
+                    contentNode.selectText();
+                }, 0);
             }
         },
 

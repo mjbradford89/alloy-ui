@@ -1291,75 +1291,78 @@ var SchedulerDayView = A.Component.create({
 
             if (instance.get('visible') && instance.get('name') === 'day') {
                 var target = A.Node(document.activeElement);
-                var keyCode = event.keyCode;
-                var scheduler = instance.get('scheduler');
-                var recorder = scheduler.get('eventRecorder');
-                var index = parseInt(target.getData('index'));
-                var isTopOfHour = target.hasClass(CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION);
-                var focusSibling = false;
-                var toFocus = target;
+                if (target.hasClass(CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD)) {
+                    var keyCode = event.keyCode;
+                    var scheduler = instance.get('scheduler');
+                    var recorder = scheduler.get('eventRecorder');
+                    var index = parseInt(target.getData('index'));
+                    var isTopOfHour = target.hasClass(CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION);
+                    var focusSibling = false;
+                    var toFocus = target;
 
-                instance._spoofKeyToMouseEvent(event);
+                    instance._spoofKeyToMouseEvent(event);
 
-                if (keyCode === 13) {
-                    instance._enterKeyDown = true;
+                    if (keyCode === 13) {
+                        instance._enterKeyDown = true;
 
-                    instance._onMouseDownTableCol(event);
-                }
-                else {
-                    if (keyCode === 38) {
-                        if (isTopOfHour) {
-                            index = index - 1;
-                        }
-                        else {
-                            focusSibling = true;
-                        }
+                        instance._onMouseDownTableCol(event);
                     }
-                    else if (keyCode === 40) {
-                        if (!isTopOfHour) {
-                            index = index + 1;
-                        }
-                        else {
-                            focusSibling = true;
-                        }
-                    }
-
-                    if (index >= 0 && index <= 23) {
-                        if (!focusSibling) {
-                            var marker = instance.markercellsNode.item(index);
-
+                    else {
+                        if (keyCode === 38) {
                             if (isTopOfHour) {
-                                toFocus = instance.getChildMarker(marker, false);
+                                index = index - 1;
                             }
                             else {
-                                toFocus = instance.getChildMarker(marker, true);
+                                focusSibling = true;
                             }
                         }
-                        else {
-                            toFocus = target.siblings().first();
-                        }
-
-                        if (toFocus) {
-                            instance.focusMarker(toFocus);
-
-                            if (instance._enterKeyDown) {
-                                instance._onMouseMoveTableCol(event);
+                        else if (keyCode === 40) {
+                            if (!isTopOfHour) {
+                                index = index + 1;
+                            }
+                            else {
+                                focusSibling = true;
                             }
                         }
-                    }
-                    else if (index < 0) {
-                        scheduler.set('date', instance.get('prevDate'));
 
-                        instance.focusMarker(instance.getChildMarker(instance.markercellsNode.last(), false));
-                    }
-                    else if (index > 23) {
-                        scheduler.set('date', instance.get('nextDate'));
+                        if (index >= 0 && index <= 23) {
+                            if (!focusSibling) {
+                                var marker = instance.markercellsNode.item(index);
 
-                        instance.focusMarker(instance.getChildMarker(instance.markercellsNode.first(), true));
+                                if (isTopOfHour) {
+                                    toFocus = instance.getChildMarker(marker, false);
+                                }
+                                else {
+                                    toFocus = instance.getChildMarker(marker, true);
+                                }
+                            }
+                            else {
+                                toFocus = target.siblings().first();
+                            }
+
+                            if (toFocus) {
+                                instance.focusMarker(toFocus);
+
+                                if (instance._enterKeyDown) {
+                                    instance._onMouseMoveTableCol(event);
+                                }
+                            }
+                        }
+                        else if (index < 0) {
+                            scheduler.set('date', instance.get('prevDate'));
+
+                            instance.focusMarker(instance.getChildMarker(instance.markercellsNode.last(), false));
+                        }
+                        else if (index > 23) {
+                            scheduler.set('date', instance.get('nextDate'));
+
+                            instance.focusMarker(instance.getChildMarker(instance.markercellsNode.first(), true));
+                        }
                     }
+
+                    event.preventDefault();
                 }
             }
-                event.preventDefault();
         },
 
         /**

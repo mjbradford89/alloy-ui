@@ -269,7 +269,13 @@ var SchedulerEvent = A.Component.create({
          */
         node: {
             valueFn: function() {
-                return A.NodeList.create(A.Node.create(this.EVENT_NODE_TEMPLATE).setData('scheduler-event', this));
+                var instance = this;
+
+                return A.NodeList.create(A.Node.create(
+                    Lang.sub(instance.EVENT_NODE_TEMPLATE, {
+                        tabIndex: instance.get('tabIndex')
+                    })
+                ).setData('scheduler-event', this));
             }
         },
 
@@ -321,6 +327,18 @@ var SchedulerEvent = A.Component.create({
         },
 
         /**
+         * Contains the number corresponding to the tabindex on scheduler
+         * event nodes.
+         *
+         * @attribute tabIndex
+         * @type {Number}
+         */
+        tabIndex: {
+            validator: isNumber,
+            value: 0
+        },
+
+        /**
          * Indicates whether the event is visible.
          *
          * @attribute visible
@@ -353,7 +371,7 @@ var SchedulerEvent = A.Component.create({
         'colorSaturationFactor', 'titleDateFormat', 'visible', 'disabled'],
 
     prototype: {
-        EVENT_NODE_TEMPLATE: '<div class="' + CSS_SCHEDULER_EVENT + '">' + '<div class="' +
+        EVENT_NODE_TEMPLATE: '<div class="' + CSS_SCHEDULER_EVENT + '" tabindex={tabIndex}"">' + '<div class="' +
             CSS_SCHEDULER_EVENT_TITLE +
             '"></div>' + '<div class="' + CSS_SCHEDULER_EVENT_CONTENT + '"></div>' +
             '<div class="' + CSS_SCHEDULER_EVENT_ICONS + '">' + '<span class="' + [

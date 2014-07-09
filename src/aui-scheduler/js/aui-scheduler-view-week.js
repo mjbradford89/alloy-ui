@@ -244,72 +244,74 @@ var SchedulerWeekView = A.Component.create({
 
             if (instance.get('visible') && instance.get('name') === 'week') {
                 var target = A.Node(document.activeElement);
-                var parent = target.ancestor('.' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD);
-                var isTopOfHour = parent.hasClass(CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION);
-                var col = parent.ancestor('.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL);
-                var weekday = parseInt(target.getData('weekday'));
-                var row = parseInt(parent.getData('index'));
-                var focusTopOfHour = false;
-                var toFocus = target;
+                if (target.hasClass(CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER)) {
+                    var parent = target.ancestor('.' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD);
+                    var isTopOfHour = parent.hasClass(CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION);
+                    var col = parent.ancestor('.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL);
+                    var weekday = parseInt(target.getData('weekday'));
+                    var row = parseInt(parent.getData('index'));
+                    var focusTopOfHour = false;
+                    var toFocus = target;
 
-                if (event.isKey('enter')) {
-                    instance._spoofKeyToMouseEvent(event, weekday);
+                    if (event.isKey('enter')) {
+                        instance._spoofKeyToMouseEvent(event, weekday);
 
-                    instance._enterKeyDown = true;
+                        instance._enterKeyDown = true;
 
-                    instance._onMouseDownTableCol(event);
-                }
-                else {
-                    if (event.isKey('up')) {
-                        if (isTopOfHour) {
-                            row = row - 1;
-
-                            if (row < 0) {
-                                row = 0;
-                                focusTopOfHour = true;
-                            }
-                        }
-                        else {
-                            focusTopOfHour = true;
-                        }
+                        instance._onMouseDownTableCol(event);
                     }
-                    else if (event.isKey('right')) {
-                        weekday = Math.min(weekday + 1, 6);
-                        focusTopOfHour = isTopOfHour;
-                    }
-                    else if (event.isKey('down')) {
-                        if (!isTopOfHour) {
-                            row = row + 1;
+                    else {
+                        if (event.isKey('up')) {
+                            if (isTopOfHour) {
+                                row = row - 1;
 
-                            if (row > 23) {
-                                row = 23;
-                                focusTopOfHour = false;
+                                if (row < 0) {
+                                    row = 0;
+                                    focusTopOfHour = true;
+                                }
                             }
                             else {
                                 focusTopOfHour = true;
                             }
                         }
-                        else {
-                            focusTopOfHour = false;
+                        else if (event.isKey('right')) {
+                            weekday = Math.min(weekday + 1, 6);
+                            focusTopOfHour = isTopOfHour;
+                        }
+                        else if (event.isKey('down')) {
+                            if (!isTopOfHour) {
+                                row = row + 1;
+
+                                if (row > 23) {
+                                    row = 23;
+                                    focusTopOfHour = false;
+                                }
+                                else {
+                                    focusTopOfHour = true;
+                                }
+                            }
+                            else {
+                                focusTopOfHour = false;
+                            }
+                        }
+                        else if (event.isKey('left')) {
+                            weekday = Math.max(weekday - 1, 0);
+                            focusTopOfHour = isTopOfHour;
+                        }
+
+                        toFocus = instance.getChildMarker(row, weekday, focusTopOfHour);
+
+                        instance.focusMarker(toFocus);
+
+                        if (instance._enterKeyDown) {
+                            instance._spoofKeyToMouseEvent(event, weekday);
+
+                            instance._onMouseMoveTableCol(event);
                         }
                     }
-                    else if (event.isKey('left')) {
-                        weekday = Math.max(weekday - 1, 0);
-                        focusTopOfHour = isTopOfHour;
-                    }
 
-                    toFocus = instance.getChildMarker(row, weekday, focusTopOfHour);
-
-                    instance.focusMarker(toFocus);
-
-                    if (instance._enterKeyDown) {
-                        instance._spoofKeyToMouseEvent(event, weekday);
-
-                        instance._onMouseMoveTableCol(event);
-                    }
+                    event.preventDefault();
                 }
-
-                event.preventDefault();
             }
         },
 
