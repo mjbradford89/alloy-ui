@@ -1661,12 +1661,9 @@ var SchedulerDayView = A.Component.create({
                 date.setMinutes(30);
             }
 
-            if (DateMath.after(date, startDate)) {
-                recorder.set('endDate', date);
-            }
-            else {
-                recorder.set('startDate', date);
-            }
+            var keyDate = DateMath.after(date, startDate) ? 'endDate' : 'startDate';
+
+            recorder.set(keyDate, date);
         },
 
         /**
