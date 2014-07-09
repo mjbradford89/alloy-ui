@@ -1219,7 +1219,8 @@ Y.mix(YUI.Env[Y.version].modules, {
             "node-pluginhost",
             "node-style",
             "plugin"
-        ]
+        ],
+        "skinnable": true
     },
     "aui-toolbar": {
         "requires": [
@@ -1396,4 +1397,4 @@ Y.mix(YUI.Env[Y.version].modules, {
         ]
     }
 });
-YUI.Env[Y.version].md5 = '1c334312d4ebb4ed97f27a6c20780afb';
+YUI.Env[Y.version].md5 = '270ba1d405f0a2b8bfe2beb1b9e0c302';

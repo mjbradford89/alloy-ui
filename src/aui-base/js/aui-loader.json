@@ -1193,7 +1193,8 @@
             "node-pluginhost",
             "node-style",
             "plugin"
-        ]
+        ],
+        "skinnable": true
     },
     "aui-toolbar": {
         "requires": [
