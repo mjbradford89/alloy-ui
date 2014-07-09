@@ -578,7 +578,7 @@ var TreeNode = A.Component.create({
                     nextNode = targetNode.next(),
                     previous = targetNode.previous();
 
-                // Left arrow key moves up
+                // Up arrow key moves up
                 if (keyCode === 38) {
 
                     if (previous) {
@@ -588,7 +588,7 @@ var TreeNode = A.Component.create({
                         if (prevChild) {
                             var hidden = prevChild.get('parentNode').attr('hidden');
 
-                            // Moves to previous parentNode if 
+                            // Moves to previous parentNode if collapsed
                             if (hidden) {
                                 previous.focus();
                             }
@@ -613,7 +613,7 @@ var TreeNode = A.Component.create({
                     event.preventDefault();
                 }
 
-                // Right arrow key moves down 
+                // Down arrow key moves down 
                 else if (keyCode === 40) {
                     var expanded = instance.get('expanded');
 
@@ -643,16 +643,35 @@ var TreeNode = A.Component.create({
                     event.preventDefault();
                 }
 
-                else if (keyCode === 13) {
+                // Left arrow key
+                else if (keyCode === 37) {
 
-                    // If on childNode returns to parentNode
+                  // If on childNode returns to parentNode
                     if (ancestor) {
                         ancestor.focus();
                     }
 
                     // Toggles expand/collapse parentNode
                     else {
-                        instance.toggle();
+                        instance.collapse();
+                    }
+                }
+
+                // Right arrow key
+                else if (keyCode === 39) {
+
+                    // If on childNode returns to parentNode
+                    if (ancestor) {
+                        var nextAncestor = ancestor.next();
+
+                        // Move from last childNode to next parentNode
+                        if (nextAncestor) { 
+                            nextAncestor.focus();
+                        }
+                    }
+                    // Toggles expand/collapse parentNode
+                    else {
+                        instance.expand();
                     }
                 }
             }
