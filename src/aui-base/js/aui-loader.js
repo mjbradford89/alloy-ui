@@ -1208,6 +1208,20 @@ Y.mix(YUI.Env[Y.version].modules, {
             "aui-toggler-base"
         ]
     },
+    "aui-token-input": {
+        "requires": [
+            "array-extras",
+            "aui-classnamemanager",
+            "aui-component",
+            "event-focus",
+            "event-valuechange",
+            "node-event-delegate",
+            "node-pluginhost",
+            "node-style",
+            "plugin"
+        ],
+        "skinnable": true
+    },
     "aui-toolbar": {
         "requires": [
             "arraylist",
@@ -1383,4 +1397,4 @@ Y.mix(YUI.Env[Y.version].modules, {
         ]
     }
 });
-YUI.Env[Y.version].md5 = '7ce28f44983ceb29d16c28e0760057e5';
+YUI.Env[Y.version].md5 = '270ba1d405f0a2b8bfe2beb1b9e0c302';
