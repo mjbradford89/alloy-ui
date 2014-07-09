@@ -403,19 +403,6 @@ var SchedulerView = A.Component.create({
                 bodyNode.toggleClass(CSS_SCHEDULER_VIEW_SCROLLABLE, val);
                 bodyNode.toggleClass(CSS_SCHEDULER_VIEW_NOSCROLL, !val);
             }
-        },
-
-        /**
-         * Sets `visible` on the UI.
-         *
-         * @method _uiSetVisible
-         * @param {Boolean} val The value of the property.
-         * @protected
-         */
-        _uiSetVisible: function(val) {
-            var instance = this;
-
-            instance.set('visible', val);
         }
     }
 });
