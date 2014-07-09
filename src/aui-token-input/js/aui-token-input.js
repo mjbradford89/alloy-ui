@@ -186,7 +186,7 @@ var TokenInput = A.Component.create(
             item     : getClassName('item'),
             list     : getClassName('list'),
             os       : getClassName(A.UA.os),
-            remove   : getClassName('remove'),
+            remove   : 'close',
             token    : getClassName('token')
         },
 
