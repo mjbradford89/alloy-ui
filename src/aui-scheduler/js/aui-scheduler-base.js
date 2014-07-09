@@ -48,13 +48,13 @@ var CSS_SCHEDULER_VIEW_ = A.getClassName('scheduler-base', 'view', ''),
         CSS_BTN_DEFAULT].join(' ') + '"><span class="' + CSS_ICON_CHEVRON_RIGHT + '"></span></button>',
     TPL_SCHEDULER_ICON_PREV = '<button tabindex="-1" type="button" class="' + [CSS_ICON, CSS_SCHEDULER_ICON_PREV, CSS_BTN,
         CSS_BTN_DEFAULT].join(' ') + '"><span class="' + CSS_ICON_CHEVRON_LEFT + '"></span></button>',
-    TPL_SCHEDULER_NAV = '<div class="btn-group" tabindex="{tabIndex}"></div>',
-    TPL_SCHEDULER_TODAY = '<button type="button" class="' + [CSS_SCHEDULER_TODAY, CSS_BTN, CSS_BTN_DEFAULT].join(' ') +
+    TPL_SCHEDULER_NAV = '<div aria-label="{controlsAriaLabel}" class="btn-group" tabindex="{tabIndex}"></div>',
+    TPL_SCHEDULER_TODAY = '<button aria-label="{todayAriaLabel}" type="button" class="' + [CSS_SCHEDULER_TODAY, CSS_BTN, CSS_BTN_DEFAULT].join(' ') +
         '">{today}</button>',
     TPL_SCHEDULER_VIEW = '<button type="button" class="' + [CSS_SCHEDULER_VIEW, CSS_SCHEDULER_VIEW_].join(' ') +
         '{name}" data-view-name="{name}" tabindex="-1">{label}</button>',
     TPL_SCHEDULER_VIEW_DATE = '<span class="' + CSS_SCHEDULER_VIEW_DATE + '"></span>',
-    TPL_SCHEDULER_VIEWS = '<div class="col col-lg-5 col-md-5 col-sm-5 ' + CSS_SCHEDULER_VIEWS + '" tabindex="{tabIndex}"></div>';
+    TPL_SCHEDULER_VIEWS = '<div aria-label="{viewsAriaLabel}" class="col col-lg-5 col-md-5 col-sm-5 ' + CSS_SCHEDULER_VIEWS + '" tabindex="{tabIndex}"></div>';
 
 /**
  * A base class for `SchedulerEvents`.
@@ -396,6 +396,21 @@ var SchedulerBase = A.Component.create({
         },
 
         /**
+         * Contains the strings for aria-label attributes on
+         * scheduler controls.
+         *
+         * @property ariaLabels
+         * @type {Object}
+         */
+        ariaLabels: {
+            value: {
+                todayAriaLabel: 'Go to Today',
+                controlsAriaLabel: 'Go to next or pervious with arrow keys.',
+                viewsAriaLabel: 'Change views with arrow keys.'
+            }
+        },
+
+        /**
          * Contains the date corresponding to the current date which is the
          * value of the date set on the user's computer.
          *
@@ -497,7 +512,13 @@ var SchedulerBase = A.Component.create({
          */
         controlsNode: {
             valueFn: function() {
-                return A.Node.create(TPL_SCHEDULER_CONTROLS);
+                var instance = this;
+
+                return A.Node.create(
+                    A.Lang.sub(TPL_SCHEDULER_CONTROLS, {
+                        controlsAriaLabel: instance.getAriaLabel('controlsAriaLabel')
+                    })
+                );
             }
         },
 
@@ -531,7 +552,8 @@ var SchedulerBase = A.Component.create({
 
                 return A.Node.create(
                     A.Lang.sub(TPL_SCHEDULER_NAV, {
-                        tabIndex: instance.get('navTabIndex')
+                        tabIndex: instance.get('navTabIndex'),
+                        controlsAriaLabel: instance.getAriaLabel('controlsAriaLabel')
                     })
                 );
             }
@@ -576,7 +598,8 @@ var SchedulerBase = A.Component.create({
 
                 return A.Node.create(
                     A.Lang.sub(TPL_SCHEDULER_VIEWS, {
-                        tabIndex: instance.get('navTabIndex')
+                        tabIndex: instance.get('navTabIndex'),
+                        viewsAriaLabel: instance.getAriaLabel('viewsAriaLabel')
                     })
                 );
             }
@@ -710,6 +733,19 @@ var SchedulerBase = A.Component.create({
             var instance = this;
 
             return instance.getStrings()[key];
+        },
+
+        /**
+         * Returns the aria label that matches the 'key' type.
+         *
+         * @method getAriaLabel
+         * @param {String} key
+         * @return {String}
+         */
+        getAriaLabel: function(key) {
+            var instance = this;
+
+            return instance.get('ariaLabels')[key];
         },
 
         /**
@@ -1043,6 +1079,8 @@ var SchedulerBase = A.Component.create({
          */
         _processTemplate: function(tpl) {
             var instance = this;
+
+            tpl = A.Lang.sub(tpl, {todayAriaLabel: instance.getAriaLabel('todayAriaLabel')});
 
             return A.Lang.sub(tpl, instance.getStrings());
         },
