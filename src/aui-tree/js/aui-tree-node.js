@@ -570,22 +570,90 @@ var TreeNode = A.Component.create({
         */
         _handleKeypressEvent: function(event) {
             var instance = this,
-                keyCode = event.keyCode,
-                targetNode = event.target,
-                next = targetNode.next(),
-                previous = targetNode.previous();
+                targetNode = event.target;
 
             if (targetNode.hasClass('tree-node')) {
+                var ancestor = targetNode.ancestor('.tree-node'),
+                    keyCode = event.keyCode,
+                    nextNode = targetNode.next(),
+                    previous = targetNode.previous();
+
+                // Left arrow key moves up
                 if (keyCode === 38) {
+
+                    if (previous) {
+                    var expanded = previous.get('expanded');
+                    var prevChild = previous.all('.tree-node').last();
+
+                        if (prevChild) {
+                            var hidden = prevChild.get('parentNode').attr('hidden');
+
+                            // Moves to previous parentNode if 
+                            if (hidden) {
+                                previous.focus();
+                            }
+
+                            // Select previous child from parentNode
+                            else {
+                                prevChild.focus();
+                            }
+                        }
+
+                        // Move within list
+                        else {
+                            previous.focus();
+                        }
+                    }
+
+                    // Move from top of list to parentNode
+                    else if (ancestor) { 
+                        ancestor.focus();
+                    }
+
                     event.preventDefault();
-                    previous.focus();
                 }
+
+                // Right arrow key moves down 
                 else if (keyCode === 40) {
+                    var expanded = instance.get('expanded');
+
+                    if (expanded) {
+                        var node = targetNode.one('.tree-node');
+
+                        // Move from parentNode to first childNode
+                        if (node) { 
+                            node.focus();
+                        }
+                    }
+
+                    // Move within list
+                    else if (nextNode) { 
+                        nextNode.focus();
+                    }
+
+                    else if (ancestor) { 
+                        var nextAncestor = ancestor.next();
+
+                        // Move from last childNode to next parentNode
+                        if (nextAncestor) { 
+                            nextAncestor.focus();
+                        }
+                    }
+
                     event.preventDefault();
-                    next.focus();
                 }
+
                 else if (keyCode === 13) {
-                    instance.toggle();
+
+                    // If on childNode returns to parentNode
+                    if (ancestor) {
+                        ancestor.focus();
+                    }
+
+                    // Toggles expand/collapse parentNode
+                    else {
+                        instance.toggle();
+                    }
                 }
             }
         },
