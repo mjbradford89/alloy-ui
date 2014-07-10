@@ -66,7 +66,7 @@ var Lang = A.Lang,
 
     TPL_SVT_HEADER_DAY = '<th class="' + CSS_SVT_HEADER_DAY + '"><div>&nbsp;</div></th>',
 
-    TPL_SVT_HEADER_TABLE = '<table cellspacing="0" cellpadding="0" class="' + CSS_SVT_HEADER_TABLE + '">' +
+    TPL_SVT_HEADER_TABLE = '<table cellspacing="0" cellpadding="0" class="' + CSS_SVT_HEADER_TABLE + '" tabindex="{tabIndex}">' +
         '<tbody>' +
         '<tr class="' + CSS_SVT_HEADER_COL + '"></tr>' +
         '</tbody>' +
@@ -167,6 +167,17 @@ var SchedulerTableView = A.Component.create({
             value: true
         },
 
+        /* Specify the tab order for the Header.
+        *
+        * @attribute headerTabIndex
+        * @default 0
+        * @type Number
+        */
+        headerTabIndex: {
+            validator: A.Lang.isNumber,
+            value: 0
+        },
+
         /**
          * Determines the name for this `SchedulerTableView`.
          *
@@ -253,7 +264,13 @@ var SchedulerTableView = A.Component.create({
          */
         headerTableNode: {
             valueFn: function() {
-                return A.Node.create(TPL_SVT_HEADER_TABLE);
+                var instance = this;
+
+                return A.Node.create(
+                    A.Lang.sub(TPL_SVT_HEADER_TABLE, {
+                        tabIndex: instance.get('headerTabIndex')
+                    })
+                );
             }
         },
 
