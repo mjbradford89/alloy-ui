@@ -1188,6 +1188,7 @@
             "aui-classnamemanager",
             "aui-component",
             "event-focus",
+            "event-outside",
             "event-valuechange",
             "node-event-delegate",
             "node-pluginhost",

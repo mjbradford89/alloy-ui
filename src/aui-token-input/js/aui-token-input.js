@@ -136,13 +136,13 @@ var TokenInput = A.Component.create(
 
             /**
              * If <code>true</code>, any text the user has entered in the token
-             * input field will be tokenized when the input field loses focus.
+             * input field will be tokenized when an outside element is clicked.
              *
-             * @attribute tokenizeOnBlur
+             * @attribute tokenizeOnClickoutside
              * @type Boolean
              * @default true
              */
-            tokenizeOnBlur: {
+            tokenizeOnClickoutside: {
                 value: true
             },
 
@@ -355,7 +355,7 @@ var TokenInput = A.Component.create(
 
                 this._events.concat([
                     this._boundingBox.after({
-                        blur : this._afterBlur,
+                        clickoutside : this._afterClickoutside,
                         focus: this._afterFocus
                     }, null, this),
 
@@ -897,16 +897,16 @@ var TokenInput = A.Component.create(
             // -- Protected Event Handlers ---------------------------------------------
 
             /**
-             * Handles blur events on the bounding box.
+             * Handles 'clickoutside' events on the bounding box.
              *
-             * @method _afterBlur
+             * @method _afterClickoutside
              * @param {EventFacade} e
              * @protected
              */
-            _afterBlur: function (event) {
+            _afterClickoutside: function (event) {
                 var that = this;
 
-                if (this.get('tokenizeOnBlur')) {
+                if (this.get('tokenizeOnClickoutside')) {
                     setTimeout(function () {
                         that._tokenizeValue(null, null, {all: true});
                     }, 100);
