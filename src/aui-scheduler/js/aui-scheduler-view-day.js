@@ -123,7 +123,7 @@ var Lang = A.Lang,
     TPL_SCHEDULER_VIEW_DAY_TABLE_TIME = '<div class="' + CSS_SCHEDULER_VIEW_DAY_TABLE_TIME + '">{hour}</div>',
 
     TPL_SCHEDULER_VIEW_DAY_HEADER_TABLE = '<table cellspacing="0" cellpadding="0" class="' +
-        CSS_SCHEDULER_VIEW_DAY_HEADER_TABLE + '">' +
+        CSS_SCHEDULER_VIEW_DAY_HEADER_TABLE + '" tabindex="{tabIndex}">' +
         '<tbody>' +
         '<tr class="' + CSS_SCHEDULER_VIEW_DAY_HEADER_COL + '"></tr>' +
         '</tbody>' +
@@ -259,6 +259,17 @@ var SchedulerDayView = A.Component.create({
             validator: isString
         },
 
+        /* Specify the tab order for the Header.
+        *
+        * @attribute headerTabIndex
+        * @default 0
+        * @type Number
+        */
+        headerTabIndex: {
+            validator: isNumber,
+            value: 0
+        },
+
         /**
          * Contains the header view.
          *
@@ -359,7 +370,13 @@ var SchedulerDayView = A.Component.create({
          */
         headerTableNode: {
             valueFn: function() {
-                return A.Node.create(TPL_SCHEDULER_VIEW_DAY_HEADER_TABLE);
+                var instance = this;
+
+                return A.Node.create(
+                    A.Lang.sub(TPL_SCHEDULER_VIEW_DAY_HEADER_TABLE, {
+                        tabIndex: instance.get('headerTabIndex')
+                    })
+                );
             }
         },
 
