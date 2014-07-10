@@ -125,12 +125,14 @@ var SchedulerMonthView = A.Component.create({
          */
         bindKeys: function() {
             var instance = this;
-            var boundingBox = instance.get('boundingBox');
 
-            instance._eventHandles = [
-                boundingBox.on('key', instance._onArrowKey, 'down:37,38,39,40', instance),
-                boundingBox.on('key', instance._onNewKeyUp, 'up:13', instance)
-            ];
+            if (!instance._eventHandles) {
+                var boundingBox = instance.get('boundingBox');
+
+                instance._eventHandles = [
+                    boundingBox.on('key', instance._onArrowKey, 'down:13,37,38,39,40', instance)
+                ];
+            }
         },
 
         /**
@@ -243,7 +245,7 @@ var SchedulerMonthView = A.Component.create({
         _afterVisibleChange: function(event) {
             var instance = this;
 
-            if (instance.get('visible') && instance.get('rendered') && !instance._eventHandles) {
+            if (instance.get('visible') && instance.get('rendered')) {
                 var firstGridNode = instance.columnTableGrid.first();
 
                 instance.bindKeys();
@@ -291,26 +293,6 @@ var SchedulerMonthView = A.Component.create({
         },
 
         /**
-         * Fires on new key up event.
-         *
-         * @method _onNewKeyUp
-         * @param {EventFacade} event
-         * @protected
-         */
-        _onNewKeyUp: function(event) {
-            var instance = this;
-            var target = event.target;
-            var scheduler = instance.get('scheduler');
-            var recorder = scheduler.get('eventRecorder');
-
-            instance._onMouseUpGrid();
-
-            recorder.popover.once('visibleChange', function(event) {
-                target.focus();
-            }, instance);
-        },
-
-        /**
          * Fires on arrow key down event.
          *
          * @method _onArrowKey
@@ -320,70 +302,78 @@ var SchedulerMonthView = A.Component.create({
         _onArrowKey: function(event) {
             var instance = this;
             var keyCode = event.keyCode;
+            var scheduler = instance.get('scheduler');
             var target = event.target;
 
             if (target.hasClass(CSS_SVT_COLGRID)) {
-                var position = target.getData('position');
-                var index = instance._getCellIndex(position);
+                if (event.isKey('enter')) {
+                    var recorder = scheduler.get('eventRecorder');
 
-                if (keyCode === 37) {
-                    index = index - 1;
+                    instance._recording = true;
+
+                    instance._onMouseUpGrid();
                 }
-                else if (keyCode === 38) {
-                    index = index - WEEK_LENGTH;
-                }
-                else if (keyCode === 39) {
-                    index = index + 1;
-                }
-                else if (keyCode === 40) {
-                    index = index + WEEK_LENGTH;
-                }
+                else {
+                    var position = target.getData('position');
+                    var index = instance._getCellIndex(position);
 
-                var toCellNode = instance.columnTableGrid.item(index);
-                var toCellPosition;
+                    if (event.isKey('left')) {
+                        index = index - 1;
+                    }
+                    else if (event.isKey('up')) {
+                        index = index - WEEK_LENGTH;
+                    }
+                    else if (event.isKey('right')) {
+                        index = index + 1;
+                    }
+                    else if (event.isKey('down')) {
+                        index = index + WEEK_LENGTH;
+                    }
 
-                if (toCellNode) {
-                    instance.focusCell(toCellNode);
+                    var toCellNode = instance.columnTableGrid.item(index);
+                    var toCellPosition;
 
-                    toCellPosition = toCellNode.getData('position');
+                    if (toCellNode) {
+                        instance.focusCell(toCellNode);
 
-                    instance.lassoLastPosition = toCellPosition;
+                        toCellPosition = toCellNode.getData('position');
 
-                    if (event.shiftKey) {
-                        if (!instance._recording) {
-                            instance.lassoStartPosition = position;
+                        instance.lassoLastPosition = toCellPosition;
 
-                            instance._recording = true;
+                        if (event.shiftKey) {
+                            if (!instance._recording) {
+                                instance.lassoStartPosition = position;
+
+                                instance._recording = true;
+                            }
+                        }
+                        else {
+                            instance.lassoStartPosition = instance.lassoLastPosition;
                         }
                     }
                     else {
-                        instance.lassoStartPosition = instance.lassoLastPosition;
+                        if (index >= instance.get('displayDaysInterval')) {
+                            scheduler.set('date', instance.get('nextDate'));
+
+                            toCellNode = instance.columnTableGrid.first();
+                        }
+                        else if (index < 0) {
+                            scheduler.set('date', instance.get('prevDate'));
+
+                            toCellNode = instance.columnTableGrid.last();
+                        }
+
+                        toCellPosition = toCellNode.getData('position');
+
+                        instance.focusCell(toCellNode);
+
+                        instance.lassoStartPosition = instance.lassoLastPosition = toCellNode.getData('position');
                     }
-                }
-                else {
-                    var scheduler = instance.get('scheduler');
 
-                    if (index >= instance.get('displayDaysInterval')) {
-                        scheduler.set('date', instance.get('nextDate'));
-
-                        toCellNode = instance.columnTableGrid.first();
+                    if (toCellPosition) {
+                        instance.removeLasso();
+                        instance.renderLasso(instance.lassoStartPosition, toCellPosition);
                     }
-                    else if (index < 0) {
-                        scheduler.set('date', instance.get('prevDate'));
-
-                        toCellNode = instance.columnTableGrid.last();
-                    }
-
-                    toCellPosition = toCellNode.getData('position');
-
-                    instance.focusCell(toCellNode);
-
-                    instance.lassoStartPosition = instance.lassoLastPosition = toCellNode.getData('position');
-                }
-
-                if (toCellPosition) {
-                    instance.removeLasso();
-                    instance.renderLasso(instance.lassoStartPosition, toCellPosition);
                 }
             }
         }
