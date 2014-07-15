@@ -392,6 +392,11 @@ var SchedulerBase = A.Component.create({
          * @type {A.SchedulerView}
          */
         activeView: {
+            setter: function(val) {
+                var instance = this;
+
+                instance._bindFocusManager(val);
+            },
             validator: isSchedulerView
         },
 
@@ -415,6 +420,33 @@ var SchedulerBase = A.Component.create({
          */
         eventRecorder: {
             setter: '_setEventRecorder'
+        },
+
+        /**
+         * Defines the keyboard configuration object for
+         * `Plugin.NodeFocusManager`.
+         *
+         * @attribute focusmanager
+         * @default {
+         *     descendants: 'li > a',
+         *     keys: {
+         *         next: 'down:40',
+         *         previous: 'down:38'
+         *     },
+         *     circular: false
+         * }
+         * @type {Object}
+         */
+        focusmanager: {
+            value: {
+                descendants: 'li > a',
+                keys: {
+                    next: 'down:40',
+                    previous: 'down:38'
+                },
+                circular: false
+            },
+            writeOnce: 'initOnly'
         },
 
         /**
@@ -870,6 +902,19 @@ var SchedulerBase = A.Component.create({
             instance.controlsNode.delegate('click', instance._onClickNextIcon, '.' + CSS_SCHEDULER_ICON_NEXT,
                 instance);
             instance.controlsNode.delegate('click', instance._onClickToday, '.' + CSS_SCHEDULER_TODAY, instance);
+        },
+
+        /**
+         * Binds the `Plugin.NodeFocusManager` that handle activeView keyboard
+         * navigation.
+         *
+         * @method _bindFocusManager
+         * @protected
+         */
+        _bindFocusManager: function(view) {
+            view.plug(A.Plugin.NodeFocusManager, this.get('focusmanager'));
+
+            // host.all doesn't exist :(
         },
 
         /**

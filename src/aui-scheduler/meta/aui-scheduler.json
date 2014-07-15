@@ -14,15 +14,16 @@
 
     "aui-scheduler-base": {
         "requires": [
-            "model",
-            "model-list",
-            "widget-stdmod",
-            "color-hsl",
-            "aui-event-base",
-            "aui-node-base",
+            "aui-button",
             "aui-component",
             "aui-datatype",
-            "aui-button"
+            "aui-event-base",
+            "aui-node-base",
+            "color-hsl",
+            "model",
+            "model-list",
+            "node-focusmanager",
+            "widget-stdmod"
         ],
         "skinnable": true
     },
