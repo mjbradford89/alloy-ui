@@ -870,8 +870,6 @@ var SchedulerBase = A.Component.create({
             instance.controlsNode.delegate('click', instance._onClickNextIcon, '.' + CSS_SCHEDULER_ICON_NEXT,
                 instance);
             instance.controlsNode.delegate('click', instance._onClickToday, '.' + CSS_SCHEDULER_TODAY, instance);
-            instance.viewsNode.delegate('key', A.bind(instance._onArrowKeyViews, instance), 'down:37,39');
-            instance.navNode.delegate('key', A.bind(instance._onArrowKeyNav, instance), 'down:37,39');
         },
 
         /**
@@ -919,49 +917,6 @@ var SchedulerBase = A.Component.create({
             }
 
             return date;
-        },
-
-        /**
-         * Handles 'key' events on the navNode.
-         *
-         * @method _onArrowKeyNav
-         * @param {EventFacade} event
-         * @protected
-         */
-        _onArrowKeyNav: function(event) {
-            var instance = this,
-                activeView = instance.get('activeView');
-
-            if (event.isKey('left')) {
-                instance._onClickPrevIcon(event);
-            }
-            else {
-                instance._onClickNextIcon(event);
-            }
-        },
-
-        /**
-         * Handles 'key' events on the viewsNode.
-         *
-         * @method _onArrowKeyViews
-         * @param {EventFacade} event
-         * @protected
-         */
-        _onArrowKeyViews: function(event) {
-            var instance = this,
-                keyCode = event.keyCode,
-                oldActiveTrigger = instance.viewsNode.one('.active'),
-                newActiveTrigger = oldActiveTrigger.next();
-
-            if (event.isKey('left')) {
-                newActiveTrigger = oldActiveTrigger.previous()
-            }
-
-            if (newActiveTrigger) {
-                var newViewName = newActiveTrigger.getData('view-name');
-
-                instance.set('activeView', instance.getViewByName(newViewName));
-            }
         },
 
         /**
