@@ -981,15 +981,16 @@ Y.mix(YUI.Env[Y.version].modules, {
     },
     "aui-scheduler-base": {
         "requires": [
-            "model",
-            "model-list",
-            "widget-stdmod",
-            "color-hsl",
-            "aui-event-base",
-            "aui-node-base",
+            "aui-button",
             "aui-component",
             "aui-datatype",
-            "aui-button"
+            "aui-event-base",
+            "aui-node-base",
+            "color-hsl",
+            "model",
+            "model-list",
+            "node-focusmanager",
+            "widget-stdmod"
         ],
         "skinnable": true
     },
@@ -1383,4 +1384,4 @@ Y.mix(YUI.Env[Y.version].modules, {
         ]
     }
 });
-YUI.Env[Y.version].md5 = '7ce28f44983ceb29d16c28e0760057e5';
+YUI.Env[Y.version].md5 = '555187ae475f2789f4d21ae3b77488d2';
