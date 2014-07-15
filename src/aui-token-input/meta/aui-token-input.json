@@ -3,6 +3,7 @@
         "requires": [
             "array-extras",
             "aui-classnamemanager",
+            "aui-base",
             "aui-component",
             "event-focus",
             "event-outside",
