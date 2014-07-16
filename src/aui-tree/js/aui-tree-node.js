@@ -94,13 +94,12 @@ var TreeNode = A.Component.create({
           */
         ariaLabelledby: {
             valueFn: function() {
-                var expanded = this.get('expanded');
-                var leaf = this.get('leaf');
+                var expanded = this.get('expanded'),
+                    leaf = this.get('leaf');
 
                 if (expanded) {
                     return 'Parent Node';
                 }
-
                 else if (leaf) {
                     return 'Leaf Node';
                 }
@@ -548,7 +547,7 @@ var TreeNode = A.Component.create({
         },
 
         /**
-        * 
+        *
         * @method _bindKeyPress
         *
         *
@@ -580,10 +579,9 @@ var TreeNode = A.Component.create({
 
                 // Up arrow key moves up
                 if (keyCode === 38) {
-
                     if (previous) {
-                    var expanded = previous.get('expanded');
-                    var prevChild = previous.all('.tree-node').last();
+                        var expanded = previous.get('expanded'),
+                            prevChild = previous.all('.tree-node').last();
 
                         if (prevChild) {
                             var hidden = prevChild.get('parentNode').attr('hidden');
@@ -606,14 +604,14 @@ var TreeNode = A.Component.create({
                     }
 
                     // Move from top of list to parentNode
-                    else if (ancestor) { 
+                    else if (ancestor) {
                         ancestor.focus();
                     }
 
                     event.preventDefault();
                 }
 
-                // Down arrow key moves down 
+                // Down arrow key moves down
                 else if (keyCode === 40) {
                     var expanded = instance.get('expanded');
 
@@ -621,21 +619,21 @@ var TreeNode = A.Component.create({
                         var node = targetNode.one('.tree-node');
 
                         // Move from parentNode to first childNode
-                        if (node) { 
+                        if (node) {
                             node.focus();
                         }
                     }
 
                     // Move within list
-                    else if (nextNode) { 
+                    else if (nextNode) {
                         nextNode.focus();
                     }
 
-                    else if (ancestor) { 
+                    else if (ancestor) {
                         var nextAncestor = ancestor.next();
 
                         // Move from last childNode to next parentNode
-                        if (nextAncestor) { 
+                        if (nextAncestor) {
                             nextAncestor.focus();
                         }
                     }
@@ -646,7 +644,7 @@ var TreeNode = A.Component.create({
                 // Left arrow key
                 else if (keyCode === 37) {
 
-                  // If on childNode returns to parentNode
+                    // If on childNode returns to parentNode
                     if (ancestor) {
                         ancestor.focus();
                     }
@@ -665,7 +663,7 @@ var TreeNode = A.Component.create({
                         var nextAncestor = ancestor.next();
 
                         // Move from last childNode to next parentNode
-                        if (nextAncestor) { 
+                        if (nextAncestor) {
                             nextAncestor.focus();
                         }
                     }
@@ -763,9 +761,9 @@ var TreeNode = A.Component.create({
          * @protexted
          */
         _setAriaElements: function() {
-            var instance = this;
+            var instance = this,
+                contentBox = instance.get('contentBox');
 
-            var contentBox = instance.get('contentBox');
             contentBox.setAttribute('aria-labelledby', instance.get('ariaLabelledby'));
         },
 
