@@ -86,6 +86,27 @@ var TreeNode = A.Component.create({
      */
     ATTRS: {
 
+         /**
+          * Sets the `aria-labelledby` for the tree.
+          *
+          * @attribute ariaLabelledby
+          * @type String
+          */
+        ariaLabelledby: {
+            valueFn: function() {
+                var expanded = this.get('expanded');
+                var leaf = this.get('leaf');
+
+                if (expanded) {
+                    return 'Parent Node';
+                }
+
+                else if (leaf) {
+                    return 'Leaf Node';
+                }
+            },
+        },
+
         /**
          * The widget's outermost node, used for sizing and positioning.
          *
@@ -321,7 +342,7 @@ var TreeNode = A.Component.create({
          * @default null
          */
         tabIndex: {
-            value: null
+            value: 0
         },
 
         /**
@@ -372,6 +393,10 @@ var TreeNode = A.Component.create({
             var boundingBox = instance.get('boundingBox');
 
             boundingBox.setData('tree-node', instance);
+            boundingBox.setAttribute('tabIndex', 0);
+
+            instance._setAriaElements();
+            instance._bindKeypress();
 
             // Sync the Widget TreeNode id with the BOUNDING_BOX id
             instance._syncTreeNodeBBId();
@@ -523,6 +548,136 @@ var TreeNode = A.Component.create({
         },
 
         /**
+        * 
+        * @method _bindKeyPress
+        *
+        *
+        *
+        */
+        _bindKeypress: function() {
+            var instance = this,
+                boundingBox = instance.get('boundingBox');
+
+            instance._keyHandler = boundingBox.on('keydown', A.bind(instance._handleKeypressEvent, instance));
+        },
+
+        /**
+        *
+        * @method _handleKeyPressEvent
+        *
+        *
+        *
+        */
+        _handleKeypressEvent: function(event) {
+            var instance = this,
+                targetNode = event.target;
+
+            if (targetNode.hasClass('tree-node')) {
+                var ancestor = targetNode.ancestor('.tree-node'),
+                    keyCode = event.keyCode,
+                    nextNode = targetNode.next(),
+                    previous = targetNode.previous();
+
+                // Up arrow key moves up
+                if (keyCode === 38) {
+
+                    if (previous) {
+                    var expanded = previous.get('expanded');
+                    var prevChild = previous.all('.tree-node').last();
+
+                        if (prevChild) {
+                            var hidden = prevChild.get('parentNode').attr('hidden');
+
+                            // Moves to previous parentNode if collapsed
+                            if (hidden) {
+                                previous.focus();
+                            }
+
+                            // Select previous child from parentNode
+                            else {
+                                prevChild.focus();
+                            }
+                        }
+
+                        // Move within list
+                        else {
+                            previous.focus();
+                        }
+                    }
+
+                    // Move from top of list to parentNode
+                    else if (ancestor) { 
+                        ancestor.focus();
+                    }
+
+                    event.preventDefault();
+                }
+
+                // Down arrow key moves down 
+                else if (keyCode === 40) {
+                    var expanded = instance.get('expanded');
+
+                    if (expanded) {
+                        var node = targetNode.one('.tree-node');
+
+                        // Move from parentNode to first childNode
+                        if (node) { 
+                            node.focus();
+                        }
+                    }
+
+                    // Move within list
+                    else if (nextNode) { 
+                        nextNode.focus();
+                    }
+
+                    else if (ancestor) { 
+                        var nextAncestor = ancestor.next();
+
+                        // Move from last childNode to next parentNode
+                        if (nextAncestor) { 
+                            nextAncestor.focus();
+                        }
+                    }
+
+                    event.preventDefault();
+                }
+
+                // Left arrow key
+                else if (keyCode === 37) {
+
+                  // If on childNode returns to parentNode
+                    if (ancestor) {
+                        ancestor.focus();
+                    }
+
+                    // Toggles expand/collapse parentNode
+                    else {
+                        instance.collapse();
+                    }
+                }
+
+                // Right arrow key
+                else if (keyCode === 39) {
+
+                    // If on childNode returns to parentNode
+                    if (ancestor) {
+                        var nextAncestor = ancestor.next();
+
+                        // Move from last childNode to next parentNode
+                        if (nextAncestor) { 
+                            nextAncestor.focus();
+                        }
+                    }
+                    // Toggles expand/collapse parentNode
+                    else {
+                        instance.expand();
+                    }
+                }
+            }
+        },
+
+        /**
          * Render the `contentBox` node.
          *
          * @method _renderContentBox
@@ -599,6 +754,19 @@ var TreeNode = A.Component.create({
             instance.set('container', nodeContainer);
 
             return nodeContainer;
+        },
+
+        /**
+         * Set the Aria Elements of the tree.
+         *
+         * @method _setAriaElements
+         * @protexted
+         */
+        _setAriaElements: function() {
+            var instance = this;
+
+            var contentBox = instance.get('contentBox');
+            contentBox.setAttribute('aria-labelledby', instance.get('ariaLabelledby'));
         },
 
         /**
