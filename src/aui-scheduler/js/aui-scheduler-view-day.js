@@ -90,8 +90,8 @@ var Lang = A.Lang,
         '</div>',
 
     TPL_SCHEDULER_VIEW_DAY_MARKERCELL = '<div class="' + CSS_SCHEDULER_VIEW_DAY_MARKERCELL + '">' +
-        '<div class="' + [CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION, CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD].join(' ') + '"></div>' +
-        '<div class="' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD + '"></div></div>',
+        '<div class="' + [CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION, CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD].join(' ') + '" data-colnumber="0"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD + '" data-colnumber="0"></div></div>',
 
     TPL_SCHEDULER_VIEW_DAY_HEADER_VIEW_LABEL = '<span class="' + CSS_SCHEDULER_VIEW_DAY_HEADER_VIEW_LABEL +
         '">{label}</span>',
@@ -165,6 +165,27 @@ var SchedulerDayView = A.Component.create({
     ATTRS: {
 
         /**
+         * Contains the function that formats the aria label date.
+         *
+         * @attribute ariaLabelDateFormatter
+         * @type {Function}
+         */
+        ariaLabelDateFormatter: {
+            value: function(date) {
+                var instance = this;
+                var scheduler = instance.get('scheduler');
+
+                return A.DataType.Date.format(
+                    date, {
+                        format: '%A %B %d %Y',
+                        locale: scheduler.get('locale')
+                    }
+                );
+            },
+            validator: isString
+        },
+
+        /**
          * Determines the content of Scheduler day view's body section.
          *
          * @attribute bodyContent
@@ -210,6 +231,35 @@ var SchedulerDayView = A.Component.create({
                     },
                     val || {}
                 );
+            },
+            validator: isObject
+        },
+
+        /**
+        * Defines the keyboard configuration object for
+        * `Plugin.NodeFocusManager`.
+        *
+        * @attribute dayGridFocusmanager
+        * @default {
+        *    activeDescendant: 0,
+        *    circular: false,
+        *    descendants: '.' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD,
+        *    keys: {
+        *        next: 'down:40',
+        *        previous: 'down:38'
+        *    }
+        * }
+        * @type {Object}
+        */
+        dayGridFocusmanager: {
+            value: {
+                activeDescendant: 0,
+                circular: false,
+                descendants: '.' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD,
+                keys: {
+                    next: 'down:40',
+                    previous: 'down:38'
+                }
             },
             validator: isObject
         },
@@ -305,6 +355,18 @@ var SchedulerDayView = A.Component.create({
         hourHeight: {
             value: 52,
             validator: isNumber
+        },
+
+        /**
+         * String representing the table marker class.
+         *
+         * @attribute markerNodeClass
+         * @default '.' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD
+         * @type {String}
+         */
+        markerNodeClass: {
+            value: '.' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD,
+            validator: isString
         },
 
         /**
@@ -540,10 +602,14 @@ var SchedulerDayView = A.Component.create({
          * @protected
          */
         bindUI: function() {
-            var instance = this;
+            var instance = this,
+                markerNodeClass = instance.get('markerNodeClass');
 
             instance.headerTableNode.delegate(
                 'click', A.bind(instance._onClickDaysHeader, instance), '.' + CSS_SCHEDULER_VIEW_DAY_HEADER_DAY);
+
+            instance.headerTableNode.delegate(
+                'key', A.bind(instance._onEnterKeyHeader, instance), 'down:13', '.' + CSS_SCHEDULER_VIEW_DAY_HEADER_DAY);
 
             instance.columnData.delegate(
                 'mousedown', A.bind(instance._onMouseDownTableCol, instance), '.' +
@@ -562,11 +628,20 @@ var SchedulerDayView = A.Component.create({
             instance.columnData.delegate(
                 'mouseup', A.bind(instance._onMouseUpTableCol, instance), '.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL);
 
+            instance.tableNode.delegate(
+                'key', A.bind(instance._onEnterKeyDown, instance), 'down:13', markerNodeClass);
+
+            instance.tableNode.delegate(
+                'key', A.bind(instance._onEnterKeyUp, instance), 'up:13', markerNodeClass);
+
             instance.on('drag:end', instance._onEventDragEnd);
             instance.on('drag:start', instance._onEventDragStart);
             instance.on('drag:tickAlignY', instance._dragTickAlignY);
             instance.on('schedulerChange', instance._onSchedulerChange);
             instance.after('drag:align', instance._afterDragAlign);
+            instance.after('visibleChange', instance._afterVisibleChange);
+
+            instance._bindFocusManager(instance.get('visible'));
         },
 
         /**
@@ -851,6 +926,7 @@ var SchedulerDayView = A.Component.create({
             var instance = this;
             var viewDate = instance.get('scheduler').get('viewDate');
             var formatter = instance.get('headerDateFormatter');
+            var ariaLabelDateFormatter = instance.get('ariaLabelDateFormatter');
             var todayDate = instance.get('scheduler').get('todayDate');
 
             instance.colHeaderDaysNode.all('a').each(
@@ -861,6 +937,7 @@ var SchedulerDayView = A.Component.create({
                         CSS_SCHEDULER_TODAY_HD, !DateMath.isDayOverlap(columnDate, todayDate));
 
                     columnNode.html(formatter.call(instance, columnDate));
+                    columnNode.setAttribute('aria-label', ariaLabelDateFormatter.call(instance, columnDate));
                 }
             );
         },
@@ -1077,6 +1154,67 @@ var SchedulerDayView = A.Component.create({
         },
 
         /**
+         * Handles 'activeDescendantChange' events coming from the
+         * NodeFocusManager.
+         *
+         * @method _afterActiveDescendantChange
+         * @param {EventFacade} event
+         * @protected
+         */
+        _afterActiveDescendantChange: function(event) {
+            var instance = this,
+                newVal = event.newVal,
+                focusManager = event.target,
+                activeDescendant = focusManager.get('descendants').item(newVal);
+
+            if (instance._enterKeyDown) {
+                event.target = activeDescendant;
+
+                instance._spoofKeyToMouseEvent(event);
+
+                instance._onMouseMoveTableCol(event);
+            }
+        },
+
+        /**
+         * Handles 'activeVisibleChange' events.
+         *
+         * @method _afterVisibleChange
+         * @param {EventFacade} event
+         * @protected
+         */
+        _afterVisibleChange: function(event) {
+            var instance = this;
+
+            instance._bindFocusManager(event.newVal);
+        },
+
+        /**
+         * Binds the `Plugin.NodeFocusManager` that handles day view
+         * table node keyboard navigation.
+         *
+         * @method _bindDayFocusManager
+         * @protected
+         */
+        _bindFocusManager: function(visible) {
+            var instance = this;
+
+            if (visible) {
+                instance.tableNode.plug(A.Plugin.NodeFocusManager, instance.get('dayGridFocusmanager'));
+
+                instance.descendantChangeHandler = instance.tableNode.focusManager.after(
+                    'activeDescendantChange', instance._afterActiveDescendantChange, instance);
+            }
+            else {
+                if (instance.descendantChangeHandler) {
+                    instance.descendantChangeHandler.detach();
+
+                    instance.tableNode.unplug(A.Plugin.NodeFocusManager);
+                }
+            }
+        },
+
+        /**
          * Aligns the dragging `SchedulerEvent` to the X axis while bound to the
          * Y axis on the `activeColumn`.
          *
@@ -1239,6 +1377,55 @@ var SchedulerDayView = A.Component.create({
         },
 
         /**
+         * Handles 'keyDown' event on the tableNode.
+         *
+         * @method _onEnterKeyDown
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onEnterKeyDown: function(event) {
+            var instance = this;
+
+            instance._enterKeyDown = true;
+
+            instance._spoofKeyToMouseEvent(event);
+
+            instance._onMouseDownTableCol(event);
+        },
+
+        /**
+         * Handles 'keyDown' event on the tableNodeHeader.
+         *
+         * @method _onEnterKeyHeader
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onEnterKeyHeader: function(event) {
+            var instance = this;
+
+            instance._onClickDaysHeader(event);
+        },
+
+        /**
+         * Handles 'keyUp' event on the tableNode.
+         *
+         * @method _onEnterKeyUp
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onEnterKeyUp: function(event) {
+            var instance = this;
+
+            if (instance._enterKeyDown) {
+                instance._enterKeyDown = false;
+
+                instance._spoofKeyToMouseEvent(event);
+
+                instance._onMouseUpTableCol(event);
+            }
+        },
+
+        /**
          * Handles `eventDrag` events.
          *
          * @method _onEventDragEnd
@@ -1317,7 +1504,7 @@ var SchedulerDayView = A.Component.create({
             if (recorder && !scheduler.get('disabled')) {
                 recorder.hidePopover();
 
-                if (target.test('.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL_SHIM)) {
+                if (target.test('.' + CSS_SCHEDULER_VIEW_DAY_TABLE_COL_SHIM) || target.test(instance.get('markerNodeClass'))) {
                     instance.startXY = [event.pageX, event.pageY];
 
                     var colNumber = toNumber(event.currentTarget.attr('data-colnumber'));
@@ -1488,6 +1675,25 @@ var SchedulerDayView = A.Component.create({
             var instance = this;
 
             instance.resizerNode.remove();
+        },
+
+        /**
+         * Sets properties on key event so it can be passed to mouse
+         * event handlers.
+         *
+         * @method _spoofKeyToMouseEvent
+         * @protected
+         */
+        _spoofKeyToMouseEvent: function(event) {
+            var instance = this;
+            var target = event.target;
+            var colNumber = parseInt(target.getData('colnumber'));
+            var centerXY = target.getCenterXY();
+            var column = instance.colDaysNode.item(colNumber);
+
+            event.pageX = centerXY[0];
+            event.pageY = centerXY[1];
+            event.currentTarget = column;
         },
 
         /**
