@@ -46,9 +46,9 @@ var Lang = A.Lang,
     HIT_AREA_TPL = '<span class="' + CSS_TREE_HITAREA + '"></span>',
     ICON_TPL = '<span class="' + CSS_TREE_ICON + '"></span>',
     LABEL_TPL = '<span class="' + CSS_TREE_LABEL + '"></span>',
-    NODE_CONTAINER_TPL = '<ul></ul>',
+    NODE_CONTAINER_TPL = '<ul role="tree"></ul>',
 
-    NODE_BOUNDING_TEMPLATE = '<li class="' + CSS_TREE_NODE + '"></li>',
+    NODE_BOUNDING_TEMPLATE = '<li class="' + CSS_TREE_NODE + '" role="treeitem"></li>',
     NODE_CONTENT_TEMPLATE = '<div class="' + CSS_TREE_NODE_CONTENT + '"></div>';
 
 /**
@@ -85,26 +85,6 @@ var TreeNode = A.Component.create({
      * @static
      */
     ATTRS: {
-
-         /**
-          * Sets the `aria-labelledby` for the tree.
-          *
-          * @attribute ariaLabelledby
-          * @type String
-          */
-        ariaLabelledby: {
-            valueFn: function() {
-                var expanded = this.get('expanded'),
-                    leaf = this.get('leaf');
-
-                if (expanded) {
-                    return 'Parent Node';
-                }
-                else if (leaf) {
-                    return 'Leaf Node';
-                }
-            },
-        },
 
         /**
          * The widget's outermost node, used for sizing and positioning.
@@ -392,7 +372,7 @@ var TreeNode = A.Component.create({
             var boundingBox = instance.get('boundingBox');
 
             boundingBox.setData('tree-node', instance);
-            boundingBox.setAttribute('tabIndex', 0);
+            boundingBox.setAttribute('tabIndex', instance.get('tabIndex'));
 
             instance._setAriaElements();
             instance._bindKeypress();
@@ -762,9 +742,11 @@ var TreeNode = A.Component.create({
          */
         _setAriaElements: function() {
             var instance = this,
-                contentBox = instance.get('contentBox');
+                boundingBox = instance.get('boundingBox');
 
-            contentBox.setAttribute('aria-labelledby', instance.get('ariaLabelledby'));
+            if (!instance.isLeaf() || instance.get('expanded')){
+                boundingBox.setAttribute('aria-expanded', instance.get('expanded'));
+            }
         },
 
         /**
@@ -1128,6 +1110,7 @@ var TreeNode = A.Component.create({
             var instance = this;
 
             if (!instance.isLeaf()) {
+                var boundingBox = instance.get('boundingBox');
                 var container = instance.get('container');
                 var contentBox = instance.get('contentBox');
                 var ownerTree = instance.get('ownerTree');
@@ -1154,6 +1137,10 @@ var TreeNode = A.Component.create({
                     if (container) {
                         container.hide();
                     }
+                }
+
+                if (boundingBox) {
+                    boundingBox.setAttribute('aria-expanded', val);
                 }
             }
         },
