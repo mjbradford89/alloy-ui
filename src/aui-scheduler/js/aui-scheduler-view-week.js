@@ -7,10 +7,17 @@
 
 var Lang = A.Lang,
     isFunction = Lang.isFunction,
+    isObject = Lang.isObject,
+    isString = Lang.isString,
 
     DateMath = A.DataType.DateMath,
 
-    WEEK_LENGTH = DateMath.WEEK_LENGTH;
+    getCN = A.getClassName,
+
+    WEEK_LENGTH = DateMath.WEEK_LENGTH,
+
+    CSS_SCHEDULER_VIEW_DAY_HEADER_DAY = getCN('scheduler-view', 'day', 'header', 'day'),
+    CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER = getCN('scheduler-view', 'week', 'day', 'marker');
 
 /**
  * A base class for `SchedulerWeekView`.
@@ -76,6 +83,18 @@ var SchedulerWeekView = A.Component.create({
         },
 
         /**
+         * String representing the table marker class.
+         *
+         * @attribute markerNodeClass
+         * @default '.' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD
+         * @type {String}
+         */
+        markerNodeClass: {
+            value: '.' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER,
+            validator: isString
+        },
+
+        /**
          * Determines the name for this week view.
          *
          * @attribute name
@@ -97,6 +116,64 @@ var SchedulerWeekView = A.Component.create({
                 return this._valueNavigationDateFormatter;
             },
             validator: isFunction
+        },
+
+        /**
+        * Defines the keyboard configuration object for
+        * `Plugin.NodeFocusManager`.
+        *
+        * @attribute weekGridFocusmanager
+        * @default {
+        *    activeDescendant: 0,
+        *    circular: false,
+        *    descendants: '.' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD,
+        *    keys: {
+        *        next: 'down:40',
+        *        previous: 'down:38'
+        *    }
+        * }
+        * @type {Object}
+        */
+        weekGridFocusmanager: {
+            value: {
+                activeDescendant: 0,
+                circular: false,
+                descendants: '.' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER,
+                keys: {
+                    next: 'down:39',
+                    previous: 'down:37'
+                }
+            },
+            validator: isObject
+        },
+
+        /**
+        * Defines the keyboard configuration object for
+        * `Plugin.NodeFocusManager`.
+        *
+        * @attribute weekHeaderGridFocusManager
+        * @default {
+        *       activeDescendant: 0,
+        *       circular: false,
+        *       descendants: '.' + CSS_SCHEDULER_VIEW_DAY_HEADER_DAY + '> a',
+        *       keys: {
+        *           next: 'down:39',
+        *           previous: 'down:37'
+        *       }
+        * }
+        * @type {Object}
+        */
+        weekHeaderGridFocusManager: {
+            value: {
+                activeDescendant: 0,
+                circular: false,
+                descendants: '.' + CSS_SCHEDULER_VIEW_DAY_HEADER_DAY + '> a',
+                keys: {
+                    next: 'down:39',
+                    previous: 'down:37'
+                }
+            },
+            validator: isObject
         }
     },
 
@@ -110,6 +187,23 @@ var SchedulerWeekView = A.Component.create({
     EXTENDS: A.SchedulerDayView,
 
     prototype: {
+
+        /**
+         * Construction logic executed during `SchedulerWeekView` instantiation.
+         * Lifecycle.
+         *
+         * @method initializer
+         * @protected
+         */
+        initializer: function() {
+            var instance = this,
+                markerNodeClass = instance.get('markerNodeClass');
+
+            instance.tableNode.delegate(
+                'key', A.bind(instance._onArrowKeysVertical, instance), 'down:38,40', markerNodeClass);
+
+            instance._syncStyleSheetMarker();
+        },
 
         /**
          * Returns a date value of the first day of the week with its time
@@ -171,6 +265,32 @@ var SchedulerWeekView = A.Component.create({
         },
 
         /**
+         * Binds the `Plugin.NodeFocusManager` that handles day view
+         * table node keyboard navigation.
+         *
+         * @method _bindDayFocusManager
+         * @protected
+         */
+        _bindFocusManager: function(visible) {
+            var instance = this;
+
+            if (visible) {
+                instance.tableNode.plug(A.Plugin.NodeFocusManager, instance.get('weekGridFocusmanager'));
+                instance.headerTableNode.plug(A.Plugin.NodeFocusManager, instance.get('weekHeaderGridFocusManager'));
+
+                instance.descendantChangeHandler = instance.tableNode.focusManager.after(
+                    'activeDescendantChange', instance._afterActiveDescendantChange, instance);
+            }
+            else {
+                if (instance.descendantChangeHandler) {
+                    instance.descendantChangeHandler.detach();
+
+                    instance.tableNode.unplug(A.Plugin.NodeFocusManager);
+                }
+            }
+        },
+
+        /**
          * Returns the value of the first day of week in this view.
          *
          * @method _firstDayOfWeek
@@ -184,6 +304,50 @@ var SchedulerWeekView = A.Component.create({
             var firstDayOfWeek = scheduler.get('firstDayOfWeek');
 
             return DateMath.getFirstDayOfWeek(date, firstDayOfWeek);
+        },
+
+        /**
+         * Handles up/down arrow key press events.
+         *
+         * @method _onArrowKeysVertical
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onArrowKeysVertical: function(event) {
+            var instance = this,
+                focusManager = instance.tableNode.focusManager,
+                activeDescendant = focusManager.get('activeDescendant'),
+                descendants = focusManager.get('descendants');
+
+            if (event.isKey('up')) {
+                if (activeDescendant > WEEK_LENGTH) {
+                    activeDescendant -= WEEK_LENGTH;
+                }
+            }
+            else if (event.isKey('down')) {
+                if (activeDescendant < (descendants.size() - WEEK_LENGTH)) {
+                    activeDescendant += WEEK_LENGTH;
+                }
+            }
+
+            focusManager.focus(activeDescendant);
+
+            event.preventDefault();
+        },
+
+        /**
+         * Creates a 'A.StyleSheet' that sizes the marker nodes based on number of days.
+         *
+         * @method _syncStyleSheetMarker
+         * @param {EventFacade} event
+         * @protected
+         */
+        _syncStyleSheetMarker: function() {
+            var instance = this,
+                markerNodeClass = instance.get('markerNodeClass'),
+                width = (100 / instance.get('days')),
+                css = markerNodeClass + '{ width:' + width + '%; }',
+                sheet = new A.StyleSheet(css);
         },
 
         /**
