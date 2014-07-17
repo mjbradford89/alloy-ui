@@ -1043,7 +1043,8 @@ Y.mix(YUI.Env[Y.version].modules, {
     },
     "aui-scheduler-view-week": {
         "requires": [
-            "aui-scheduler-view-day"
+            "aui-scheduler-view-day",
+            "stylesheet"
         ],
         "skinnable": true
     },
@@ -1385,4 +1386,4 @@ Y.mix(YUI.Env[Y.version].modules, {
         ]
     }
 });
-YUI.Env[Y.version].md5 = '5461bd6cafadb3100128f5bad0fe79eb';
+YUI.Env[Y.version].md5 = 'a26a147781ea1ebc82e1c0d3304c9cb4';
