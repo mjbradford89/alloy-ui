@@ -10,6 +10,15 @@
     font-size: 14px;
 }
 
+.scheduler-view-day-week-marker {
+    display: inline-block;
+    height: 100%;
+}
+
+.scheduler-view-day-week-marker:focus {
+    border: 1px solid rgb(54, 108, 217);
+}
+
 .view-lt480 .scheduler-view-week .scheduler-event-title {
     display: none;
 }

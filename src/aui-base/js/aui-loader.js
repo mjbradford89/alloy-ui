@@ -1057,7 +1057,8 @@ Y.mix(YUI.Env[Y.version].modules, {
     },
     "aui-scheduler-view-week": {
         "requires": [
-            "aui-scheduler-view-day"
+            "aui-scheduler-view-day",
+            "stylesheet"
         ],
         "skinnable": true
     },
