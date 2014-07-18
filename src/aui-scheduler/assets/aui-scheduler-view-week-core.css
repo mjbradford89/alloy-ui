@@ -10,12 +10,12 @@
     font-size: 14px;
 }
 
-.scheduler-view-week-day-marker {
+.scheduler-view-day-week-marker {
     display: inline-block;
     height: 100%;
     width: 14.28%;
 }
 
-.scheduler-view-week-day-marker:focus {
+.scheduler-view-day-week-marker:focus {
     border: 1px solid rgb(54, 108, 217);
 }

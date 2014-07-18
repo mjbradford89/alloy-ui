@@ -17,7 +17,7 @@ var Lang = A.Lang,
     WEEK_LENGTH = DateMath.WEEK_LENGTH,
 
     CSS_SCHEDULER_VIEW_DAY_HEADER_DAY = getCN('scheduler-view', 'day', 'header', 'day'),
-    CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER = getCN('scheduler-view', 'week', 'day', 'marker');
+    CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER = getCN('scheduler-view', 'day', 'week', 'marker');
 
 /**
  * A base class for `SchedulerWeekView`.
@@ -90,7 +90,7 @@ var SchedulerWeekView = A.Component.create({
          * @type {String}
          */
         markerNodeClass: {
-            value: '.' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER,
+            value: '.' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER,
             validator: isString
         },
 
@@ -138,7 +138,7 @@ var SchedulerWeekView = A.Component.create({
             value: {
                 activeDescendant: 0,
                 circular: false,
-                descendants: '.' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER,
+                descendants: '.' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER,
                 keys: {
                     next: 'down:39',
                     previous: 'down:37'
