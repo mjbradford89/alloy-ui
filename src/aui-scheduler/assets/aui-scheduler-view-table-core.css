@@ -117,6 +117,10 @@
     border-left: 1px solid #dddddd;
 }
 
+.scheduler-view-table-colgrid:focus {
+    border: 1px solid rgb(54, 108, 217);
+}
+
 .scheduler-view-table-data {
     position: relative;
     table-layout: fixed;

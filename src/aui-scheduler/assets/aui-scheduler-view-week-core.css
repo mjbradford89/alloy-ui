@@ -15,6 +15,6 @@
     height: 100%;
 }
 
-.scheduler-view-day-week-marker:focus {
+.scheduler-view-week-day-marker:focus {
     border: 1px solid rgb(54, 108, 217);
 }
