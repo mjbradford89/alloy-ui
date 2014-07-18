@@ -50,6 +50,10 @@ var Lang = A.Lang,
     CSS_ICON_CIRCLE_TRIANGLE_L = getCN('icon', 'circle', 'triangle', 'l'),
     CSS_ICON_CIRCLE_TRIANGLE_R = getCN('icon', 'circle', 'triangle', 'r'),
 
+    KEY_ARROW_LEFT = 37,
+    KEY_ARROW_RIGHT = 39,
+    KEY_ENTER = 13,
+
     TPL_PLACEHOLDER = '<div class="' + CSS_DRAG_INDICATOR + '">' +
         '<div class="' + concat(CSS_DRAG_INDICATOR_ICON, CSS_DRAG_INDICATOR_ICON_LEFT, CSS_ICON,
             CSS_ICON_CIRCLE_TRIANGLE_R) + '"></div>' +
@@ -167,6 +171,24 @@ var SortableLayout = A.Component.create({
         },
 
         /**
+         * Defines the keyboard configuration object for
+         * `Plugin.NodeFocusManager`.
+         *
+         * @attribute focusmanager
+         * @type {Object}
+         */
+        focusmanager: {
+            value: {
+                focusClass: 'focus',
+                keys: {
+                    next: 'down:' + KEY_ARROW_RIGHT,
+                    previous: 'down:' + KEY_ARROW_LEFT
+                }
+            },
+            writeOnce: 'initOnly'
+        },
+
+        /**
          * List of elements to add this sortable layout into.
          *
          * @attribute groups
@@ -273,7 +295,11 @@ var SortableLayout = A.Component.create({
          * @protected
          */
         bindUI: function() {
-            var instance = this;
+            var instance = this,
+                dragNodes = A.all(instance.get('dragNodes'));
+
+            instance._eventHandles = [];
+            instance._eventHandles.push(dragNodes.on('key', instance._selectDropTarget, 'down:' + KEY_ENTER, instance));
 
             // publishing placeholderAlign event
             instance.publish('placeholderAlign', {
@@ -285,6 +311,7 @@ var SortableLayout = A.Component.create({
 
             instance._bindDDEvents();
             instance._bindDropZones();
+            instance._bindFocusManager();
         },
 
         /**
@@ -543,6 +570,23 @@ var SortableLayout = A.Component.create({
         },
 
         /**
+         * Binds the `Plugin.NodeFocusManager` that handle keyboard
+         * navigation.
+         *
+         * @method _bindFocusManager
+         * @protected
+         */
+        _bindFocusManager: function() {
+            var instance = this,
+                body = A.one('body'),
+                focusmanager = instance.get('focusmanager');
+
+            focusmanager.descendants = instance.get('dragNodes');
+            body.plug(A.Plugin.NodeFocusManager, focusmanager);
+            instance._focusmanager = body.focusManager;
+        },
+
+        /**
          * Defines `placeholder` alignment.
          *
          * @method _defPlaceholderAlign
@@ -569,6 +613,20 @@ var SortableLayout = A.Component.create({
                     isTarget
                 );
             }
+        },
+
+        /**
+         * Detaches all event handles in the _eventHandles array.
+         *
+         * @method _detachEventHandles
+         * @protected
+         */
+        _detachEventHandles: function() {
+            var instance = this;
+
+            A.Array.each(instance._eventHandles, function(handle) {
+                handle.detach();
+            });
         },
 
         /**
@@ -638,6 +696,21 @@ var SortableLayout = A.Component.create({
         },
 
         /**
+         * Focuses currently active draggable object.
+         *
+         * @method _focusActiveObject
+         * @protected
+         */
+        _focusActiveObject: function() {
+            var instance = this,
+                activeNode = instance._getAppendNode(),
+                focusmanager = instance._focusmanager,
+                index = focusmanager.get('descendants').indexOf(activeNode);
+
+            focusmanager.focus(index);
+        },
+
+        /**
          * Gets node from the currently active draggable object.
          *
          * @method _getAppendNode
@@ -646,6 +719,61 @@ var SortableLayout = A.Component.create({
          */
         _getAppendNode: function() {
             return DDM.activeDrag.get('node');
+        },
+
+        /**
+         * Triggers when a drop target is focused.
+         *
+         * @method _onDropTargetFocused
+         * @protected
+         */
+        _onDropTargetFocused: function(event) {
+            var instance = this,
+                focusmanager = instance._focusmanager,
+                activeNode = focusmanager._focusedNode,
+                activeTarget = DDM.getDrop(activeNode),
+                lastDrop = DDM.activeDrop;
+
+            activeNode.addClass(DDM.CSS_PREFIX + '-drop-over');
+            DDM.activeDrop = activeTarget;
+            DDM.otherDrops[activeTarget] = activeTarget;
+            activeTarget.overTarget = true;
+            activeTarget.fire('drop:enter', { drop: activeTarget, drag: DDM.activeDrag });
+            DDM.activeDrag.fire('drag:enter', { drop: activeTarget, drag: DDM.activeDrag });
+            DDM.activeDrag.get('node').addClass(DDM.CSS_PREFIX + '-drag-over');
+
+            // clean up last drop target
+            if (lastDrop) {
+                lastDrop.overTarget = false;
+                lastDrop.get('node').removeClass(DDM.CSS_PREFIX + '-drop-over');
+                DDM.activeDrag.get('node').removeClass(DDM.CSS_PREFIX + '-drag-over');
+                lastDrop.fire('drop:exit', { drop: lastDrop, drag: DDM.activeDrag });
+                DDM.activeDrag.fire('drag:exit', { drop: lastDrop, drag: DDM.activeDrag });
+                delete DDM.otherDrops[lastDrop];                
+            }
+        },
+
+        /**
+         * Triggers when a drop target is selected.
+         *
+         * @method _onDropTargetSelected
+         * @protected
+         */
+        _onDropTargetSelected: function(event) {
+            var instance = this,
+                dragNode = DDM.activeDrag.get('node');
+
+            event.halt();
+
+            dragNode.simulate('mouseup');
+
+            instance._detachEventHandles();
+
+            var dragClass = instance.get('dragNodes'),
+                dragNodes = A.all(dragClass);
+
+            instance._setFocusElements(dragClass, dragNode);
+            instance._eventHandles.push(dragNodes.on('key', instance._selectDropTarget, 'down:' + KEY_ENTER, instance));
         },
 
         /**
@@ -685,6 +813,51 @@ var SortableLayout = A.Component.create({
                     }
                 }
             }
+        },
+
+        /**
+         * Triggers when a drag node is selected. Sets focus manager to drop targets.
+         *
+         * @method _selectDropTarget
+         * @protected
+         */
+        _selectDropTarget: function(event) {
+            var instance = this,
+                dropSelector = '.yui3-dd-drop',
+                dropNodes = A.all(dropSelector);
+
+            event.halt();
+
+            event.target.simulate('mousedown');
+
+            instance._detachEventHandles();
+            instance._eventHandles.push(dropNodes.on('key', instance._onDropTargetSelected, 'down:' + KEY_ENTER, instance));
+
+            instance._setFocusElements(dropSelector);
+
+            instance._eventHandles.push(instance._focusmanager.on('focusedChange', instance._onDropTargetFocused, instance));
+        },
+
+        /**
+         * Sets the descendants as focusable elements.
+         *
+         * @method _setFocusElements
+         * @param descendants {String} String representing the CSS selector used to define the focusable elements
+         * @protected
+         */
+        _setFocusElements: function(descendants, node) {
+            var instance = this,
+                focusmanager = instance._focusmanager,
+                index = 0;
+
+            focusmanager.set('descendants', descendants);
+            focusmanager.refresh();
+
+            if (node instanceof A.Node) {
+                index = focusmanager.get('descendants').indexOf(node);
+            }
+
+            focusmanager.focus(index);
         },
 
         /**
@@ -812,6 +985,9 @@ var SortableLayout = A.Component.create({
             instance.lastQuadrant = null;
             instance.lastXDirection = null;
             instance.lastYDirection = null;
+
+            instance._focusmanager.refresh();
+            instance._focusActiveObject();
         },
 
         /**
@@ -853,11 +1029,11 @@ var SortableLayout = A.Component.create({
         _onDragExit: function(event) {
             var instance = this;
 
-            instance._syncPlaceholderUI(event);
-
             instance.activeDrop = DDM.activeDrop;
 
             instance.lastActiveDrop = DDM.activeDrop;
+
+            instance._syncPlaceholderUI(event);
         },
 
         /**

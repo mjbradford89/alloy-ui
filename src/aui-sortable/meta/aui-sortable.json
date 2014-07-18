@@ -13,7 +13,8 @@
             "dd-drop",
             "dd-proxy",
             "aui-node",
-            "aui-component"
+            "aui-component",
+            "node-focusmanager"
         ],
         "skinnable": true
     },
