@@ -12,6 +12,9 @@ var Lang = A.Lang,
 
     getCN = A.getClassName,
 
+    WEEK_LENGTH = DateMath.WEEK_LENGTH,
+
+    CSS_SVT_COLGRID = getCN('scheduler-view', 'table', 'colgrid'),
     CSS_SVM_TABLE_DATA_COL_NOMONTH = getCN('scheduler-view-month', 'table', 'data', 'col', 'nomonth'),
     CSS_SVT_TABLE_DATA_COL_TITLE = getCN('scheduler-view', 'table', 'data', 'col', 'title');
 
@@ -101,6 +104,21 @@ var SchedulerMonthView = A.Component.create({
     EXTENDS: A.SchedulerTableView,
 
     prototype: {
+
+        /**
+         * Construction logic executed during `SchedulerWeekView` instantiation.
+         * Lifecycle.
+         *
+         * @method initializer
+         * @protected
+         */
+        initializer: function() {
+            var instance = this,
+                markerNodeClass = instance.get('markerNodeClass');
+
+            instance.tableRowContainer.delegate(
+                'key', A.bind(instance._onArrowKeysVertical, instance), 'down:38,40', '.' + CSS_SVT_COLGRID);
+        },
 
         /**
          * Returns a date value of the first day of the month with its time
@@ -207,7 +225,36 @@ var SchedulerMonthView = A.Component.create({
             var firstDayOfWeek = scheduler.get('firstDayOfWeek');
 
             return DateMath.getFirstDayOfWeek(date, firstDayOfWeek);
-        }
+        },
+
+        /**
+         * Handles up/down arrow key press events.
+         *
+         * @method _onArrowKeysVertical
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onArrowKeysVertical: function(event) {
+            var instance = this,
+                focusManager = instance.tableRowContainer.focusManager,
+                activeDescendant = focusManager.get('activeDescendant'),
+                descendants = focusManager.get('descendants');
+
+            if (event.isKey('up')) {
+                if (activeDescendant > WEEK_LENGTH) {
+                    activeDescendant -= WEEK_LENGTH;
+                }
+            }
+            else if (event.isKey('down')) {
+                if (activeDescendant < (descendants.size() - WEEK_LENGTH)) {
+                    activeDescendant += WEEK_LENGTH;
+                }
+            }
+
+            focusManager.focus(activeDescendant);
+
+            event.preventDefault();
+        },
 
     }
 });
