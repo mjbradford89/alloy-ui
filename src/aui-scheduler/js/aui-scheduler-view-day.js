@@ -83,8 +83,7 @@ var Lang = A.Lang,
     CSS_SCHEDULER_VIEW_DAY_TABLE_COLDAY = getCN('scheduler-view', 'day', 'table', 'colday'),
     CSS_SCHEDULER_VIEW_DAY_TABLE_COLTIME = getCN('scheduler-view', 'day', 'table', 'coltime'),
     CSS_SCHEDULER_VIEW_DAY_TABLE_TIME = getCN('scheduler-view', 'day', 'table', 'time'),
-
-    CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER = getCN('scheduler-view', 'week', 'day', 'marker'),
+    CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER = getCN('scheduler-view', 'day', 'week', 'marker'),
 
     TPL_SCHEDULER_VIEW_DAY_RESIZER = '<div class="' + CSS_SCHEDULER_VIEW_DAY_RESIZER + '">' +
         '<div class="' + [CSS_SCHEDULER_VIEW_DAY_ICON_GRIP_HORIZONTAL, CSS_SCHEDULER_VIEW_DAY_RESIZER_ICON].join(' ') +
@@ -93,21 +92,21 @@ var Lang = A.Lang,
 
     TPL_SCHEDULER_VIEW_DAY_MARKERCELL = '<div class="' + CSS_SCHEDULER_VIEW_DAY_MARKERCELL + '">' +
         '<div class="' + [CSS_SCHEDULER_VIEW_DAY_MARKER_DIVISION, CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD].join(' ') + '" data-colnumber="0">' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="0"></div>' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="1"></div>' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="2"></div>' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="3"></div>' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="4"></div>' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="5"></div>' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="6"></div></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="0"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="1"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="2"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="3"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="4"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="5"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="6"></div></div>' +
         '<div class="' + CSS_SCHEDULER_VIEW_DAY_MARKER_CHILD + '" data-colnumber="0">' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="0"></div>' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="1"></div>' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="2"></div>' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="3"></div>' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="4"></div>' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="5"></div>' +
-        '<div class="' + CSS_SCHEDULER_VIEW_WEEK_DAY_MARKER + '" data-colnumber="6"></div></div></div>',
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="0"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="1"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="2"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="3"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="4"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="5"></div>' +
+        '<div class="' + CSS_SCHEDULER_VIEW_DAY_WEEK_MARKER + '" data-colnumber="6"></div></div></div>',
 
     TPL_SCHEDULER_VIEW_DAY_HEADER_VIEW_LABEL = '<span class="' + CSS_SCHEDULER_VIEW_DAY_HEADER_VIEW_LABEL +
         '">{label}</span>',
