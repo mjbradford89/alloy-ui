@@ -11,9 +11,9 @@
 }
 
 .scheduler-view-week-day-marker {
-	display: inline-block;
-	height: 100%;
-	width: 14.28%;
+    display: inline-block;
+    height: 100%;
+    width: 14.28%;
 }
 
 .scheduler-view-week-day-marker:focus {
