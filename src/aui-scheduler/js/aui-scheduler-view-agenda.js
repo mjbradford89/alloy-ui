@@ -7,6 +7,7 @@
 
 var Lang = A.Lang,
     isFunction = Lang.isFunction,
+    isObject = Lang.isObject,
 
     AArray = A.Array,
     DateMath = A.DataType.DateMath,
@@ -61,7 +62,7 @@ var Lang = A.Lang,
     TPL_EVENTS_HEADER = '<div class="' + [CSS_HEADER, CSS_CLEARFIX].join(' ') +
         ' {firstClassName} {lastClassName}">' +
         '<div class="' + CSS_HEADER_DAY + '">{day}</div>' +
-        '<a href="javascript:;" class="' + CSS_HEADER_EXTRA + '" data-timestamp="{timestamp}">{extra}</a>' +
+        '<a href="javascript:;" class="' + CSS_HEADER_EXTRA + '" data-timestamp="{timestamp}" tabindex="-1">{extra}</a>' +
         '</div>',
 
     TPL_EVENTS_CONTAINER = '<div class="' + CSS_EVENTS + '">{content}</div>',
@@ -264,6 +265,19 @@ var SchedulerAgendaView = A.Component.create({
             value: {
                 noEvents: 'No future events.'
             }
+        },
+
+        agendaFocusmanager: {
+            value:{
+                activeDescendant: 0,
+                circular: false,
+                descendants: '.' + CSS_EVENT + ', .' + CSS_HEADER,
+                keys: {
+                    next: 'down:40',
+                    previous: 'down:38'
+                }
+            },
+            validator: isObject
         }
     },
 
@@ -291,6 +305,22 @@ var SchedulerAgendaView = A.Component.create({
 
             boundingBox.delegate('click', instance._onSchedulerEventClick, '.' + CSS_EVENT, instance);
             boundingBox.delegate('click', instance._onEventsHeaderClick, '.' + CSS_HEADER_EXTRA, instance);
+            boundingBox.delegate('key', A.bind(instance._onEventsHeaderKeydown, instance), 'down:13', '.' + CSS_HEADER);
+        },
+
+        /**
+         * Binds the `Plugin.NodeFocusManager` that handles day view
+         * table node keyboard navigation.
+         *
+         * @method _bindDayFocusManager
+         * @protected
+         */
+        _bindFocusManager: function() {
+            var instance = this,
+                contentBox = instance.get('contentBox'),
+                eventsContainer = contentBox.one('.' + CSS_EVENTS);
+
+            eventsContainer.plug(A.Plugin.NodeFocusManager, instance.get('agendaFocusmanager'));
         },
 
         /**
@@ -425,6 +455,8 @@ var SchedulerAgendaView = A.Component.create({
             });
 
             instance.set('bodyContent', content);
+
+            instance._bindFocusManager();
         },
 
         /**
@@ -492,6 +524,19 @@ var SchedulerAgendaView = A.Component.create({
                 scheduler.set('date', date);
                 scheduler.set('activeView', dayView);
             }
+        },
+
+        /**
+         * Handles `eventsHeader` keydown events.
+         *
+         * @method _onEventsHeaderKeydown
+         * @param {EventFacade} event
+         * @protected
+         */
+        _onEventsHeaderKeydown: function(event) {
+            var instance = this;
+
+            instance._onEventsHeaderClick(event);
         },
 
         /**
