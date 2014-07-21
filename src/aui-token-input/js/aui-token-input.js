@@ -13,7 +13,6 @@ var doc = A.config.doc,
 
     Lang   = A.Lang,
     AArray = A.Array,
-    Node = A.Node,
 
     getClassName = A.bind(A.ClassNameManager.getClassName, null, 'tokeninput'),
 
@@ -297,6 +296,8 @@ var TokenInput = A.Component.create(
                     this.set(TOKENS, tokens, {atomic: true});
                 }
 
+                this._resizeInputItem();
+
                 return this;
             },
 
@@ -334,6 +335,8 @@ var TokenInput = A.Component.create(
                     tokenIndex: index
                 });
 
+                this._resizeInputItem();
+
                 return this.set(TOKENS, tokens, {atomic: true});
             },
 
@@ -358,6 +361,8 @@ var TokenInput = A.Component.create(
                         clickoutside : this._afterClickoutside,
                         focus: this._afterFocus
                     }, null, this),
+
+                    A.getWin().on('resize', A.debounce(A.bind(this._resizeInputItem, this)), 50),
 
                     list.delegate({
                         blur     : this._onTokenBlur,
@@ -399,7 +404,7 @@ var TokenInput = A.Component.create(
              */
             _createItem: function (options) {
                 var classNames = TokenInput.CLASS_NAMES,
-                    item       = Node.create(this.ITEM_TEMPLATE),
+                    item       = A.Node.create(this.ITEM_TEMPLATE),
                     input;
 
                 if (!options) {
@@ -415,7 +420,7 @@ var TokenInput = A.Component.create(
                 });
 
                 if (options.editable) {
-                    input = Node.create(this.INPUT_TEMPLATE).addClass(classNames.input);
+                    input = A.Node.create(this.INPUT_TEMPLATE).addClass(classNames.input);
 
                     // Event will be purged when the item is removed.
                     input.on('valueChange', this._afterInputValueChange, this);
@@ -431,7 +436,7 @@ var TokenInput = A.Component.create(
 
                     if (this.get('removeButton')) {
                         item.addClass(classNames.hasremove).append(
-                            Node.create(this.REMOVE_TEMPLATE).addClass(
+                            A.Node.create(this.REMOVE_TEMPLATE).addClass(
                                 classNames.remove).set('role', 'button')
                         );
                     }
@@ -504,7 +509,7 @@ var TokenInput = A.Component.create(
             _getSelection: function (node) {
                 // TODO: this should probably be a Node extension named node-selection
                 // or something.
-                var el        = Node.getDOMNode(node),
+                var el        = A.Node.getDOMNode(node),
                     selection = {end: 0, start: 0},
                     length, value, range;
 
@@ -697,6 +702,8 @@ var TokenInput = A.Component.create(
                 } else {
                     this._tokenNodes = this._list.all(this._selectors.token);
                 }
+
+                this._resizeInputItem();
             },
 
             /**
@@ -708,12 +715,13 @@ var TokenInput = A.Component.create(
             _render: function () {
                 var host        = this._host,
                     classNames  = TokenInput.CLASS_NAMES,
-                    boundingBox = Node.create(this.BOX_TEMPLATE),
-                    contentBox  = Node.create(this.CONTENT_TEMPLATE),
+                    boundingBox = A.Node.create(this.BOX_TEMPLATE),
+                    contentBox  = A.Node.create(this.CONTENT_TEMPLATE),
                     hostClasses = host.get('className'),
                     hostId      = host.get('id');
 
-                contentBox.addClass(classNames.content);
+                contentBox.addClass(classNames.content)
+                    .set('tabIndex', 0);
 
                 boundingBox.addClass(classNames.box)
                     .addClass(classNames.os)
@@ -750,7 +758,7 @@ var TokenInput = A.Component.create(
              * @protected
              */
             _renderList: function () {
-                var list = Node.create(this.LIST_TEMPLATE);
+                var list = A.Node.create(this.LIST_TEMPLATE);
 
                 list.addClass(TokenInput.CLASS_NAMES.list);
 
@@ -936,7 +944,6 @@ var TokenInput = A.Component.create(
 
                 if (!event.target.ancestor(this._selectors.item, true)) {
                     setTimeout(function () {
-                        // FIXME: this doesn't display the keyboard in iOS.
                         that._inputNode.focus();
                     }, 1);
                 }
@@ -1055,6 +1062,29 @@ var TokenInput = A.Component.create(
              */
             _onTokenMouseOver: function (event) {
                 event.currentTarget.addClass(TokenInput.CLASS_NAMES.hover);
+            },
+
+            /**
+             * Recalculates and sets the width of the editable inputItem. Its
+             * width must first be set to zero before calculating `offsetLeft`
+             * to determine the necessary offset.
+             *
+             * @method _resizeInputItem
+             * @protected
+             */
+            _resizeInputItem: function() {
+                var instance = this,
+                    inputItem = instance._inputItem,
+                    inputNode = instance._inputNode,
+                    list = instance._list;
+
+                inputItem.width(0);
+
+                var inputNodeBorder = inputNode.outerWidth(true) - inputNode.width();
+
+                var offset = inputNodeBorder + inputItem.get('offsetLeft') - list.get('offsetLeft');
+
+                inputItem.width(list.width() - offset);
             }
         }
     }
