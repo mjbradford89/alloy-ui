@@ -130,6 +130,16 @@ A.UndoRedo = A.Base.create('undo-redo', A.Base, [], {
     },
 
     /**
+     * Binds keyboard shortcuts to a given DOM node
+     *
+     * @method bindShortcuts
+     * @param {String | Node} node to bind shortcuts to.
+     */
+    bindShortcuts: function(node) {
+        A.one(node).on('keypress', this._handleKeypress, this);
+    },
+
+    /**
      * Checks if it's possible to redo an action.
      *
      * @method canRedo
@@ -266,6 +276,26 @@ A.UndoRedo = A.Base.create('undo-redo', A.Base, [], {
         }
         else {
             this._afterAction(action);
+        }
+    },
+
+    /**
+     * Receives keyboard input.
+     *
+     * @method _handleKeypress
+     * @param {event} event
+     * @protected
+     */
+    _handleKeypress: function(event) {
+        var keyCode = event.keyCode;
+
+        if (event.ctrlKey) {
+            if (keyCode === 26) {
+                this.undo();
+            }
+            else if (keyCode === 9) {
+                this.redo();
+            }
         }
     },
 
