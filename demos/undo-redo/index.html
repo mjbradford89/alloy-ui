@@ -91,6 +91,8 @@
             undoRedo.set('queueable', !undoRedo.get('queueable'));
         });
 
+        undoRedo.bindShortcuts('body');
+
         function boxSetXY(xy) {
             box.setXY(xy);
             previousXY = xy;
