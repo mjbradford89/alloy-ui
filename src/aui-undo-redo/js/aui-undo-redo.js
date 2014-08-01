@@ -137,14 +137,15 @@ A.UndoRedo = A.Base.create('undo-redo', A.Base, [], {
      * @method bindShortcuts
      * @param {String | Node} node to bind shortcuts to.
      */
-    bindShortcuts: function(shortcutConfig) {
-        if (!shortcutConfig) {
-            shortcutConfig = this.get('shortcutConfig');
+    bindShortcuts: function(config) {
+        if (!config) {
+            config = this.get('config');
         }
 
-        if (shortcutConfig.bindShortcutsTo) {
-            A.one(shortcutConfig.bindShortcutsTo).on('key', this._handleKeypress,
-                shortcutConfig.type + ':' + shortcutConfig.undoKeyCode + ',' + shortcutConfig.redoKeyCode + '+' + shortcutConfig.modifier, this);
+        if (config.bindShortcutsTo) {
+            A.one(config.bindShortcutsTo).on('key', this._handleKeypress,
+                config.type + ':' + config.undoKeyCode + ',' +
+                config.redoKeyCode + '+' + config.modifier, this);
         }
     },
 
@@ -297,12 +298,12 @@ A.UndoRedo = A.Base.create('undo-redo', A.Base, [], {
      */
     _handleKeypress: function(event) {
         var keyCode = event.keyCode,
-            shortcutConfig = this.get('shortcutConfig');
+            config = this.get('shortcutConfig');
 
-        if (keyCode === shortcutConfig.undoKeyCode) {
+        if (keyCode === config.undoKeyCode) {
             this.undo();
         }
-        else if (keyCode === shortcutConfig.redoKeyCode) {
+        else if (keyCode === config.redoKeyCode) {
             this.redo();
         }
     },
