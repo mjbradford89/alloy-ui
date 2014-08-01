@@ -5,14 +5,7 @@
  */
 
 var Lang = A.Lang,
-    KeyMap = {
-        DOWN: 40,
-        ENTER: 13,
-        LEFT: 37,
-        RIGHT: 39,
-        SPACE: 32,
-        UP: 38
-    };
+    KeyMap = A.Event.KeyMap;
 
 function DatePickerAccessibility() {}
 
@@ -27,27 +20,12 @@ DatePickerAccessibility.prototype = {
     initializer: function() {
         var instance = this;
 
-        instance._setAriaElements();
+        instance._setARIAElements();
 
-        instance.after('calendarChange', instance._afterCalendarChange, instance);
-        instance.on('useInputNode', instance._onUseInputNode, instance);
-    },
-
-    /**
-     * Fires after a focus on an active input element (textarea or text).
-     *
-     * @method _activeInputFocusHandler
-     * @protected
-     */
-    _activeInputFocusHandler: function(event) {
-        var instance = this,
-            popover = instance.getPopover();
-
-        if (!popover.get('visible')) {
-            popover.show();
-        }
-
-        instance._focusPopover();
+        instance._eventHandles.push(
+            A.after(instance._onUseInputNode, instance, 'useInputNode'),
+            instance.after('calendarChange', instance._afterCalendarChange, instance)
+        );
     },
 
     /**
@@ -59,27 +37,26 @@ DatePickerAccessibility.prototype = {
     _afterCalendarChange: function() {
         var instance = this;
 
-        instance._setAriaElements();
+        instance._setARIAElements();
     },
 
     /**
-     * Sets the aria-label on the 'DatePicker' popover.
+     * Sets the ARIA-WAI attributes on the 'DatePicker' popover.
      *
-     * @method _setAriaElements
+     * @method _setARIAElements
      * @protected
      */
-    _setAriaElements: function() {
+    _setARIAElements: function() {
         var instance = this,
             calendar = instance.getCalendar(),
             contentBox = calendar.get('contentBox');
 
         instance.plug(A.Plugin.Aria, {
-                attributes: {
-                    ariaLabel: 'label'
-                },
-                attributeNode: contentBox
-            }
-        );
+            attributes: {
+                ariaLabel: 'label'
+            },
+            attributeNode: contentBox
+        });
     },
 
     /**
@@ -131,13 +108,12 @@ DatePickerAccessibility.prototype = {
      * @method _onUseInputNode
      * @protected
      */
-    _onUseInputNode: function(event) {
+    _onUseInputNode: function(node) {
         var instance = this,
-            node = event.node,
             popover = instance.getPopover(),
             tagName = node.get('tagName').toLowerCase(),
             type = node.get('type'),
-            text = (((tagName === 'input' && type === 'text') ||(tagName === 'textarea')) && node.compareTo(document.activeElement));
+            text = (((tagName === 'input' && type === 'text') || (tagName === 'textarea')) && node.compareTo(document.activeElement));
 
         node.on(
             'keyup',
