@@ -670,6 +670,11 @@ Y.mix(YUI.Env[Y.version].modules, {
         ],
         "skinnable": true
     },
+    "aui-hsv-palette-accessibility": {
+        "requires": [
+            "aui-hsv-palette"
+        ]
+    },
     "aui-hsva-palette": {
         "requires": [
             "aui-hsv-palette"
@@ -1406,4 +1411,4 @@ Y.mix(YUI.Env[Y.version].modules, {
         ]
     }
 });
-YUI.Env[Y.version].md5 = '2282175eef225903fbe0aba8902fedc8';
+YUI.Env[Y.version].md5 = '9ae957e1d05e81e2f110d12cbed17020';

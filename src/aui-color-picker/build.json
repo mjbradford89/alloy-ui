@@ -19,6 +19,12 @@
             ]
         },
 
+        "aui-hsv-palette-accessibility": {
+            "jsfiles": [
+                "js/aui-hsv-palette-accessibility.js"
+            ]
+        },
+
         "aui-hsva-palette": {
             "jsfiles": [
                 "js/aui-hsva-palette.js"
