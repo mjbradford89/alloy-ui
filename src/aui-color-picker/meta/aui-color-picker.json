@@ -11,6 +11,14 @@
         "skinnable": true
     },
 
+    "aui-color-palette-accessibility": {
+        "requires": [
+            "node-focusmanager",
+            "aui-aria",
+            "aui-color-palette"
+        ]
+    },
+
     "aui-hsv-palette": {
         "requires": [
             "aui-classnamemanager",

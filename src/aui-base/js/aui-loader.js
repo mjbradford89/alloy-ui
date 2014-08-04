@@ -208,6 +208,13 @@ Y.mix(YUI.Env[Y.version].modules, {
         ],
         "skinnable": true
     },
+    "aui-color-palette-accessibility": {
+        "requires": [
+            "node-focusmanager",
+            "aui-aria",
+            "aui-color-palette"
+        ]
+    },
     "aui-color-picker-base": {
         "requires": [
             "aui-color-palette",
@@ -1399,4 +1406,4 @@ Y.mix(YUI.Env[Y.version].modules, {
         ]
     }
 });
-YUI.Env[Y.version].md5 = '1d9b51f674b35ebcaadf149c02b0afec';
+YUI.Env[Y.version].md5 = '2282175eef225903fbe0aba8902fedc8';
