@@ -73,6 +73,11 @@ Y.mix(YUI.Env[Y.version].modules, {
             "aui-component"
         ]
     },
+    "aui-aria-table-sortable": {
+        "requires": [
+            "aui-aria"
+        ]
+    },
     "aui-arraysort": {
         "requires": [
             "arraysort"
@@ -1399,4 +1404,4 @@ Y.mix(YUI.Env[Y.version].modules, {
         ]
     }
 });
-YUI.Env[Y.version].md5 = '1d9b51f674b35ebcaadf149c02b0afec';
+YUI.Env[Y.version].md5 = 'adff7d020da4187252cc0eb06694760e';
