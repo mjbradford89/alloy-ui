@@ -139,7 +139,7 @@ A.UndoRedo = A.Base.create('undo-redo', A.Base, [], {
      */
     bindShortcuts: function(config) {
         if (!config) {
-            config = this.get('config');
+            config = this.get('shortcutConfig');
         }
 
         if (config.bindShortcutsTo) {
