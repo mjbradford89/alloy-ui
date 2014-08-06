@@ -29,7 +29,8 @@ function TableSortable() {}
  */
 TableSortable.ATTRS = {
     captionCss: {
-        validator: Lang.isString
+        validator: Lang.isString,
+        value: ''
     },
 
     captionLive: {
