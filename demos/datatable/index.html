@@ -131,18 +131,6 @@
         dataTable.plug(Y.Plugin.Aria, {
             tableNode: dataTable._tableNode
         });
-
-        // To-do: move this logic into an aui-datatable-accessible class extension
-        dataTable.after('sort',
-            function(event) {
-                var sortBy = event.sortBy[0],
-                    columnName = Y.Object.keys(sortBy)[0],
-                    ascending = (Y.Object.values(sortBy)[0] > 0);
-
-                dataTable.aria.syncCaption(columnName, ascending);
-            },
-            dataTable.aria
-        );
     });
     </script>
 </body>

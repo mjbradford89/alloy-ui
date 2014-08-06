@@ -139,6 +139,36 @@ TableSortable.ATTRS = {
     },
 
     /**
+     * The event to listen for to sync aria attributes.
+     *
+     * @attribute syncEvent
+     * @default 'sort'
+     * @type String
+     */
+    syncEvent: {
+        validator: Lang.isString,
+        value: 'sort'
+    },
+
+    /**
+     * The handler to be called on a 'syncEvent'.
+     *
+     * @attribute syncEventHandler
+     * @type function
+     */
+    syncEventHandler: {
+        validator: Lang.isFunction,
+        value: function(event) {
+            var instance = this,
+                sortBy = event.sortBy[0],
+                columnName = A.Object.keys(sortBy)[0],
+                ascending = (A.Object.values(sortBy)[0] > 0);
+
+            instance.syncCaption(columnName, ascending);
+        }
+    },
+
+    /**
      * The table node containing the columns to be sorted.
      *
      * @attribute tableNode
@@ -163,7 +193,12 @@ TableSortable.prototype = {
      * @protected
      */
     initializer: function() {
-        var instance = this;
+        var instance = this,
+            syncEvent = instance.get('syncEvent');
+
+        if (syncEvent && syncEvent.length > 0 && instance.get('syncEventHandler')) {
+            instance.afterHostEvent(syncEvent, A.bind(instance.get('syncEventHandler'), instance));
+        }
 
         instance.after('captionVisibleChange', A.bind(instance._toggleScreenReaderClass, instance));
     },
