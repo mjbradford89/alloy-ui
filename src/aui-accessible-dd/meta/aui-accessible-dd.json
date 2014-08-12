@@ -14,7 +14,8 @@
             "dd-delegate",
             "dom",
             "event-focus",
-            "event-key"
+            "event-key",
+            "node-focusmanager"
         ]
     },
 

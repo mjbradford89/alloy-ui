@@ -9,6 +9,42 @@
  */
 YUI.Env[Y.version].modules = YUI.Env[Y.version].modules || {};
 Y.mix(YUI.Env[Y.version].modules, {
+    "aui-accessible-dd": {
+        "use": [
+            "aui-accessible-dd-delegate",
+            "aui-accessible-dd-drag",
+            "aui-accessible-dd-drop"
+        ]
+    },
+    "aui-accessible-dd-delegate": {
+        "requires": [
+            "aui-component",
+            "aui-event-delegate-change",
+            "dd-delegate",
+            "dom",
+            "event-focus",
+            "event-key",
+            "node-focusmanager"
+        ]
+    },
+    "aui-accessible-dd-drag": {
+        "requires": [
+            "aui-component",
+            "dd-drag",
+            "dom",
+            "event-focus",
+            "event-key"
+        ]
+    },
+    "aui-accessible-dd-drop": {
+        "requires": [
+            "aui-component",
+            "dd-drop",
+            "dom",
+            "event-focus",
+            "event-key"
+        ]
+    },
     "aui-ace-autocomplete-base": {
         "requires": [
             "aui-ace-editor"
@@ -1120,7 +1156,8 @@ Y.mix(YUI.Env[Y.version].modules, {
             "dd-drop",
             "dd-proxy",
             "aui-node",
-            "aui-component"
+            "aui-component",
+            "aui-accessible-dd"
         ]
     },
     "aui-surface": {
@@ -1407,4 +1444,4 @@ Y.mix(YUI.Env[Y.version].modules, {
         ]
     }
 });
-YUI.Env[Y.version].md5 = '13c0d691836e487bd1e66a1f26ca8706';
+YUI.Env[Y.version].md5 = '8891ca91bbedeff0904e8097236110d5';

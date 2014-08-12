@@ -28,13 +28,13 @@ var Drag = A.Component.create({
          * @type Number
          */
         _index: null,
-     
+
         /**
          * Index of previous drop target in `_targets`
          * @type Number
          */
         _prevTarget: null,
-     
+
         /**
          * An array of valid drop targets for the drag object
          * @type A.NodeList
@@ -66,15 +66,15 @@ var Drag = A.Component.create({
         _bindKeyEvents: function() {
             var instance = this,
                 node = instance.get('node');
-            
+
             instance.once('drag:keyDown', A.bind(instance._defKeyDownFn, instance));
             instance.once('drag:start', A.bind(instance._onDragStart, instance));
-            node.on('key', A.bind(instance._onTriggerKeyDown, instance), 'down: 17');
+            node.on('key', A.bind(instance._onTriggerKeyDown, instance), 'down:17');
         },
 
         /**
          * Default function for drag:keyDown. Fired from _onTriggerKeyDown.
-         * 
+         *
          * @method _defKeyDownFn
          * @protected
          */
@@ -84,7 +84,7 @@ var Drag = A.Component.create({
                 node = instance.get('node');
 
             instance._handleMouseDownEvent(event.ev);
-            doc.once('key', A.bind(instance._onTriggerKeyUp, instance), 'up: 17');
+            doc.once('key', A.bind(instance._onTriggerKeyUp, instance), 'up:17');
         },
 
         /**
@@ -94,8 +94,8 @@ var Drag = A.Component.create({
          * @protected
          * @return {A.NodeList}
          */
-        _getDropTargets: function() {           
-            return A.all('.' + DDM.CSS_PREFIX + '-drop-active-valid');      
+        _getDropTargets: function() {
+            return A.all('.' + DDM.CSS_PREFIX + '-drop-active-valid');
         },
 
         /**
@@ -110,7 +110,7 @@ var Drag = A.Component.create({
 
             return currentTarget < instance._targets.size() ? currentTarget : 0;
         },
-     
+
         /**
          * Sets the current drop target to the previous target in targets.
          *
@@ -132,8 +132,8 @@ var Drag = A.Component.create({
          */
         _handleOut: function(dropNode) {
             var drop = DDM.getDrop(dropNode);
-     
-            if (drop && drop.overTarget) {
+
+            if (drop && drop.overTarget && DDM.activeDrag) {
                 drop.overTarget = false;
                 DDM._removeActiveShim(drop);
                 dropNode.removeClass(DDM.CSS_PREFIX + '-drop-over');
@@ -142,7 +142,7 @@ var Drag = A.Component.create({
                 DDM.activeDrag.fire('drag:exit', { drop: drop, drag: DDM.activeDrag });
             }
         },
-     
+
         /**
          * Handles current drop target. Derives from _handleTargetOver in dd-drop.js
          *
@@ -151,17 +151,19 @@ var Drag = A.Component.create({
          */
         _handleTargetOver: function(dropNode) {
             var drop = DDM.getDrop(dropNode);
-     
-            dropNode.addClass(DDM.CSS_PREFIX + '-drop-over');
-            DDM.activeDrop = drop;
-            drop.overTarget = true;
 
-            drop.fire('drop:enter', { drop: drop, drag: DDM.activeDrag });
-            drop.fire('drop:over', { drop: drop, drag: DDM.activeDrag });
+            if (DDM.activeDrag) {
+                dropNode.addClass(DDM.CSS_PREFIX + '-drop-over');
+                DDM.activeDrop = drop;
+                drop.overTarget = true;
 
-            DDM.activeDrag.fire('drag:enter', { drop: drop, drag: DDM.activeDrag });
-            DDM.activeDrag.fire('drag:over', { drop: drop, drag: DDM.activeDrag });
-            DDM.activeDrag.get('node').addClass(DDM.CSS_PREFIX + '-drag-over');
+                drop.fire('drop:enter', { drop: drop, drag: DDM.activeDrag });
+                drop.fire('drop:over', { drop: drop, drag: DDM.activeDrag });
+
+                DDM.activeDrag.fire('drag:enter', { drop: drop, drag: DDM.activeDrag });
+                DDM.activeDrag.fire('drag:over', { drop: drop, drag: DDM.activeDrag });
+                DDM.activeDrag.get('node').addClass(DDM.CSS_PREFIX + '-drag-over');
+            }
         },
 
         /**
@@ -177,9 +179,10 @@ var Drag = A.Component.create({
                 dragNode = DDM.activeDrag.get('node');
 
             instance._targets = instance._getDropTargets();
-            
+
             // finds the index of the drag node and removes it from the drop targets list
             instance._currentTarget = instance._targets.indexOf(dragNode);
+            instance._currentTarget = instance._currentTarget < 0 ? 0 : instance._currentTarget;
             instance._targets.splice(instance._currentTarget, 1);
             instance._currentTarget = instance._currentTarget ? instance._currentTarget - 1 : instance._currentTarget;
 
@@ -191,7 +194,7 @@ var Drag = A.Component.create({
          *
          * @method _start
          * @protected
-         */     
+         */
         _onTriggerKeyDown: function(event) {
             if (event.target === event.currentTarget) {
                 var instance = this;
@@ -219,7 +222,7 @@ var Drag = A.Component.create({
                 instance._handle.detach();
 
                 // set focus back to dragged object after drop
-                node.focus();               
+                node.focus();
             }
         },
 
@@ -235,6 +238,8 @@ var Drag = A.Component.create({
 
             event.preventDefault();
 
+            instance.fire('setTarget');
+
             instance._prevTarget = instance._currentTarget;
 
             if (key === 37) {
@@ -247,8 +252,13 @@ var Drag = A.Component.create({
             var prevDrop = instance._targets.item(instance._prevTarget),
                 currentDrop = instance._targets.item(instance._currentTarget);
 
-            instance._handleOut(prevDrop);
-            instance._handleTargetOver(currentDrop);
+            if (prevDrop) {
+                instance._handleOut(prevDrop);
+            }
+
+            if (currentDrop) {
+                instance._handleTargetOver(currentDrop);
+            }
         }
     }
 });

@@ -12,16 +12,13 @@ var Delegate = A.Component.create({
 
     NAME: A.DD.Delegate.NAME,
 
-    ATTRS: {
-        tabIndex: {
-            value: null
-        }
-    },
+    ATTRS: {},
 
     EXTENDS: A.DD.Delegate,
 
     prototype: {
         activeNode: null,
+        mouseAtTop: false,
 
         /**
         * TODO. Wanna help? Please send a Pull Request.
@@ -40,17 +37,27 @@ var Delegate = A.Component.create({
 
             instance._handles.push(A.on('blur', A.bind(instance._onMouseLeave, instance), container));
 
-            if (instance.get('tabIndex') !== null) {
-                var nodes = container.all(instance.get('nodes'));
-
-                nodes.each(
-                    function(node){
-                        node.set('tabIndex', index);
+            instance._handles.push(
+                instance.dd.on('setTarget', function(event) {
+                    if (DDM.activeDrag) {
+                        instance._simulateMouseXY(DDM.activeDrag);
                     }
-                , instance);
-            }
+                })
+            );
 
             instance._bindKeypressEvent();
+
+            instance._plugNodeFocusManager();
+        },
+
+        _afterDragEnd: function(event) {
+            var instance = this,
+                drag = event.target,
+                dragNode = drag.get('node');
+
+            dragNode.focus();
+
+            instance._plugNodeFocusManager();
         },
 
         /**
@@ -79,8 +86,9 @@ var Delegate = A.Component.create({
 
             instance.once('drag:keyDown', A.bind(instance._defKeyDownFn, instance));
             instance.once('drag:start', A.bind(instance._onDragStart, instance));
+            instance.onceAfter('drag:end', A.bind(instance._afterDragEnd, instance));
 
-            container.once('key', A.bind(instance._onCtrlKeydown, instance), 'down: 17');
+            container.once('key', A.bind(instance._onCtrlKeydown, instance), 'down:17');
         },
 
         /**
@@ -100,7 +108,7 @@ var Delegate = A.Component.create({
 
             instance._delMouseDown(ev);
 
-            doc.once('key', A.bind(instance._onCtrlKeyup, instance), 'up: 17');
+            doc.once('key', A.bind(instance._onCtrlKeyup, instance), 'up:17');
             event.halt();
         },
 
@@ -126,6 +134,8 @@ var Delegate = A.Component.create({
         */
         _onCtrlKeydown: function(event) {
             var instance = this;
+
+            instance._unplugNodeFocusManager();
 
             instance.fire('drag:keyDown', {ev: event});
             event.halt();
@@ -173,105 +183,62 @@ var Delegate = A.Component.create({
 
             instance._currentTarget = instance._currentTarget ? instance._currentTarget - 1 : instance._currentTarget;
 
-            instance._handle = doc.on('key', A.bind(instance._setTarget, instance), 'down: 37, 39');
-
             event.halt();
         },
 
         /**
         * TODO. Wanna help? Please send a Pull Request.
         *
-        * @method _setTarget
+        * @method _plugNodeFocusManager
         * @protected
         */
-        _setTarget: function(event) {
+        _plugNodeFocusManager: function() {
             var instance = this,
-                key = event.charCode;
+                container = A.one(instance.get(CONT));
 
-            event.preventDefault();
-
-            instance._prevTarget = instance._currentTarget;
-
-            if (key === 37) {
-                instance._currentTarget = instance._getPrevTarget();
-            }
-            else if (key === 39) {
-                instance._currentTarget = instance._getNextTarget();
-            }
-
-            var prevDrop = instance._targets.item(instance._prevTarget),
-                currentDrop = instance._targets.item(instance._currentTarget);
-
-            instance._handleOut(prevDrop);
-            instance._handleTargetOver(currentDrop);
+            container.plug(A.Plugin.NodeFocusManager, {
+                descendants: instance.get('nodes'),
+                keys: { next: 'down:39', previous: 'down:37' }
+            });
         },
 
         /**
-         * Sets the current drop target to the next available target in targets.
-         *
-         * @method _nextTarget
-         * @protected
-         */
-        _getNextTarget: function() {
-            var instance = this,
-                currentTarget = instance._currentTarget + 1;
+        * TODO. Wanna help? Please send a Pull Request.
+        *
+        * @method _simulateMouseXY
+        * @protected
+        */
+        _simulateMouseXY: function(drag) {
+            if (drag) {
+                var nodeXY = drag.nodeXY,
+                    node = drag.get('dragNode'),
+                    win = A.getWin();
 
-            return currentTarget < instance._targets.size() ? currentTarget : 0;
-        },
+                if (!this.mouseAtTop) {
+                    nodeXY[0] = win.width();
+                    nodeXY[1] = win.height();
+                }
+                else {
+                    nodeXY[0] = 0;
+                    nodeXY[1] = 0;
+                }
 
-        /**
-         * Sets the current drop target to the previous target in targets.
-         *
-         * @method _prevTarget
-         * @protected
-         */
-        _getPrevTarget: function() {
-            var instance = this,
-                currentTarget = instance._currentTarget - 1;
-
-            return currentTarget >= 0 ? currentTarget : instance._targets.size() - 1;
-        },
-
-        /**
-         * Handles previous drop target. Derives from _handleOut in dd-drop.js
-         *
-         * @method _handleOut
-         * @protected
-         */
-        _handleOut: function(dropNode) {
-            var drop = DDM.getDrop(dropNode);
-
-            if (drop && drop.overTarget) {
-                drop.overTarget = false;
-                DDM._removeActiveShim(drop);
-                dropNode.removeClass(DDM.CSS_PREFIX + '-drop-over');
-                DDM.activeDrag.get('node').removeClass(DDM.CSS_PREFIX + '-drag-over');
-                drop.fire('drop:exit', { drop: drop, drag: DDM.activeDrag });
-                DDM.activeDrag.fire('drag:exit', { drop: drop, drag: DDM.activeDrag });
+                drag.mouseXY = nodeXY;
+                this.mouseAtTop = !this.mouseAtTop;
             }
         },
 
         /**
-         * Handles current drop target. Derives from _handleTargetOver in dd-drop.js
-         *
-         * @method _handleTargetOver
-         * @protected
-         */
-        _handleTargetOver: function(dropNode) {
-            var instance = this;
-            var drop = DDM.getDrop(dropNode);
+        * TODO. Wanna help? Please send a Pull Request.
+        *
+        * @method _unplugNodeFocusManager
+        * @protected
+        */
+        _unplugNodeFocusManager: function() {
+            var instance = this,
+                container = A.one(instance.get(CONT));
 
-            dropNode.addClass(DDM.CSS_PREFIX + '-drop-over');
-            DDM.activeDrop = drop;
-            drop.overTarget = true;
-
-            drop.fire('drop:enter', { drop: drop, drag: DDM.activeDrag });
-            drop.fire('drop:over', { drop: drop, drag: DDM.activeDrag });
-
-            DDM.activeDrag.fire('drag:enter', { drop: drop, drag: DDM.activeDrag });
-            DDM.activeDrag.fire('drag:over', { drop: drop, drag: DDM.activeDrag });
-
-            DDM.activeDrag.get('node').addClass(DDM.CSS_PREFIX + '-drag-over');
+            container.unplug(A.Plugin.NodeFocusManager);
         },
     }
 });
