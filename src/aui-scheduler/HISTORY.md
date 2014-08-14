@@ -4,6 +4,7 @@
 
 ## @VERSION@
 
+* [AUI-1611](https://issues.liferay.com/browse/AUI-1611) The scheduler-event-recorder-date on the popover is not updated after the first click when clicking multiple dates in a row.
 * [AUI-1591](https://issues.liferay.com/browse/AUI-1591) Fix scheduler behavior on touch screen desktop computers
 * [AUI-1527](https://issues.liferay.com/browse/AUI-1527) add base keyboard navigation
 * [AUI-1370](https://issues.liferay.com/browse/AUI-1370) Add ability to set an event's border color, style, and width
