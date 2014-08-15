@@ -88,6 +88,23 @@ var Drag = A.Component.create({
         },
 
         /**
+         * Handler for the mousedown DOM event
+         * @private
+         * @method _defMouseDownFn
+         * @param {EventFacade} event The Event
+         */
+        _defMouseDownFn: function(event) {
+            var instance = this;
+
+            A.DD.Drag.superclass._defMouseDownFn.apply(this, arguments);
+
+            if (event.ev.type === 'key') {
+                instance._clickTimeout = A.later(0, instance, instance._timeoutCheck);
+            }
+        },
+
+
+        /**
          * Gets a list of valid drop targets for the drag object.
          *
          * @method _getDropTargets
@@ -174,19 +191,24 @@ var Drag = A.Component.create({
          * @protected
          */
         _onDragStart: function(event) {
-            var instance = this,
-                doc = A.one(DOC),
-                dragNode = DDM.activeDrag.get('node');
+            if (DDM.activeDrag) {
+                var instance = this,
+                    doc = A.one(DOC),
+                    dragNode = DDM.activeDrag.get('node');
 
-            instance._targets = instance._getDropTargets();
+                instance._targets = instance._getDropTargets();
 
-            // finds the index of the drag node and removes it from the drop targets list
-            instance._currentTarget = instance._targets.indexOf(dragNode);
-            instance._currentTarget = instance._currentTarget < 0 ? 0 : instance._currentTarget;
-            instance._targets.splice(instance._currentTarget, 1);
-            instance._currentTarget = instance._currentTarget ? instance._currentTarget - 1 : instance._currentTarget;
+                // finds the index of the drag node and removes it from the drop targets list
+                instance._currentTarget = instance._targets.indexOf(dragNode);
+                instance._currentTarget = instance._currentTarget < 0 ? 0 : instance._currentTarget;
+                instance._targets.splice(instance._currentTarget, 1);
+                instance._currentTarget = instance._currentTarget ? instance._currentTarget - 1 : instance._currentTarget;
 
-            instance._handle = doc.on('key', A.bind(instance._setTarget, instance), 'down: 37, 39');
+                instance._handle = doc.on('key', A.bind(instance._setTarget, instance), 'down: 37, 39');
+            }
+            else {
+                event.preventDefault();
+            }
         },
 
         /**

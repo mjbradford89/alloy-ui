@@ -18,6 +18,7 @@ Y.mix(YUI.Env[Y.version].modules, {
     },
     "aui-accessible-dd-delegate": {
         "requires": [
+            "aui-accessible-dd-drag",
             "aui-component",
             "aui-event-delegate-change",
             "dd-delegate",
@@ -1444,4 +1445,4 @@ Y.mix(YUI.Env[Y.version].modules, {
         ]
     }
 });
-YUI.Env[Y.version].md5 = '8891ca91bbedeff0904e8097236110d5';
+YUI.Env[Y.version].md5 = '318a948fbb5729e4589b6ef5b941d7f0';

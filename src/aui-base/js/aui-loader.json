@@ -8,6 +8,7 @@
     },
     "aui-accessible-dd-delegate": {
         "requires": [
+            "aui-accessible-dd-drag",
             "aui-component",
             "aui-event-delegate-change",
             "dd-delegate",
