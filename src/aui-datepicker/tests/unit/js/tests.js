@@ -38,10 +38,10 @@ YUI.add('aui-datepicker-tests', function(Y) {
             Y.Assert.isFalse(popoverNode.hasClass('popover-hidden'));
 
             this.wait(function() {
-                Y.one(document.activeElement).simulate('keyup', { keyCode: 13 });
-                Y.one(document.activeElement).simulate('keydown', { keyCode: 40 });
+                popoverNode.one('table').focus();
 
                 this.wait(function() {
+                    Y.one(document.activeElement).simulate('keydown', { keyCode: 39 });
                     Y.one(document.activeElement).simulate('keydown', { keyCode: 13 });
 
                     var activeCell = Y.one(document.activeElement),
@@ -56,7 +56,6 @@ YUI.add('aui-datepicker-tests', function(Y) {
                     Y.Assert.isTrue(popoverNode.hasClass('popover-hidden'));
                 }, 10);
             }, 10);
-
         }
     }));
 

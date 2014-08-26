@@ -26,6 +26,8 @@ DatePickerAccessibility.prototype = {
             A.after(instance._onUseInputNode, instance, 'useInputNode'),
             instance.after('calendarChange', instance._afterCalendarChange, instance)
         );
+
+        instance.inputNodeKeyupHandlers = {};
     },
 
     /**
@@ -80,23 +82,6 @@ DatePickerAccessibility.prototype = {
 
                 contentBox.setAttribute('tabindex', 1);
                 contentBox.focus();
-
-                contentBox.once(
-                    'keyup',
-                    function(event) {
-                        var keyCode = event.keyCode;
-
-                        if (keyCode === KeyMap.UP ||
-                            keyCode === KeyMap.DOWN ||
-                            keyCode === KeyMap.LEFT ||
-                            keyCode === KeyMap.RIGHT ||
-                            keyCode === KeyMap.ENTER ||
-                            keyCode === KeyMap.SPACE) {
-
-                            contentBox.one('table').focus();
-                        }
-                    }
-                );
             },
             10
         );
@@ -110,26 +95,31 @@ DatePickerAccessibility.prototype = {
      */
     _onUseInputNode: function(node) {
         var instance = this,
-            popover = instance.getPopover(),
-            tagName = node.get('tagName').toLowerCase(),
-            type = node.get('type'),
-            text = (((tagName === 'input' && type === 'text') || (tagName === 'textarea')) && node.compareTo(document.activeElement));
+            nodeId = node.guid(),
+            listener = instance.inputNodeKeyupHandlers[nodeId];
 
-        node.on(
-            'keyup',
-            function(event) {
-                var keyCode = event.keyCode;
+        if (!listener) {
+            var popover = instance.getPopover(),
+                tagName = node.get('tagName').toLowerCase(),
+                type = node.get('type'),
+                text = (((tagName === 'input' && type === 'text') || (tagName === 'textarea')) && node.compareTo(document.activeElement));
 
-                if (((keyCode === KeyMap.ENTER || keyCode === KeyMap.SPACE) && !text) || (text && (keyCode === KeyMap.ENTER))) {
-                    event.preventDefault();
+            instance.inputNodeKeyupHandlers[nodeId] = node.on(
+                'keyup',
+                function(event) {
+                    var keyCode = event.keyCode;
 
-                    instance._focusPopover();
+                    if (((keyCode === KeyMap.ENTER || keyCode === KeyMap.SPACE) && !text) || (text && (keyCode === KeyMap.ENTER))) {
+                        event.preventDefault();
+
+                        instance._focusPopover();
+                    }
                 }
-            }
-        );
+            );
 
-        node.setAttribute('aria-haspopup', 'true');
-        node.setAttribute('aria-owns', popover.get('id'));
+            node.setAttribute('aria-haspopup', 'true');
+            node.setAttribute('aria-owns', popover.get('id'));
+        }
     }
 };
 
