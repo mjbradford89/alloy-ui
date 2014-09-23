@@ -5,8 +5,8 @@ YUI.add('aui-datepicker-tests', function(Y) {
     suite.add(new Y.Test.Case({
         name: 'Datepicker Tests',
         'selectionChange event should only fire when selection changes': function() {
-        	var selectionChangeCount = 0;
-            var trigger = Y.one('#trigger');
+            var selectionChangeCount = 0,
+                trigger = Y.one('#trigger');
 
             var datePicker = new Y.DatePicker({
                 on: {
@@ -50,5 +50,5 @@ YUI.add('aui-datepicker-tests', function(Y) {
     Y.Test.Runner.add(suite);
 
 }, '', {
-    requires: ['test', 'node-event-simulate', 'aui-datepicker']
+    requires: ['test', 'aui-datepicker', 'node-event-simulate']
 });

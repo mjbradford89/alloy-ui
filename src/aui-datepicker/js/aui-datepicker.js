@@ -182,7 +182,7 @@ A.mix(DatePickerBase.prototype, {
             calendar = instance.getCalendar(),
             day = null,
             month = null,
-            selectedDatesHashMap = calendar._selectedDates,
+            hashMapSelectedDates = calendar._selectedDates,
             toSelect = [],
             year = null;
 
@@ -192,14 +192,12 @@ A.mix(DatePickerBase.prototype, {
                 month = dates[i].getMonth();
                 day = dates[i].getDate();
 
-                if (!hasKey(selectedDatesHashMap, year) ||
-                    !hasKey(selectedDatesHashMap[year], month) ||
-                    !hasKey(selectedDatesHashMap[year][month], day)) {
-                        toSelect.push(dates[i]);
+                if (!hasKey(hashMapSelectedDates, year) || !hasKey(hashMapSelectedDates[year], month) || !hasKey(hashMapSelectedDates[year][month], day)) {
+                    toSelect.push(dates[i]);
                 }
             }
 
-            if (toSelect.length > 0) {
+            if (toSelect.length) {
                 instance.getCalendar().selectDates(toSelect);
             }
         }
@@ -287,11 +285,7 @@ A.mix(DatePickerBase.prototype, {
             firstSelectedDate = dates[0];
 
         if (firstSelectedDate) {
-            instance._fireSelectionChange = false;
-
             instance.getCalendar().set('date', firstSelectedDate);
-
-            instance._fireSelectionChange = true;
         }
     },
 
