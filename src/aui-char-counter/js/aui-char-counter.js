@@ -151,10 +151,24 @@ var CharCounter = A.Component.create({
             if (counter) {
                 var value = instance.get('input').val();
 
+                if (instance.newlineSize(value) == 1) {
+                    value = value.replace('\n', '--');
+                }
+
+
                 counter.html(
                     instance.get('maxLength') - value.length
                 );
             }
+        },
+
+        newlineSize: function(val) {
+            var newlines = val.search('\r\n');
+
+            if (newlines) {
+                return 2;
+            }
+            return 1;
         },
 
         /**
