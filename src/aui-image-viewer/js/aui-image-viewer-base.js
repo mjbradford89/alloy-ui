@@ -281,7 +281,9 @@ A.ImageViewerBase = A.Base.create(
          * @protected
          */
         _getCurrentImage: function() {
-            return this._getCurrentImageContainer().one('.' + CSS_IMAGE);
+            if (this.get('sources').length) {
+                return this._getCurrentImageContainer().one('.' + CSS_IMAGE);
+            }
         },
 
         /**
@@ -534,7 +536,7 @@ A.ImageViewerBase = A.Base.create(
             var currentIndex = this.get('currentIndex'),
                 image;
 
-            if (!this.get('visible')) {
+            if (!this.get('visible') || !this.get('sources').length) {
                 return;
             }
 
