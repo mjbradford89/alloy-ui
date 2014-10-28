@@ -1,10 +1,10 @@
 YUI().use('aui-base', function(Y) {
-	var navCollapse = Y.one('.collapse.nav-collapse');
+	var navCollapse = Y.one('.collapse.navbar-collapse');
 
-	Y.one('.btn-navbar.collapsed').on(
+	Y.one('button.navbar-toggle').on(
 		'click',
 		function(event) {
-			navCollapse.toggleClass('expanded');
+			navCollapse.toggleClass('collapse');
 		}
 	);
 });

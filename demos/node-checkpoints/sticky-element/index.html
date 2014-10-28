@@ -5,18 +5,17 @@
     <title></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../../build/aui-css/css/bootstrap.css">
-    <link rel="stylesheet" href="../../../build/aui-css/css/bootstrap-responsive.css">
     <script src="../../../build/aui/aui.js"></script>
     <style>
     pre {
         margin-bottom: 2em;
     }
 
-    .navbar-inner {
+    .navbar {
         border-radius: 0;
     }
 
-    .navbar .nav-collapse.expanded {
+    .navbar .nav-collapse.collapse {
         height: auto;
     }
 
@@ -43,32 +42,32 @@
 </head>
 <body>
     <div class="navbar navbar-inverse">
-        <div class="navbar-inner">
-            <div class="container">
-                <button type="button" class="btn btn-navbar collapsed" data-target=".nav-collapse" data-toggle="collapse">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="http://alloyui.com/">Alloy-UI</a>
+
+                <button type="button" class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
+            </div>
 
-                <a class="brand" href="http://alloyui.com/">Alloy-UI</a>
-
-                <div class="collapse nav-collapse">
-                    <ul class="nav">
-                        <li>
-                            <a href="..">Documentation</a>
-                        </li>
-                        <li>
-                            <a href="../simple-checkpoint">Simple Checkpoints</a>
-                        </li>
-                        <li>
-                            <a href="../yql-news">Infinite Results: YQL news</a>
-                        </li>
-                        <li class="active">
-                            <a href="../sticky-element">Sticky Element</a>
-                        </li>
-                    </ul>
-                </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="..">Documentation</a>
+                    </li>
+                    <li>
+                        <a href="../simple-checkpoint/index.html">Simple Checkpoints</a>
+                    </li>
+                    <li>
+                        <a href="../yql-news/index.html">Infinite Results: YQL news</a>
+                    </li>
+                    <li class="active">
+                        <a href=".">Sticky Element</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
