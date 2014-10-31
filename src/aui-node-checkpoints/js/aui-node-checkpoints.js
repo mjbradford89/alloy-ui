@@ -398,7 +398,7 @@ A.Node.prototype.checkpoint = function(callback, options) {
 
     options._context = context;
 
-    new Checkpoint(this, callback, options);
+    this.nodeCheckpoint = new Checkpoint(this, callback, options);
 };
 
 // Duplicate the pattern from `Y.NodeList.prototype.plug`
