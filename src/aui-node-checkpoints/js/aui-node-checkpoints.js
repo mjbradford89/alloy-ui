@@ -277,7 +277,8 @@ Context.getById = function(id) {
 
 Context.DEFAULTS = {
     enabled: true,
-    node: BODY
+    node: BODY,
+    scrollDelay: 0
 };
 
 A.extend(
@@ -289,6 +290,7 @@ A.extend(
             instance._enabled = options.enabled;
             instance._node = options.node;
             instance._offset = {};
+            instance._scrollDelay = options.scrollDelay;
 
             instance.bindUI();
         },
@@ -300,7 +302,7 @@ A.extend(
 
             node.plug(
                 A.Plugin.ScrollInfo, {
-                    scrollDelay: 0
+                    scrollDelay: instance._scrollDelay
                 }
             );
 
@@ -379,6 +381,16 @@ A.Node.prototype.checkpoint = function(callback, options) {
                     node: contextNode
                 };
             }
+
+            if (options.scrollDelay) {
+                contextOptions.scrollDelay = options.scrollDelay;
+            }
+
+        }
+        else if (options.scrollDelay) {
+            contextOptions = {
+                scrollDelay: options.scrollDelay
+            };
         }
 
         context = Context.get(contextOptions);
