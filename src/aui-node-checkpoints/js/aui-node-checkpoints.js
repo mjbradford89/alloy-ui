@@ -19,7 +19,7 @@ var Checkpoint = function() {
 Checkpoint.DEFAULTS = {
     axis: 'vertical',
     enabled: true,
-    triggerAtTheEnd: false, // hopefully, we can come up with a better name...
+    triggerAtTheEnd: false,
     offset: 0
 };
 
@@ -186,9 +186,7 @@ Checkpoint.prototype.reachedCheckpoint = function() {
 
     var triggerPosition = instance._getTriggerPosition();
 
-    var reachedCheckpoint = (scrollPosition >= triggerPosition);
-
-    return reachedCheckpoint;
+    return (scrollPosition >= triggerPosition);
 };
 
 Checkpoint.prototype.refresh = function() {
@@ -212,9 +210,7 @@ Checkpoint.prototype._getScrollPosition = function() {
 
     var scrollEvent = instance._scrollEvent;
 
-    var scrollPosition = (instance._axis === 'vertical') ? scrollEvent.scrollTop : scrollEvent.scrollLeft;
-
-    return scrollPosition;
+    return (instance._axis === 'vertical') ? scrollEvent.scrollTop : scrollEvent.scrollLeft;
 };
 
 Checkpoint.prototype._getTriggerPosition = function() {
