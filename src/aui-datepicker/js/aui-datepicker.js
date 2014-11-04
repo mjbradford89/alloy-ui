@@ -253,7 +253,7 @@ A.mix(DatePickerBase.prototype, {
 
         newDates = A.Array.dedupe(newDates);
 
-        if (newDates.length !== prevDates.length || event.newSelection.length < prevDates.length) {
+        if (newDates.length !== prevDates.length || newDates.length < prevDates.length) {
             instance.fire('selectionChange', {
                 newSelection: event.newSelection
             });
