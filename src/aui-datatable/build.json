@@ -1,6 +1,12 @@
 {
     "name": "aui-datatable",
     "builds": {
+        "aui-datatable-accessible": {
+            "jsfiles": [
+                "js/aui-datatable-accessible.js"
+            ]
+        },
+
         "aui-datatable-base-cell-editor": {
             "jsfiles": [
                 "js/aui-datatable-base-cell-editor.js"

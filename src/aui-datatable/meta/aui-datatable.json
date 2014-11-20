@@ -8,6 +8,14 @@
         ]
     },
 
+    "aui-datatable-accessible": {
+        "requires": [
+            "sortable",
+            "aui-aria-table-sortable",
+            "aui-datatable-core"
+        ]
+    },
+
     "aui-datatable-body": {
         "requires": [
             "aui-classnamemanager",
