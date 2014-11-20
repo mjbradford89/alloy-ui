@@ -721,8 +721,112 @@ YUI.add('aui-datatable-tests', function(Y) {
         }
     }));
 
+    suite.add(new Y.Test.Case({
+        name: 'Datatable Accessible',
+
+        init: function() {
+            var data = [
+                {
+                    active: 'no',
+                    address: '3271 Another Ave',
+                    amount: 3,
+                    city: 'New York',
+                    colors: ['red', 'blue'],
+                    date: '2013-01-01',
+                    fruit: ['apple'],
+                    name: 'Joan B. Jones',
+                    state: 'AL'
+                },
+                {
+                    active: 'maybe',
+                    address: '9996 Random Road',
+                    amount: 0,
+                    city: 'Los Angeles',
+                    colors: ['green'],
+                    date: '2013-01-01',
+                    fruit: ['cherry'],
+                    name: 'Bob C. Uncle',
+                    state: 'CA'
+                },
+                {
+                    active: 'yes',
+                    address: '1623 Some Street',
+                    amount: 5,
+                    city: 'San Francisco',
+                    colors: ['red'],
+                    date: '',
+                    fruit: ['cherry'],
+                    name: 'John D. Smith',
+                    state: 'CA'
+                },
+                {
+                    active: 'no',
+                    address: '3217 Another Ave',
+                    amount: 3,
+                    city: 'New York',
+                    colors: ['red', 'blue'],
+                    date: '2013-01-06',
+                    fruit: ['apple', 'cherry'],
+                    name: 'Joan E. Jones',
+                    state: 'KY'
+                }
+            ];
+
+            this._dataTable = new Y.DataTable({
+                cssClass: 'table-striped',
+                boundingBox: '#datatableAccessible',
+                columns: [
+                    {
+                        key: 'name',
+                        sortable: true
+                    },
+                    'address',
+                    'city',
+                    'state',
+                    'amount',
+                    'active',
+                    'colors',
+                    {
+                        key: 'fruit',
+                        sortable: true
+                    },
+                    {
+                        key: 'date',
+                        sortable: true
+                    }
+                ],
+                data: data
+            }).render();
+        },
+
+        'Caption element in table contains correct aria feedback': function() {
+            var sortableHeader = Y.one('#datatableAccessible .table-sortable-column'),
+                captionElement,
+                captionText,
+                direction;
+
+            sortableHeader.simulate('click');
+
+            captionElement = Y.one('#datatableAccessible caption');
+
+            captionText = captionElement.html();
+
+            direction = sortableHeader.attr('aria-sort');
+
+            Y.Assert.isTrue(captionText.indexOf(direction) > -1);
+
+            sortableHeader.simulate('click');
+
+            captionText = captionElement.html();
+
+            direction = sortableHeader.attr('aria-sort');
+
+            Y.Assert.isTrue(captionText.indexOf(direction) > -1);
+        }
+    }));
+
     Y.Test.Runner.add(suite);
 
 }, '', {
-    requires: ['aui-datatable', 'node', 'node-event-simulate', 'test']
+    requires: ['aui-datatable', 'aui-datatable-accessible', 'node', 'node-event-simulate', 'test']
 });

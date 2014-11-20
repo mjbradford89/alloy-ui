@@ -17,9 +17,11 @@
 
 <div id="datatable" class="table-striped"></div>
 
+<div id="datatableAccessible" class="table-striped"></div>
+
 <script>
 YUI({
-    coverage: ['aui-datatable'],
+    coverage: ['aui-datatable', 'aui-datatable-accessible'],
     filter: (window.location.search.match(/[?&]filter=([^&]+)/) || [])[1] || 'raw'
 }).use('test-console', 'test', 'aui-datatable-tests', function(Y) {
 
